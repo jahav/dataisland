@@ -12,21 +12,25 @@ namespace Sanctuary.xUnit
     {
         internal static readonly TestContext Instance = new();
 
-        private readonly AsyncLocal<string?> _testId = new();
-        private readonly AsyncLocal<string?> _profileName = new();
+        //private readonly AsyncLocal<string?> _testId = new();
+        //private readonly AsyncLocal<string?> _profileName = new();
 
         private readonly AsyncLocal<Dictionary<string, object>> _tenants = new();
 
         public string TestId
         {
-            get => _testId.Value;
-            set => _testId.Value = value;
+            get => Xunit.TestContext.Current.TestMethod.UniqueID;
+            //set => _testId.Value = value;
         }
 
         public string ProfileName
         {
-            get { return _profileName.Value; }
-            set => _profileName.Value = value;
+            get
+            {
+                var c = Xunit.TestContext.Current.KeyValueStorage["ProfileName"];
+                return c.ToString();
+            }
+            //set => _profileName.Value = value;
         }
 
         public bool TryGetTenant(string tenantName, [NotNullWhen(true)] out object? tenant)
