@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.xUnit", "Sanctuar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.EfCore", "Sanctuary.EfCore\Sanctuary.EfCore.csproj", "{01E65B99-8631-4F78-9924-1EE9AA7D7E29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanctuary.SqlServer", "Sanctuary.SqlServer\Sanctuary.SqlServer.csproj", "{D2775AC5-61FD-4386-AD4B-DD9EAE4B1F9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.SqlServer", "Sanctuary.SqlServer\Sanctuary.SqlServer.csproj", "{D2775AC5-61FD-4386-AD4B-DD9EAE4B1F9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{AF1CDBE7-ADF7-4A67-A076-AF6D1C32A394}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
