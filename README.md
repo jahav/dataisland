@@ -23,9 +23,9 @@ very fast to create empty database.
 The test project has to define what kind of data sources it requires and dataset it shoudl use to initialize them and after that, just run your tests. Sanctuary
 hooks up into DI to create a new tenants in data sources and adjusts the connections for data access frameworks (e.g. `EFCore`).
 
-+---------------+--------------+--------------------------+
 |  Component    | Tenant       | Data access              |
+|---------------|--------------|--------------------------|
 |  SQL Server   | Database     | EfCore, Dapper, ADO.NET  |
 |  RabbitMQ     | Virtual Host | MassTransit, NServiceBus |
 |  Blob Storage | Container    | TwentyTwenty.Storage     |
-+---------------+--------------+--------------------------+
+
