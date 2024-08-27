@@ -1,54 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Sanctuary.xUnit;
 
-namespace Sanctuary.xUnit
+internal class TestContext : ITestContext
 {
-    internal class TestContext : ITestContext
+    /// <inheritdoc />
+    public TTenant GetTenant<TTenant>(Type dataAccessType)
+        where TTenant : class
     {
-        internal static readonly TestContext Instance = new();
+        var ctx = Xunit.TestContext.Current;
+        var untypedDataAccessMap = ctx.KeyValueStorage[ctx.TestMethod!.UniqueID + "-tenants"];
+        if (untypedDataAccessMap is null)
+            throw new InvalidOperationException("No data access map.");
 
-        //private readonly AsyncLocal<string?> _testId = new();
-        //private readonly AsyncLocal<string?> _profileName = new();
+        if (untypedDataAccessMap is not IReadOnlyDictionary<Type, object> dataAccessMap)
+            throw new InvalidOperationException("Incorrect type for data access map");
 
-        private readonly AsyncLocal<Dictionary<string, object>> _tenants = new();
-
-        public string TestId
-        {
-            get => Xunit.TestContext.Current.TestMethod.UniqueID;
-            //set => _testId.Value = value;
-        }
-
-        public string ProfileName
-        {
-            get
-            {
-                var c = Xunit.TestContext.Current.KeyValueStorage["ProfileName"];
-                return c.ToString();
-            }
-            //set => _profileName.Value = value;
-        }
-
-        public bool TryGetTenant(string tenantName, [NotNullWhen(true)] out object? tenant)
-        {
-            var currentTenant = _tenants.Value;
-            if (currentTenant is null)
-                _tenants.Value = currentTenant = new();
-
-            return currentTenant.TryGetValue(tenantName, out tenant);
-        }
-
-        public void AddTenant(string tenantName, object tenant)
-        {
-            var currentTenant = _tenants.Value;
-            if (currentTenant is null)
-                _tenants.Value = currentTenant = new();
-
-            currentTenant.Add(tenantName, tenant);
-        }
+        return (TTenant)dataAccessMap[dataAccessType];
     }
 }

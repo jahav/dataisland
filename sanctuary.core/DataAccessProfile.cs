@@ -4,27 +4,40 @@ using JetBrains.Annotations;
 
 namespace Sanctuary;
 
+internal record TenantConfig(string ComponentName, object? DataSource);
+
+
 [PublicAPI]
 public class DataAccessProfile
 {
-    private readonly Dictionary<Type, DataAccessConfig> _dataAccesses = new();
+    /// <summary>
+    /// Map from data access to tenant name.
+    /// </summary>
+    internal readonly Dictionary<Type, string> _dataAccess = new();
+
+    /// <summary>
+    /// Map of all tenants to data accesses
+    /// </summary>
+    internal readonly Dictionary<string, TenantConfig> _tenants = new();
 
     public IDataAccessBuilder<TDataAccess> AddDataAccess<TDataAccess>(
         string tenantName = "Default",
         string componentName = "Default")
         where TDataAccess : class
     {
-        var config = new DataAccessConfig<TDataAccess>
-        {
-            TenantName = tenantName,
-            ComponentName = componentName,
-        };
-        _dataAccesses.Add(typeof(TDataAccess), config);
-        return config;
+        _dataAccess.Add(typeof(TDataAccess), tenantName);
+        _tenants.Add(tenantName, new TenantConfig(componentName, null));
+
+        return new InternalBuilder<TDataAccess>(this, tenantName);
     }
 
-    internal DataAccessConfig<TDataAccess> GetDataAccess<TDataAccess>() where TDataAccess : class
+    private class InternalBuilder<TDataAccess>(DataAccessProfile profile, string tenantName)
+        : IDataAccessBuilder<TDataAccess>
     {
-        return (DataAccessConfig<TDataAccess>)_dataAccesses[typeof(TDataAccess)];
+        public IDataAccessBuilder<TDataAccess> WithDataSource<TDataSource>(TDataSource dataSource)
+        {
+            profile._tenants[tenantName] = profile._tenants[tenantName] with { DataSource = dataSource };
+            return this;
+        }
     }
 }

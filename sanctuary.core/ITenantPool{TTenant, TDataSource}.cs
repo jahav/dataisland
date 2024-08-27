@@ -1,8 +1,10 @@
-﻿namespace Sanctuary;
+﻿using System.Threading.Tasks;
+
+namespace Sanctuary;
 
 public interface ITenantPool<TTenant, in TDataSource> : ITenantPool
 {
-    TTenant AddTenant(string tenantName, string componentName, TDataSource dataSource);
+    Task<TTenant> AddTenantAsync(string tenantName, TDataSource dataSource);
 
-    void RemoveTenant(TTenant tenant);
+    Task RemoveTenantAsync(TTenant tenant);
 }

@@ -1,26 +1,19 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Sanctuary.Core;
-using Sanctuary.xUnit;
-
-#pragma warning disable xUnit1051
-
-[assembly: AssemblyFixture(typeof(IocFixture))]
 
 namespace Sanctuary.xUnit;
 
-//[Collection(TestCollection.Name)]
-[TestIdContext]
-public class UnitTest2
+[ScopedTenants]
+[DataSetProfile]
+public class UnitTest2 : IClassFixture<ClassFixture>
 {
-    private readonly IocFixture _fixture;
+    private readonly ClassFixture _fixture;
 
-    public UnitTest2(IocFixture fixture)
+    public UnitTest2(ClassFixture fixture)
     {
         _fixture = fixture;
     }
 
     [Fact]
-    [DataSetProfile]
     public async Task Test1()
     {
         using (var scope = _fixture.ServiceProvider.CreateScope())

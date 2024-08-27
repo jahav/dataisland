@@ -55,22 +55,13 @@ public class EfCoreAccessor<TDbContextImplementation> : IDataAccessorProvider<TD
 
         Func<IServiceProvider, object> newFactory = sp =>
         {
-            var value = originalFactory(sp);
-            DbContextOptions<TDbContextImplementation> typedValue =
-                (DbContextOptions<TDbContextImplementation>)value;
-            var relationalOptions = typedValue.Extensions.OfType<RelationalOptionsExtension>().Single();
+            var testContext = sp.GetRequiredService<ITestContext>();
+            var tenant = testContext.GetTenant<SqlDatabaseTenant>(typeof(TDbContextImplementation));
 
-            // get tenant
-
-            // Get config
-            var config = sp.GetRequiredService<SanctuaryConfig>();
-            // Get test id
-            var testContext = sp.GetRequiredService<ITestTenantProvider>();
-            var tenant = testContext.GetOrAddTenant<TDbContextImplementation, SqlDatabaseTenant, SqlDatabaseDataSource>(config);
-
-
-            var modified= relationalOptions.WithConnectionString(tenant.ConnectionString);
-            return typedValue.WithExtension(modified);
+            var originalOptions = (DbContextOptions<TDbContextImplementation>)originalFactory(sp);
+            var relationalExtension = originalOptions.Extensions.OfType<RelationalOptionsExtension>().Single();
+            var modifiedExtension = relationalExtension.WithConnectionString(tenant.ConnectionString);
+            return originalOptions.WithExtension(modifiedExtension);
         };
 
         // Remove old

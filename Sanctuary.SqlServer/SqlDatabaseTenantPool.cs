@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
@@ -11,25 +10,23 @@ namespace Sanctuary.SqlServer;
 
 public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDatabaseDataSource>
 {
-    private readonly IComponentPool<SqlServerComponent> _componentPool;
+    private readonly SqlServerComponent _component;
     private readonly string _basePath;
 
-    public SqlDatabaseTenantPool(IComponentPool<SqlServerComponent> componentPool, string basePath)
+    public SqlDatabaseTenantPool(SqlServerComponent component, string basePath)
     {
-        _componentPool = componentPool;
+        _component = component;
         _basePath = basePath;
     }
 
     /// <inheritdoc />
-    public SqlDatabaseTenant AddTenant(string tenantName, string componentName, SqlDatabaseDataSource dataSource)
+    public Task<SqlDatabaseTenant> AddTenantAsync(string tenantName, SqlDatabaseDataSource dataSource)
     {
-        var component = _componentPool.GetComponent(componentName);
-
         // Use connections string
         var tenantDbName = Guid.NewGuid().ToString();
 
         // Because connection string of component doesn't differ, it will be pooled.
-        using var connection = new SqlConnection(component.ConnectionString);
+        using var connection = new SqlConnection(_component.ConnectionString);
         connection.Open();
 
         var command = connection.CreateCommand();
@@ -62,17 +59,18 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
         command.ExecuteNonQuery();
         connection.Close();
 
-        var tenantConnectionString = new SqlConnectionStringBuilder(component.ConnectionString)
+        var tenantConnectionString = new SqlConnectionStringBuilder(_component.ConnectionString)
         {
             InitialCatalog = tenantDbName
         }.ConnectionString;
 
-        return new SqlDatabaseTenant(tenantName, tenantConnectionString, component, tenantDbName);
+        return Task.FromResult(new SqlDatabaseTenant(tenantName, tenantConnectionString, _component, tenantDbName));
     }
 
     /// <inheritdoc />
-    public void RemoveTenant(SqlDatabaseTenant tenant)
+    public Task RemoveTenantAsync(SqlDatabaseTenant tenant)
     {
+        throw new NotImplementedException();
 //            var component = await _componentPool.GetComponent(tenant.Component.Name, cancellationToken);
 //
 //            await using var connection = new SqlConnection(component.ConnectionString);
@@ -124,5 +122,15 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
     private static string EscapeDbName(string databaseName)
     {
         return databaseName.Replace("[", "[[").Replace("]", "]]");
+    }
+
+    async Task<object> ITenantPool.AddTenantAsync(string tenantName, object dataSource)
+    {
+        return await AddTenantAsync(tenantName, (SqlDatabaseDataSource)dataSource);
+    }
+
+    async Task ITenantPool.RemoveTenantAsync(object tenant)
+    {
+        await RemoveTenantAsync((SqlDatabaseTenant)tenant);
     }
 }

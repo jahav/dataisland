@@ -1,19 +1,18 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Sanctuary.Core;
 
 namespace Sanctuary.xUnit;
 
-public class UnitTest3
+[ScopedTenants]
+public class UnitTest3 : IClassFixture<ClassFixture>
 {
-    private readonly IocFixture _fixture;
+    private readonly ClassFixture _fixture;
 
-    public UnitTest3(IocFixture fixture)
+    public UnitTest3(ClassFixture fixture)
     {
         _fixture = fixture;
     }
 
     [Fact]
-    [DataSetProfile]
     public async Task Test2()
     {
         using (var scope = _fixture.ServiceProvider.CreateScope())
