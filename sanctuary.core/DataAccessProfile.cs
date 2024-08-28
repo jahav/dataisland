@@ -10,12 +10,24 @@ public class DataAccessProfile
     /// <summary>
     /// Key: data access. Value: tenant name.
     /// </summary>
-    internal readonly Dictionary<Type, string> _dataAccess = new();
+    internal readonly Dictionary<Type, string> _dataAccess;
 
     /// <summary>
     /// Key: tenant name. Value: component name and data source.
     /// </summary>
-    internal readonly Dictionary<string, TenantConfig> _tenants = new();
+    internal readonly Dictionary<string, TenantConfig> _tenants;
+
+    internal DataAccessProfile()
+    {
+        _dataAccess = new();
+        _tenants = new();
+    }
+
+    internal DataAccessProfile(DataAccessProfile original)
+    {
+        _dataAccess = new Dictionary<Type, string>(original._dataAccess);
+        _tenants = new Dictionary<string, TenantConfig>(original._tenants);
+    }
 
     public DataAccessProfile AddDataAccess<TDataAccess>(string tenantName)
         where TDataAccess : class

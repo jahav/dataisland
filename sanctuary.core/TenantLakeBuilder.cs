@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Sanctuary;
@@ -24,15 +25,12 @@ public class TenantLakeBuilder
         _profiles.Add(profileName, profile);
         return this;
     }
-    internal DataAccessProfile GetProfile(string testContextProfile)
-    {
-        return _profiles[testContextProfile];
-    }
 
     public ITenantLake Build(ITestContext testContext)
     {
         var componentPoolsCopy = new Dictionary<string, ITenantPool>(_componentPools);
-        var factory = new TenantsFactory(this, componentPoolsCopy);
+        var profilesCopy = _profiles.ToDictionary(x => x.Key, x => new DataAccessProfile(x.Value));
+        var factory = new TenantsFactory(profilesCopy, componentPoolsCopy);
         return new TenantLake(factory, testContext);
     }
 }

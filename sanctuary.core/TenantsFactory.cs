@@ -5,11 +5,20 @@ using System.Threading.Tasks;
 
 namespace Sanctuary;
 
-public class TenantsFactory(TenantLakeBuilder builder, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
+public class TenantsFactory : ITenantsFactory
 {
+    private readonly Dictionary<string, DataAccessProfile> _profiles;
+    private readonly IReadOnlyDictionary<string, ITenantPool> _pools;
+
+    internal TenantsFactory(Dictionary<string, DataAccessProfile> profiles, IReadOnlyDictionary<string, ITenantPool> pools)
+    {
+        _profiles = profiles;
+        _pools = pools;
+    }
+
     public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string profileName)
     {
-        var profile = builder.GetProfile(profileName);
+        var profile = _profiles[profileName];
         var tenants = new List<TenantInfo>();
         var tenantDataAccesses = profile._dataAccess
             .GroupBy(x => x.Value)
