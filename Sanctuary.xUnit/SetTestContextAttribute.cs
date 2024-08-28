@@ -26,7 +26,7 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
             throw new InvalidOperationException("Test didn't have tenants.");
 
         ctx.KeyValueStorage.Remove(tenantsKey);
-        var tenants = (Dictionary<Type, object>)untypedTenants;
+        var tenants = (Dictionary<Type, Tenant>)untypedTenants;
         var tenantsFactory = GetTenantsFactory(ctx, test);
         await tenantsFactory.RemoveTenantsAsync(tenants);
     }

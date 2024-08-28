@@ -17,7 +17,7 @@ public interface ITenantsFactory
     ///     A dictionary of created tenants mapped by a type of data access.
     ///     Note that multiple data access keys can point to same tenant.
     /// </returns>
-    Task<Dictionary<Type, object>> AddTenantsAsync(string profileName);
+    Task<Dictionary<Type, Tenant>> AddTenantsAsync(string profileName);
 
-    Task RemoveTenantsAsync(Dictionary<Type, object> tenants);
+    Task RemoveTenantsAsync(Dictionary<Type, Tenant> tenants);
 }

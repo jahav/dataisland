@@ -6,7 +6,7 @@ namespace Sanctuary;
 
 public class TenantsFactory(SanctuaryConfig _config, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
 {
-    public async Task<Dictionary<Type, object>> AddTenantsAsync(string profileName)
+    public async Task<Dictionary<Type, Tenant>> AddTenantsAsync(string profileName)
     {
         var profile = _config.GetProfile(profileName);
         var tenants = new Dictionary<string, object>();
@@ -25,14 +25,17 @@ public class TenantsFactory(SanctuaryConfig _config, IReadOnlyDictionary<string,
             tenants.Add(tenantName, tenant);
         }
 
-        var dataAccessMap = new Dictionary<Type, object>(profile._dataAccess.Count);
+        var dataAccessMap = new Dictionary<Type, Tenant>(profile._dataAccess.Count);
         foreach (var (dataAccessType, tenantName) in profile._dataAccess)
-            dataAccessMap.Add(dataAccessType, tenants[tenantName]);
+        {
+            var componentName = profile._tenants[tenantName].ComponentName;
+            dataAccessMap.Add(dataAccessType, new Tenant(tenants[tenantName], tenantName, componentName));
+        }
 
         return dataAccessMap;
     }
 
-    public Task RemoveTenantsAsync(Dictionary<Type, object> tenants)
+    public Task RemoveTenantsAsync(Dictionary<Type, Tenant> tenantsMap)
     {
         throw new NotImplementedException();
     }
