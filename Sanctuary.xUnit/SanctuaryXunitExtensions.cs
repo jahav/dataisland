@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Sanctuary.EfCore;
-using Sanctuary.xUnit;
 
 namespace Sanctuary;
 
@@ -9,8 +7,7 @@ public static class SanctuaryXunitExtensions
     public static void AddSanctuary<TFixture>(this ServiceCollection services, ITenantLake lake)
     {
         // Register all data context factories.
-        // TODO: Resolve from tenant lake registrations.
-        new EfCoreAccessor<QueryDbContext>().Register(services);
+        lake.PatchServices(services);
 
         // Add service to list of services, so data accessor registration factories
         // can resolve this context (that can resolve tenants for the test) and ask
