@@ -12,9 +12,15 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
         var profileName = GetProfileName(test);
         var tenantsFactory = GetTenantsFactory(ctx, test);
         var tenants = await tenantsFactory.AddTenantsAsync(profileName);
-        
-        // Should be always null, so throw if there is anything.
+
+        // The KeyValueStorage should never contain the test keys at this point,
+        // so use Add in order to throw if there is anything.
         ctx.KeyValueStorage.Add(GetTenantsKey(ctx), tenants);
+
+        var dataAccessMap = tenants
+            .SelectMany(tenantInfo => tenantInfo.DataAccess.Select(dataAccess => (dataAccess, tenantInfo)))
+            .ToDictionary(x => x.dataAccess, x => x.tenantInfo);
+        ctx.KeyValueStorage.Add(GetDataAccessMapKey(ctx), dataAccessMap);
     }
 
     public override async ValueTask After(MethodInfo methodUnderTest, IXunitTest test)
@@ -26,7 +32,8 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
             throw new InvalidOperationException("Test didn't have tenants.");
 
         ctx.KeyValueStorage.Remove(tenantsKey);
-        var tenants = (Dictionary<Type, Tenant>)untypedTenants;
+        ctx.KeyValueStorage.Remove(GetDataAccessMapKey(ctx));
+        var tenants = (IEnumerable<TenantInfo>)untypedTenants;
         var tenantsFactory = GetTenantsFactory(ctx, test);
         await tenantsFactory.RemoveTenantsAsync(tenants);
     }
@@ -66,11 +73,21 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
 
     private static string GetTenantsKey(Xunit.TestContext context)
     {
+        return GetTestKey(context, "-tenants");
+    }
+
+    private static string GetDataAccessMapKey(Xunit.TestContext context)
+    {
+        return GetTestKey(context, "-data-access-map");
+    }
+
+    private static string GetTestKey(Xunit.TestContext context, string suffix)
+    {
         var testMethod = context.TestMethod;
         if (testMethod is null)
             throw new InvalidOperationException("Test method is null");
 
-        var key = testMethod.UniqueID + "-tenants";
+        var key = testMethod.UniqueID + suffix;
         return key;
     }
 }

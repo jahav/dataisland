@@ -7,10 +7,13 @@ namespace Sanctuary;
 
 public class TenantsFactory(TenantLakeBuilder builder, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
 {
-    public async Task<Dictionary<Type, Tenant>> AddTenantsAsync(string profileName)
+    public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string profileName)
     {
         var profile = builder.GetProfile(profileName);
-        var tenants = new Dictionary<string, object>();
+        var tenants = new List<TenantInfo>();
+        var tenantDataAccesses = profile._dataAccess
+            .GroupBy(x => x.Value)
+            .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
 
         var reachableTenants = new HashSet<string>(profile._dataAccess.Values);
         foreach (var (tenantName, tenantConfig) in profile._tenants)
@@ -23,25 +26,23 @@ public class TenantsFactory(TenantLakeBuilder builder, IReadOnlyDictionary<strin
                 throw new InvalidOperationException("Missing pool");
 
             var tenant = await pool.AddTenantAsync(tenantName, tenantConfig.DataSource);
-            tenants.Add(tenantName, tenant);
+            var tenantInfo = new TenantInfo(
+                tenant,
+                tenantName,
+                tenantConfig.ComponentName,
+                tenantDataAccesses[tenantName]);
+            tenants.Add(tenantInfo);
         }
 
-        var dataAccessMap = new Dictionary<Type, Tenant>(profile._dataAccess.Count);
-        foreach (var (dataAccessType, tenantName) in profile._dataAccess)
-        {
-            var componentName = profile._tenants[tenantName].ComponentName;
-            dataAccessMap.Add(dataAccessType, new Tenant(tenants[tenantName], tenantName, componentName));
-        }
-
-        return dataAccessMap;
+        return tenants;
     }
 
-    public async Task RemoveTenantsAsync(Dictionary<Type, Tenant> tenantsMap)
+    public async Task RemoveTenantsAsync(IEnumerable<TenantInfo> tenants)
     {
-        foreach (var (_, tenant) in tenantsMap)
+        foreach (var tenantInfo in tenants)
         {
-            var pool = _pools[tenant.ComponentName];
-            await pool.RemoveTenantAsync(tenant.Instance);
+            var pool = _pools[tenantInfo.ComponentName];
+            await pool.RemoveTenantAsync(tenantInfo.Instance);
         }
     }
 }

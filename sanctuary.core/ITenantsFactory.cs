@@ -13,11 +13,7 @@ public interface ITenantsFactory
     /// Create all tenants defined in a profile.
     /// </summary>
     /// <param name="profileName">Name of the profile.</param>
-    /// <returns>
-    ///     A dictionary of created tenants mapped by a type of data access.
-    ///     Note that multiple data access keys can point to same tenant.
-    /// </returns>
-    Task<Dictionary<Type, Tenant>> AddTenantsAsync(string profileName);
+    Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string profileName);
 
-    Task RemoveTenantsAsync(Dictionary<Type, Tenant> tenants);
+    Task RemoveTenantsAsync(IEnumerable<TenantInfo> tenants);
 }
