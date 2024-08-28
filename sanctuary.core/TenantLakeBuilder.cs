@@ -10,6 +10,7 @@ public class TenantLakeBuilder
 {
     private readonly Dictionary<string, ITenantPool> _componentPools = new();
     private readonly Dictionary<string, DataAccessProfile> _profiles = new();
+    private readonly Dictionary<Type, object> _patchers = new();
 
     public TenantLakeBuilder AddComponentPool<TTenant, TDataSource>(string componentName, ITenantPool<TTenant, TDataSource> pool)
     {
@@ -26,11 +27,19 @@ public class TenantLakeBuilder
         return this;
     }
 
+    public TenantLakeBuilder AddPatcher<TDataAccess>(IDataAccessorProvider<TDataAccess> patcher)
+    {
+        _patchers.Add(typeof(TDataAccess), patcher);
+        return this;
+    }
+
     public ITenantLake Build(ITestContext testContext)
     {
+        // TODO: Validate everything
+        var patchersCopy = _patchers.Values.ToList();
         var componentPoolsCopy = new Dictionary<string, ITenantPool>(_componentPools);
         var profilesCopy = _profiles.ToDictionary(x => x.Key, x => new DataAccessProfile(x.Value));
         var factory = new TenantsFactory(profilesCopy, componentPoolsCopy);
-        return new TenantLake(factory, testContext);
+        return new TenantLake(factory, testContext, patchersCopy);
     }
 }

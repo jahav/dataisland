@@ -1,4 +1,5 @@
-﻿using Sanctuary.SqlServer;
+﻿using Sanctuary.EfCore;
+using Sanctuary.SqlServer;
 using Sanctuary.xUnit;
 
 [assembly: AssemblyFixture(typeof(TenantFixture))]
@@ -19,6 +20,7 @@ public class TenantFixture : IAsyncDisposable
             componentFactory.GetComponent("DefaultComponent"),
             @"c:\Temp\sanctuary\files",
             new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
+        
         Lake = new TenantLakeBuilder()
             .AddComponentPool("DefaultComponent", pool)
             .AddProfile("DefaultProfile", opt =>
@@ -26,6 +28,7 @@ public class TenantFixture : IAsyncDisposable
                 opt.AddDataAccess<QueryDbContext>("DefaultTenant");
                 opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");
             })
+            .AddPatcher(new EfCoreAccessor<QueryDbContext>())
             .Build(new TestContext());
     }
 

@@ -12,7 +12,7 @@ namespace Sanctuary.EfCore;
 public class EfCoreAccessor<TDbContext> : IDataAccessorProvider<TDbContext>
     where TDbContext : DbContext
 {
-    public void Register(ServiceCollection serviceCollection)
+    public void Register(IServiceCollection serviceCollection)
     {
         // Standard methods that add DbContext implementations ultimately use
         // EntityFrameworkServiceCollectionExtensions.AddCoreServices to register

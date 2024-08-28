@@ -8,5 +8,5 @@ namespace Sanctuary;
 /// <typeparam name="TDataAccessor"></typeparam>
 public interface IDataAccessorProvider<TDataAccessor>
 {
-    void Register(ServiceCollection serviceCollection);
+    void Register(IServiceCollection serviceCollection);
 }
