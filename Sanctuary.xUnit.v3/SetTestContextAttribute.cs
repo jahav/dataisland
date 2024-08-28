@@ -7,15 +7,18 @@ using Xunit.v3;
 
 namespace Sanctuary.xUnit.v3;
 
-public class ScopedTenantsAttribute : BeforeAfterTestAttribute
+public class ScopedTenantsAttribute(string _profileName) : BeforeAfterTestAttribute
 {
+    public ScopedTenantsAttribute() : this("DefaultProfile")
+    {
+    }
+
     public override async ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)
     {
         var ctx = Xunit.TestContext.Current;
 
-        var profileName = GetProfileName(test);
         var tenantsFactory = GetTenantsFactory(ctx, test);
-        var tenants = await tenantsFactory.AddTenantsAsync(profileName);
+        var tenants = await tenantsFactory.AddTenantsAsync(_profileName);
 
         // The KeyValueStorage should never contain the test keys at this point,
         // so use Add in order to throw if there is anything.
@@ -52,18 +55,6 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
 
         var fixtureType = ctorParam.ParameterType;
         return fixtureType;
-    }
-
-    private static string GetProfileName(IXunitTest test)
-    {
-        if (!test.Traits.TryGetValue("Profile", out var profileTraits))
-            return DataSetProfileAttribute.DefaultProfile;
-
-        if (profileTraits.Count > 1)
-            throw new InvalidOperationException("Not exactly one profile trait");
-
-        var profileName = profileTraits.SingleOrDefault() ?? DataSetProfileAttribute.DefaultProfile;
-        return profileName;
     }
 
     private static ITenantsFactory GetTenantsFactory(Xunit.TestContext context, IXunitTest test)

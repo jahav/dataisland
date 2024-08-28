@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TestContext = Xunit.TestContext;
 
 namespace Sanctuary.Demo;
 
 [ScopedTenants]
-[DataSetProfile]
 public class UnitTest2 : IClassFixture<ClassFixture>
 {
     private readonly ClassFixture _fixture;
