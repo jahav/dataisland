@@ -9,7 +9,7 @@ namespace Sanctuary.EfCore;
 
 /// <typeparam name="TDbContext">The concrete type of DbContext that is going to be instantiated.</typeparam>
 [PublicAPI]
-public class EfCoreAccessor<TDbContext> : IDataAccessorProvider<TDbContext>
+public class EfCorePatcher<TDbContext> : IDependencyPatcher<TDbContext>
     where TDbContext : DbContext
 {
     public void Register(IServiceCollection serviceCollection)

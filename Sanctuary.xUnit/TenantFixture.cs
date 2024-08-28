@@ -28,7 +28,7 @@ public class TenantFixture : IAsyncDisposable
                 opt.AddDataAccess<QueryDbContext>("DefaultTenant");
                 opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");
             })
-            .AddPatcher(new EfCoreAccessor<QueryDbContext>())
+            .AddPatcher(new EfCorePatcher<QueryDbContext>())
             .Build(new TestContext());
     }
 

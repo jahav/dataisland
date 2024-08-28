@@ -14,10 +14,10 @@ internal class TenantLake(ITenantsFactory _factory, ITestContext _testContext, I
     {
         foreach (var patcher in _patchers)
         {
-            var interfaceType = patcher.GetType().GetInterface(typeof(IDataAccessorProvider<>).Name);
-            var registerMethod = interfaceType?.GetMethod(nameof(IDataAccessorProvider<object>.Register));
+            var interfaceType = patcher.GetType().GetInterface(typeof(IDependencyPatcher<>).Name);
+            var registerMethod = interfaceType?.GetMethod(nameof(IDependencyPatcher<object>.Register));
             if (registerMethod is null)
-                throw new UnreachableException($"Type '{patcher.GetType()}' is not a {typeof(IDataAccessorProvider<>)}.");
+                throw new UnreachableException($"Type '{patcher.GetType()}' is not a {typeof(IDependencyPatcher<>)}.");
 
             registerMethod.Invoke(patcher, [services]);
         }

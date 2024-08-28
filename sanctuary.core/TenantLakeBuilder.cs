@@ -27,7 +27,7 @@ public class TenantLakeBuilder
         return this;
     }
 
-    public TenantLakeBuilder AddPatcher<TDataAccess>(IDataAccessorProvider<TDataAccess> patcher)
+    public TenantLakeBuilder AddPatcher<TDataAccess>(IDependencyPatcher<TDataAccess> patcher)
     {
         _patchers.Add(typeof(TDataAccess), patcher);
         return this;
