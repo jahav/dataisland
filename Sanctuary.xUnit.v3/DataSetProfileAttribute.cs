@@ -1,7 +1,9 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 using Xunit.v3;
 
-namespace Sanctuary;
+namespace Sanctuary.xUnit.v3;
 
 [PublicAPI]
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]

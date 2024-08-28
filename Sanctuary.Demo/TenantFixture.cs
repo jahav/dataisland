@@ -1,10 +1,10 @@
-﻿using Sanctuary.EfCore;
+﻿using Sanctuary.Demo;
+using Sanctuary.EfCore;
 using Sanctuary.SqlServer;
-using Sanctuary.xUnit;
 
 [assembly: AssemblyFixture(typeof(TenantFixture))]
 
-namespace Sanctuary.xUnit;
+namespace Sanctuary.Demo;
 
 /// <summary>
 /// A fixture that is initialized before any test in teh assembly is run, and it is inserted into individual
@@ -29,7 +29,7 @@ public class TenantFixture : IAsyncDisposable
                 opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");
             })
             .AddPatcher(new EfCorePatcher<QueryDbContext>())
-            .Build(new TestContext());
+            .Build(new Sanctuary.xUnit.v3.TestContext());
     }
 
     public ITenantLake Lake { get; }

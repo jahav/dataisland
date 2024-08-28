@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Sanctuary.xUnit;
+namespace Sanctuary.Demo;
 
 [ScopedTenants]
 public class UnitTest3 : IClassFixture<ClassFixture>

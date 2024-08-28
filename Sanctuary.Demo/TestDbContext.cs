@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Sanctuary.xUnit;
+namespace Sanctuary.Demo;
 
 public class QueryDbContext : DbContext
 {

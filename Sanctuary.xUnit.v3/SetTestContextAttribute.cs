@@ -1,7 +1,11 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Xunit.v3;
 
-namespace Sanctuary.xUnit;
+namespace Sanctuary.xUnit.v3;
 
 public class ScopedTenantsAttribute : BeforeAfterTestAttribute
 {

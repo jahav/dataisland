@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3.extensibility.core" Version="0.2.0-pre.69" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\sanctuary.core\Sanctuary.Core.csproj" />
+  </ItemGroup>
+
+</Project>

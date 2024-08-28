@@ -1,6 +1,11 @@
-﻿namespace Sanctuary.xUnit;
+﻿using System;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 
-internal class TestContext : ITestContext
+namespace Sanctuary.xUnit.v3;
+
+[PublicAPI]
+public class TestContext : ITestContext
 {
     /// <inheritdoc />
     public TTenant GetTenant<TTenant>(Type dataAccessType)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Sanctuary.xUnit;
+namespace Sanctuary.Demo;
 
 /// <summary>
 /// A fixture that is created for each test class/collection.
