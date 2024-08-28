@@ -16,23 +16,30 @@ namespace Sanctuary.Demo;
 /// class/collection fixtures. Its job is to initialize components before any tests are run and also clean up
 /// components once all test did run.
 /// </summary>
-public class TenantFixture
+public class TenantFixture : IAsyncLifetime
 {
     public TenantFixture()
     {
         // An instance of SQL server to create/drop individual databases for tests.
+        // This is a pool that might be able to create new components on demand
+        // (or not).
+        // It can be a single server and throw on any request of other component.
+        // It can be adapter to an Azure with unlimited number of machines to spin
+        // up many sql server to split the load.
         var componentPool = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
 
         // Component pool is responsible for creating or dropping test databases
-        // on one SQL Server.
+        // on one component (SQL Server). In essence, it is a factory for databases.
         var pool = new SqlDatabaseTenantPool(
-            // SQL Server of the tenant pool
+            // SQL Server where databases are created/dropped.
             componentPool.GetComponent("DefaultComponent"),
             
-            // Directory to store .mdf and .ldf files for test databases
+            // Directory on the SQL Server machine to store .mdf and .ldf files
+            // for test databases.
             @"c:\Temp\sanctuary\files",
             
-            // Default data source used to create database, unless tenant specifies otherwise.
+            // Default data source used to create database, unless tenant specifies
+            // otherwise. File path is on the SQL Server machine.
             new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
 
         // Build a definition of possible configurations of external state.
@@ -79,4 +86,14 @@ public class TenantFixture
     }
 
     public ITenantLake Lake { get; }
+    
+    public ValueTask InitializeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }
