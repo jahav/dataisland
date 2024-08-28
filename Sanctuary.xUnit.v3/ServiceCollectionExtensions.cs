@@ -2,9 +2,9 @@
 
 namespace Sanctuary.xUnit.v3;
 
-public static class SanctuaryXunitExtensions
+public static class ServiceCollectionExtensions
 {
-    public static void AddSanctuary<TFixture>(this ServiceCollection services, ITenantLake lake)
+    public static void AddSanctuary<TFixture>(this IServiceCollection services, ITenantLake lake)
     {
         // Register all data context factories.
         lake.PatchServices(services);
