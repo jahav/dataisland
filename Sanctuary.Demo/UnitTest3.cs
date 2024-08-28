@@ -20,12 +20,13 @@ public class UnitTest3 : IClassFixture<ClassFixture>
             var test = scope.ServiceProvider.GetRequiredService<QueryDbContext>();
             var list = test.Users.Select(x => x.Name).OrderBy(x => x).ToList();
             Assert.Equal(new[] { "Dummy A", "Dummy B", "Dummy C", }, list);
-            test.Users.Add(new Users()
+
+            await test.Users.AddAsync(new Users
             {
                 UserId = Guid.NewGuid(),
                 Name = "Test2",
             });
-            test.SaveChanges();
+            await test.SaveChangesAsync();
 
             await Task.Delay(10000);
 

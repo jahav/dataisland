@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using TestContext = Xunit.TestContext;
 
 namespace Sanctuary.Demo;
 
@@ -22,12 +23,12 @@ public class UnitTest2 : IClassFixture<ClassFixture>
             var list = test.Users.Select(x => x.Name).OrderByDescending(x => x).ToList();
             Assert.Equal(new[] { "Dummy C", "Dummy B", "Dummy A", }, list);
 
-            test.Users.Add(new Users()
+            await test.Users.AddAsync(new Users
             {
                 UserId = Guid.NewGuid(),
                 Name = "Test1",
             });
-            test.SaveChanges();
+            await test.SaveChangesAsync();
 
             await Task.Delay(10000);
 
