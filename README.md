@@ -29,3 +29,23 @@ hooks up into DI to create a new tenants in data sources and adjusts the connect
 |  RabbitMQ     | Virtual Host | MassTransit, NServiceBus |
 |  Blob Storage | Container    | TwentyTwenty.Storage     |
 
+# Design decision
+
+## Eager tenant creation
+
+Tenants are created eagerly just before the test is run, e.g. in `BeforeAfterTestAttribute`. That is because
+tenant creation 
+
+* requires significant amount of time.
+* requires async API. A lot of libraries don't event offer sync API.
+
+Dependency injection framework are for creation of objects. They should be created very fast and no DI
+framework even offers async API. That is by design. 
+
+It would be therefore necessary to do some kind of sync-async wrapper and that way goes madness and
+deadlocks. Created tenants are also runtime data and they shouldn't be stored in DI.
+
+Links:
+
+* [Async DI factories can cause deadlocks](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection-guidelines#async-di-factories-can-cause-deadlocks)
+* [Dependency Injection Code Smell: Injecting runtime data into components](https://blogs.cuttingedge.it/steven/posts/2015/code-smell-injecting-runtime-data-into-components/)
