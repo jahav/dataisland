@@ -4,14 +4,6 @@ using JetBrains.Annotations;
 
 namespace Sanctuary;
 
-internal readonly record struct TenantConfig(Type TenantType, string ComponentName, object? DataSource);
-
-
-public interface ITenantConfig<TTenant>
-{
-    ITenantConfig<TTenant> WithDataSource<TDataSource>(TDataSource data);
-}
-
 [PublicAPI]
 public class DataAccessProfile
 {
