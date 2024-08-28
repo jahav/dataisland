@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Sanctuary;
 
-public class TenantsFactory : ITenantsFactory
+internal class TenantsFactory : ITenantsFactory
 {
     private readonly Dictionary<string, DataAccessProfile> _profiles;
     private readonly IReadOnlyDictionary<string, ITenantPool> _pools;
