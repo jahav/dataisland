@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Sanctuary;
 
-public class TenantsFactory(SanctuaryBuilder builder, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
+public class TenantsFactory(TenantLakeBuilder builder, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
 {
     public async Task<Dictionary<Type, Tenant>> AddTenantsAsync(string profileName)
     {

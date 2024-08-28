@@ -5,24 +5,24 @@ using JetBrains.Annotations;
 namespace Sanctuary;
 
 [PublicAPI]
-public class SanctuaryBuilder : ITenantLake
+public class TenantLakeBuilder : ITenantLake
 {
     private readonly Dictionary<string, ITenantPool> _componentPools = new();
     private readonly Dictionary<string, DataAccessProfile> _profiles = new();
     private readonly ITenantsFactory _factory;
 
-    public SanctuaryBuilder()
+    public TenantLakeBuilder()
     {
         _factory = new TenantsFactory(this, _componentPools);
     }
 
-    public SanctuaryBuilder AddComponentPool<TTenant, TDataSource>(string componentName, ITenantPool<TTenant, TDataSource> pool)
+    public TenantLakeBuilder AddComponentPool<TTenant, TDataSource>(string componentName, ITenantPool<TTenant, TDataSource> pool)
     {
         _componentPools.Add(componentName, pool);
         return this;
     }
 
-    public SanctuaryBuilder AddProfile(string profileName, Action<DataAccessProfile> configure)
+    public TenantLakeBuilder AddProfile(string profileName, Action<DataAccessProfile> configure)
     {
         var profile = new DataAccessProfile();
         configure(profile);

@@ -16,7 +16,7 @@ public class TenantFixture : IAsyncDisposable
     {
         var componentFactory = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
         var pool = new SqlDatabaseTenantPool(componentFactory.GetComponent("DefaultComponent"), @"c:\Temp\sanctuary\files");
-        Lake = new SanctuaryBuilder()
+        Lake = new TenantLakeBuilder()
             .AddComponentPool("DefaultComponent", pool)
             .AddProfile("DefaultProfile", opt =>
             {
