@@ -54,6 +54,9 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
                 var filePath = Path.Combine(_basePath, $"{file.LogicalName}-{tenantDbName}{file.Extension}");
                 cmd.Append(' ', 8).AppendLine(@$"MOVE N'{file.LogicalName}' TO N'{EscapePath(filePath)}',");
             }
+
+            // Need to set RECOVERY, otherwise database will be in RESTORING state and can't be changed
+            // to single user model for deletion.
             cmd.Append(' ', 8).Append(@"RECOVERY");
 
             command.CommandText = cmd.ToString();
