@@ -15,14 +15,16 @@ public class TenantFixture : IAsyncDisposable
     public TenantFixture()
     {
         var componentFactory = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
-        var pool = new SqlDatabaseTenantPool(componentFactory.GetComponent("DefaultComponent"), @"c:\Temp\sanctuary\files");
+        var pool = new SqlDatabaseTenantPool(
+            componentFactory.GetComponent("DefaultComponent"),
+            @"c:\Temp\sanctuary\files",
+            new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
         Lake = new TenantLakeBuilder()
             .AddComponentPool("DefaultComponent", pool)
             .AddProfile("DefaultProfile", opt =>
             {
                 opt.AddDataAccess<QueryDbContext>("DefaultTenant");
-                opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent")
-                    .WithDataSource(new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
+                opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");
             })
             .Build(new TestContext());
     }

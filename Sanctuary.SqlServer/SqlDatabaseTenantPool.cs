@@ -12,15 +12,17 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
 {
     private readonly SqlServerComponent _component;
     private readonly string _basePath;
+    private readonly SqlDatabaseDataSource _dataSource;
 
-    public SqlDatabaseTenantPool(SqlServerComponent component, string basePath)
+    public SqlDatabaseTenantPool(SqlServerComponent component, string basePath, SqlDatabaseDataSource dataSource)
     {
         _component = component;
         _basePath = basePath;
+        _dataSource = dataSource;
     }
 
     /// <inheritdoc />
-    public Task<SqlDatabaseTenant> AddTenantAsync(string tenantName, SqlDatabaseDataSource dataSource)
+    public Task<SqlDatabaseTenant> AddTenantAsync(string tenantName, SqlDatabaseDataSource? dataSource)
     {
         // Use connections string
         var tenantDbName = Guid.NewGuid().ToString();
@@ -30,6 +32,7 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
         connection.Open();
 
         var command = connection.CreateCommand();
+        dataSource ??= _dataSource;
         if (dataSource.Path is null || dataSource.File is null)
         {
             command.CommandText = $"CREATE DATABASE [{EscapeDbName(tenantDbName)}]";
@@ -126,9 +129,9 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
         return databaseName.Replace("[", "[[").Replace("]", "]]");
     }
 
-    async Task<object> ITenantPool.AddTenantAsync(string tenantName, object dataSource)
+    async Task<object> ITenantPool.AddTenantAsync(string tenantName, object? dataSource)
     {
-        return await AddTenantAsync(tenantName, (SqlDatabaseDataSource)dataSource);
+        return await AddTenantAsync(tenantName, (SqlDatabaseDataSource?)dataSource);
     }
 
     async Task ITenantPool.RemoveTenantAsync(object tenant)
