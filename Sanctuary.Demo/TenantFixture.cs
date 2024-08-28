@@ -1,6 +1,7 @@
 ﻿using Sanctuary.Demo;
 using Sanctuary.EfCore;
 using Sanctuary.SqlServer;
+using Xunit;
 
 [assembly: AssemblyFixture(typeof(TenantFixture))]
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Sanctuary.xUnit.v3;
 
 namespace Sanctuary.Demo;
 

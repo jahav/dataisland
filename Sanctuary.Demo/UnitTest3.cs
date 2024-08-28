@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Sanctuary.xUnit.v3;
+using Xunit;
 
 namespace Sanctuary.Demo;
 
