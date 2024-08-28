@@ -15,28 +15,22 @@ public class TenantFixture : IAsyncDisposable
     public TenantFixture()
     {
         var componentFactory = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
-        Pool = new SqlDatabaseTenantPool(componentFactory.GetComponent("DefaultComponent"), @"c:\Temp\sanctuary\files");
-        var config = new SanctuaryConfig();
-        config.RegisterComponentPool("DefaultComponent", Pool);
-        config.AddProfile("DefaultProfile", opt =>
-        {
-            opt.AddDataAccess<TestDbContext>("DefaultTenant", "DefaultComponent")
-                .WithDataSource(new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
-        });
-        Config = config;
-
-        TestContext = new TestContext();
+        var pool = new SqlDatabaseTenantPool(componentFactory.GetComponent("DefaultComponent"), @"c:\Temp\sanctuary\files");
+        Lake = new SanctuaryBuilder()
+            .AddComponentPool("DefaultComponent", pool)
+            .AddProfile("DefaultProfile", opt =>
+            {
+                opt.AddDataAccess<QueryDbContext>("DefaultTenant");
+                opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent")
+                    .WithDataSource(new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
+            })
+            .Build(new TestContext());
     }
 
-    public ITestContext TestContext { get; }
-
-    public SqlDatabaseTenantPool Pool { get; set; }
-
-    public SanctuaryConfig Config { get; }
+    public ITenantLake Lake { get; }
 
     public ValueTask DisposeAsync()
     {
         return ValueTask.CompletedTask;
-        //throw new NotImplementedException();
     }
 }

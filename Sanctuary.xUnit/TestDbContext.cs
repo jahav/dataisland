@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Sanctuary.xUnit;
 
-public class TestDbContext : DbContext
+public class QueryDbContext : DbContext
 {
-    public TestDbContext(DbContextOptions<TestDbContext> options) : base(options)
+    public QueryDbContext(DbContextOptions<QueryDbContext> options) : base(options)
     {
             
     }

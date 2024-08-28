@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,7 +52,7 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
                 var filePath = Path.Combine(_basePath, $"{file.LogicalName}-{tenantDbName}{file.Extension}");
                 cmd.Append(' ', 8).AppendLine(@$"MOVE N'{file.LogicalName}' TO N'{EscapePath(filePath)}',");
             }
-            cmd.Append(' ', 8).Append(@"NOUNLOAD");
+            cmd.Append(' ', 8).Append(@"RECOVERY");
 
             command.CommandText = cmd.ToString();
         }
@@ -70,16 +71,18 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
     /// <inheritdoc />
     public Task RemoveTenantAsync(SqlDatabaseTenant tenant)
     {
-        throw new NotImplementedException();
-//            var component = await _componentPool.GetComponent(tenant.Component.Name, cancellationToken);
-//
-//            await using var connection = new SqlConnection(component.ConnectionString);
-//            await connection.OpenAsync(cancellationToken);
-//
-//            var createDatabaseCommand = connection.CreateCommand();
-//            createDatabaseCommand.CommandText = $"DROP DATABASE [{tenant.DatabaseName}]";
-//            await createDatabaseCommand.ExecuteNonQueryAsync(cancellationToken);
-//            await connection.CloseAsync();
+        using var connection = new SqlConnection(_component.ConnectionString);
+        connection.Open();
+        
+        var dropConnections = connection.CreateCommand();
+        dropConnections.CommandText = $"ALTER DATABASE [{tenant.DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE";
+        dropConnections.ExecuteNonQuery();
+
+        var createDatabaseCommand = connection.CreateCommand();
+        createDatabaseCommand.CommandText = $"DROP DATABASE [{tenant.DatabaseName}]";
+        createDatabaseCommand.ExecuteNonQuery();
+        connection.Close();
+        return Task.CompletedTask;
     }
 
     private static List<BackupFile> GetLogicalFiles(SqlConnection connection, string diskPath, int file)

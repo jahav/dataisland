@@ -26,7 +26,7 @@ public interface ITestContext
     /// Get tenant to a data access. Before test is run, all tenants from
     /// configuration are created and stored in the test context.
     /// </summary>
-    /// <remarks>The data access is used as a key to determine the correct tenant from <see cref="SanctuaryConfig"/>.</remarks>
+    /// <remarks>The data access is used as a key to determine the correct tenant from <see cref="SanctuaryBuilder"/>.</remarks>
     /// <typeparam name="TTenant">Type desired tenant.</typeparam>
     /// <param name="dataAccessType">Type of data access. Used to determine tenant from profile configuration.</param>
     /// <returns>Found tenant for the data access.</returns>

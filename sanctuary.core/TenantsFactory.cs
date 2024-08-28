@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sanctuary;
 
-public class TenantsFactory(SanctuaryConfig _config, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
+public class TenantsFactory(SanctuaryBuilder builder, IReadOnlyDictionary<string, ITenantPool> _pools) : ITenantsFactory
 {
     public async Task<Dictionary<Type, Tenant>> AddTenantsAsync(string profileName)
     {
-        var profile = _config.GetProfile(profileName);
+        var profile = builder.GetProfile(profileName);
         var tenants = new Dictionary<string, object>();
 
         var reachableTenants = new HashSet<string>(profile._dataAccess.Values);
@@ -35,8 +36,12 @@ public class TenantsFactory(SanctuaryConfig _config, IReadOnlyDictionary<string,
         return dataAccessMap;
     }
 
-    public Task RemoveTenantsAsync(Dictionary<Type, Tenant> tenantsMap)
+    public async Task RemoveTenantsAsync(Dictionary<Type, Tenant> tenantsMap)
     {
-        throw new NotImplementedException();
+        foreach (var (_, tenant) in tenantsMap)
+        {
+            var pool = _pools[tenant.ComponentName];
+            await pool.RemoveTenantAsync(tenant.Instance);
+        }
     }
 }

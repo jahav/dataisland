@@ -18,7 +18,7 @@ public class UnitTest2 : IClassFixture<ClassFixture>
     {
         using (var scope = _fixture.ServiceProvider.CreateScope())
         {
-            var test = scope.ServiceProvider.GetRequiredService<TestDbContext>();
+            var test = scope.ServiceProvider.GetRequiredService<QueryDbContext>();
             var list = test.Users.Select(x => x.Name).OrderByDescending(x => x).ToList();
             Assert.Equal(new[] { "Dummy C", "Dummy B", "Dummy A", }, list);
 

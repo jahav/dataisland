@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Sanctuary.EfCore;
 
 namespace Sanctuary.xUnit;
 
@@ -12,18 +11,13 @@ public class ClassFixture
     public ClassFixture(TenantFixture tenantFixture)
     {
         var services = new ServiceCollection();
-        services.AddSingleton<SanctuaryConfig>(_ => tenantFixture.Config);
+        services.AddDbContext<QueryDbContext>(opt => opt.UseSqlServer("test"));
 
-        services.AddDbContext<TestDbContext>(opt => opt.UseSqlServer("test"));
+        // Needs to be last, because it overrides service registrations
+        // of data access services.
+        services.AddSanctuary<ClassFixture>(tenantFixture.Lake);
 
-        services.AddSingleton<ITestContext>(tenantFixture.TestContext);
-
-        new EfCoreAccessor<TestDbContext>().Register(services);
         ServiceProvider = services.BuildServiceProvider();
-
-        var keyValueStorage = Xunit.TestContext.Current.KeyValueStorage;
-        keyValueStorage[nameof(ClassFixture)] = tenantFixture.Config;
-        keyValueStorage[$"{nameof(ClassFixture)}-factory"] = new TenantsFactory(tenantFixture.Config, new Dictionary<string, ITenantPool> { { "DefaultComponent", tenantFixture.Pool } });
     }
 
     public ServiceProvider ServiceProvider { get; }

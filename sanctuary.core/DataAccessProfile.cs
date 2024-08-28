@@ -4,37 +4,44 @@ using JetBrains.Annotations;
 
 namespace Sanctuary;
 
-internal record TenantConfig(string ComponentName, object? DataSource);
+internal readonly record struct TenantConfig(Type TenantType, string ComponentName, object? DataSource);
 
+
+public interface ITenantConfig<TTenant>
+{
+    ITenantConfig<TTenant> WithDataSource<TDataSource>(TDataSource data);
+}
 
 [PublicAPI]
 public class DataAccessProfile
 {
     /// <summary>
-    /// Map from data access to tenant name.
+    /// Key: data access. Value: tenant name.
     /// </summary>
     internal readonly Dictionary<Type, string> _dataAccess = new();
 
     /// <summary>
-    /// Map of all tenants to data accesses
+    /// Key: tenant name. Value: component name and data source.
     /// </summary>
     internal readonly Dictionary<string, TenantConfig> _tenants = new();
 
-    public IDataAccessBuilder<TDataAccess> AddDataAccess<TDataAccess>(
-        string tenantName = "Default",
-        string componentName = "Default")
+    public DataAccessProfile AddDataAccess<TDataAccess>(string tenantName)
         where TDataAccess : class
     {
         _dataAccess.Add(typeof(TDataAccess), tenantName);
-        _tenants.Add(tenantName, new TenantConfig(componentName, null));
-
-        return new InternalBuilder<TDataAccess>(this, tenantName);
+        return this;
     }
 
-    private class InternalBuilder<TDataAccess>(DataAccessProfile profile, string tenantName)
-        : IDataAccessBuilder<TDataAccess>
+    public ITenantConfig<TTenant> AddTenant<TTenant>(string tenantName, string componentName)
     {
-        public IDataAccessBuilder<TDataAccess> WithDataSource<TDataSource>(TDataSource dataSource)
+        _tenants.Add(tenantName, new TenantConfig(typeof(TTenant), componentName, null));
+        return new InternalBuilder<TTenant>(this, tenantName);
+    }
+
+    private class InternalBuilder<TTenant>(DataAccessProfile profile, string tenantName)
+        : ITenantConfig<TTenant>
+    {
+        public ITenantConfig<TTenant> WithDataSource<TDataSource>(TDataSource dataSource)
         {
             profile._tenants[tenantName] = profile._tenants[tenantName] with { DataSource = dataSource };
             return this;
