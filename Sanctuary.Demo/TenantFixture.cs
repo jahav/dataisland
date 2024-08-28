@@ -29,7 +29,7 @@ public class TenantFixture : IAsyncDisposable
                 opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");
             })
             .AddPatcher(new EfCorePatcher<QueryDbContext>())
-            .Build(new Sanctuary.xUnit.v3.TestContext());
+            .Build(new Sanctuary.xUnit.v3.XUnitTestContext());
     }
 
     public ITenantLake Lake { get; }

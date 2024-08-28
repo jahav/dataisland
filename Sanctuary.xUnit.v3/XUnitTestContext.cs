@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace Sanctuary.xUnit.v3;
 
 [PublicAPI]
-public class TestContext : ITestContext
+public class XUnitTestContext : ITestContext
 {
     /// <inheritdoc />
     public TTenant GetTenant<TTenant>(Type dataAccessType)
