@@ -7,25 +7,25 @@ namespace Sanctuary;
 
 internal class TenantsFactory : ITenantsFactory
 {
-    private readonly Dictionary<string, DataAccessProfile> _profiles;
+    private readonly Dictionary<string, LogicalView> _logicalViews;
     private readonly IReadOnlyDictionary<string, ITenantFactory> _pools;
 
-    internal TenantsFactory(Dictionary<string, DataAccessProfile> profiles, IReadOnlyDictionary<string, ITenantFactory> pools)
+    internal TenantsFactory(Dictionary<string, LogicalView> logicalViews, IReadOnlyDictionary<string, ITenantFactory> pools)
     {
-        _profiles = profiles;
+        _logicalViews = logicalViews;
         _pools = pools;
     }
 
-    public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string profileName)
+    public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string logicalViewName)
     {
-        var profile = _profiles[profileName];
+        var logicalView = _logicalViews[logicalViewName];
         var tenants = new List<TenantInfo>();
-        var tenantDataAccesses = profile._dataAccess
+        var tenantDataAccesses = logicalView._dataAccess
             .GroupBy(x => x.Value)
             .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
 
-        var reachableTenants = new HashSet<string>(profile._dataAccess.Values);
-        foreach (var (tenantName, tenantConfig) in profile._tenants)
+        var reachableTenants = new HashSet<string>(logicalView._dataAccess.Values);
+        foreach (var (tenantName, tenantConfig) in logicalView._tenants)
         {
             // If tenant is not used by any data access, it's useless to create it.
             if (!reachableTenants.Contains(tenantName))

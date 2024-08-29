@@ -7,9 +7,9 @@ using Xunit.v3;
 
 namespace Sanctuary.xUnit.v3;
 
-public class ScopedTenantsAttribute(string _profileName) : BeforeAfterTestAttribute
+public class ScopedTenantsAttribute(string _logicalViewName) : BeforeAfterTestAttribute
 {
-    public ScopedTenantsAttribute() : this("DefaultProfile")
+    public ScopedTenantsAttribute() : this("DefaultView")
     {
     }
 
@@ -18,7 +18,7 @@ public class ScopedTenantsAttribute(string _profileName) : BeforeAfterTestAttrib
         var ctx = Xunit.TestContext.Current;
 
         var tenantsFactory = GetTenantsFactory(ctx, test);
-        var tenants = await tenantsFactory.AddTenantsAsync(_profileName);
+        var tenants = await tenantsFactory.AddTenantsAsync(_logicalViewName);
         var dataAccessMap = tenants
             .SelectMany(tenantInfo => tenantInfo.DataAccess.Select(dataAccess => (dataAccess, tenantInfo)))
             .ToDictionary(x => x.dataAccess, x => x.tenantInfo);

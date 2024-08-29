@@ -43,15 +43,15 @@ public class TenantFixture : IAsyncLifetime
             new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
 
         // Build a definition of possible configurations of external state.
-        // Each profile describes a state of external components (e.g.
-        // * "nominal" profile would only contain a database without data
+        // Each view describes a state of external components (e.g.
+        // * "nominal" view would only contain a database without data
         //   (=clean for any test).
-        // * "performance" profile could restore database full of data to
+        // * "performance" view could restore database full of data to
         //   check how it behaves under load.
         // * "blobs" would also create a tenant for blob storage that wouldn't
         //   be created in others, because it is only needed in some tests and
         //   is expansive to build (=not always necessary).
-        // Each test can specify profile using [ScopedTenants("nominal")]
+        // Each test can specify view using [ScopedTenants("nominal")]
         // attribute.
         Lake = new TenantLakeBuilder()
 
@@ -59,8 +59,8 @@ public class TenantFixture : IAsyncLifetime
             // above.
             .AddComponentFactory("DefaultComponent", factory)
 
-            // For default profile, we request the following state of external components:
-            .AddProfile("DefaultProfile", opt =>
+            // For default logical view, we request the following state of external components:
+            .AddLogicalView("DefaultView", opt =>
             {
                 // Create a single database on the default pool. It doesn't specify
                 // special data source = use the default data source from the pool.
@@ -71,7 +71,7 @@ public class TenantFixture : IAsyncLifetime
             })
 
             // Patcher hooks into the MSDI and patches the resolving logic, so the
-            // data access (QueryDbContext) uses tenant of the profile. EfCorePatcher
+            // data access (QueryDbContext) uses tenant of the logical view. EfCorePatcher
             // replaces connection string with one that points to a test database
             // created for the test. It doesn't check that databases are compatible
             // to keep patcher agnostic to any relational database.

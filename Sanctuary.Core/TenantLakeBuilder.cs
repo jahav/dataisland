@@ -9,7 +9,7 @@ namespace Sanctuary;
 public class TenantLakeBuilder
 {
     private readonly Dictionary<string, ITenantFactory> _tenantFactories = new();
-    private readonly Dictionary<string, DataAccessProfile> _profiles = new();
+    private readonly Dictionary<string, LogicalView> _logicalViews = new();
     private readonly Dictionary<Type, object> _patchers = new();
 
     public TenantLakeBuilder AddComponentFactory<TTenant, TDataSource>(string componentName, ITenantFactory<TTenant, TDataSource> factory)
@@ -18,12 +18,12 @@ public class TenantLakeBuilder
         return this;
     }
 
-    public TenantLakeBuilder AddProfile(string profileName, Action<DataAccessProfile> configure)
+    public TenantLakeBuilder AddLogicalView(string logicalViewName, Action<LogicalView> configure)
     {
-        var profile = new DataAccessProfile();
-        configure(profile);
+        var logicalView = new LogicalView();
+        configure(logicalView);
 
-        _profiles.Add(profileName, profile);
+        _logicalViews.Add(logicalViewName, logicalView);
         return this;
     }
 
@@ -38,8 +38,8 @@ public class TenantLakeBuilder
         // TODO: Validate everything
         var patchersCopy = _patchers.Values.ToList();
         var tenantFactoriesCopy = new Dictionary<string, ITenantFactory>(_tenantFactories);
-        var profilesCopy = _profiles.ToDictionary(x => x.Key, x => new DataAccessProfile(x.Value));
-        var factory = new TenantsFactory(profilesCopy, tenantFactoriesCopy);
+        var logicalViewsCopy = _logicalViews.ToDictionary(x => x.Key, x => new LogicalView(x.Value));
+        var factory = new TenantsFactory(logicalViewsCopy, tenantFactoriesCopy);
         return new TenantLake(factory, testContext, patchersCopy);
     }
 }

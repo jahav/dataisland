@@ -28,7 +28,7 @@ public interface ITestContext
     /// </summary>
     /// <remarks>The data access is used as a key to determine the correct tenant from <see cref="TenantLakeBuilder"/>.</remarks>
     /// <typeparam name="TTenant">Type desired tenant.</typeparam>
-    /// <param name="dataAccessType">Type of data access. Used to determine tenant from profile configuration.</param>
+    /// <param name="dataAccessType">Type of data access. Used to determine tenant from logical view configuration.</param>
     /// <returns>Found tenant for the data access.</returns>
     /// <exception cref="KeyNotFoundException">If there is no tenant mapped for the <paramref name="dataAccessType"/>.</exception>
     TTenant GetTenant<TTenant>(Type dataAccessType)
