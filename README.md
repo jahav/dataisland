@@ -95,7 +95,7 @@ Situation is slighly more difficult components that don't support multi-tenancy.
 tenancy is generally ensured by custom wrapper of data access and a usage of a prefix.
 Example: For Azure Blob Storage, all containers are prefixed by a unique prefix. Test1 with
 unique prefix `48fd` will actually use containers `48fd-images` and `48fd-archive` while Test2 with
-a unique prefix `ad57` will use containers `48fd-images` and `48fd-archive`. The custom data access
+a unique prefix `ad57` will use containers `ad57-images` and `ad57-archive`. The custom data access
 wrapper will take care of translation of container names and this method will ensure each test
 has its own data, isolated from other tests.
 
