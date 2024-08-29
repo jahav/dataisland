@@ -6,7 +6,7 @@ namespace Sanctuary;
 [PublicAPI]
 public interface ITenantFactory
 {
-    Task<object> AddTenantAsync(string tenantName, object? dataSource);
+    Task<object> AddTenantAsync(object component, string tenantName, object? dataSource);
 
-    Task RemoveTenantAsync(object tenant);
+    Task RemoveTenantAsync(object component, object tenant);
 }

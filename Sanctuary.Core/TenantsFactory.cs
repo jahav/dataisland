@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,39 +10,67 @@ namespace Sanctuary;
 internal class TenantsFactory : ITenantsFactory
 {
     private readonly Dictionary<string, LogicalView> _logicalViews;
-    private readonly IReadOnlyDictionary<string, ITenantFactory> _pools;
+    private readonly IReadOnlyDictionary<string, ITenantFactory> _tenantFactories;
 
-    internal TenantsFactory(Dictionary<string, LogicalView> logicalViews, IReadOnlyDictionary<string, ITenantFactory> pools)
+    /// <summary>
+    /// Key: type of component. Value: <see cref="IComponentPool{TComponent}">pool</see> of the component.
+    /// </summary>
+    private readonly IReadOnlyDictionary<Type, object> _componentPools;
+
+    internal TenantsFactory(
+        Dictionary<string, LogicalView> logicalViews, 
+        IReadOnlyDictionary<string, ITenantFactory> tenantFactories,
+        IReadOnlyDictionary<Type, object> componentPools)
     {
         _logicalViews = logicalViews;
-        _pools = pools;
+        _tenantFactories = tenantFactories;
+        _componentPools = componentPools;
     }
 
     public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string logicalViewName)
     {
-        var logicalView = _logicalViews[logicalViewName];
         var tenants = new List<TenantInfo>();
-        var tenantDataAccesses = logicalView._dataAccess
-            .GroupBy(x => x.Value)
-            .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
 
-        var reachableTenants = new HashSet<string>(logicalView._dataAccess.Values);
-        foreach (var (tenantName, tenantConfig) in logicalView._tenants)
+        var logicalView = _logicalViews[logicalViewName];
+        var usedComponents = GetComponents(logicalView);
+        var allComponents = new Dictionary<string, object>();
+        foreach (var (componentType, componentSpecs) in usedComponents)
         {
-            // If tenant is not used by any data access, it's useless to create it.
-            if (!reachableTenants.Contains(tenantName))
-                continue;
+            var componentPool = _componentPools[componentType];
+            var interfaceType = componentPool.GetType().GetInterface(typeof(IComponentPool<>).Name);
+            var getComponentMethod = interfaceType?.GetMethod(nameof(IComponentPool<object>.AcquireComponents));
+            if (getComponentMethod is null)
+                throw new UnreachableException($"Type '{componentPool.GetType()}' is not a {typeof(IComponentPool<>)}.");
 
-            if (!_pools.TryGetValue(tenantConfig.ComponentName, out var pool))
-                throw new InvalidOperationException("Missing pool");
+            // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
+            IDictionary acquiredComponents = (IDictionary)getComponentMethod.Invoke(componentPool, [componentSpecs]);
 
-            var tenant = await pool.AddTenantAsync(tenantName, tenantConfig.DataSource);
-            var tenantInfo = new TenantInfo(
-                tenant,
-                tenantName,
-                tenantConfig.ComponentName,
-                tenantDataAccesses[tenantName]);
-            tenants.Add(tenantInfo);
+            foreach (DictionaryEntry entry in acquiredComponents)
+            {
+                var componentName = (string)entry.Key;
+                var component = entry.Value;
+                allComponents.Add(componentName, component);
+            }
+
+            var tenantDataAccesses = logicalView._dataAccess
+                .GroupBy(x => x.Value)
+                .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
+
+            foreach (var (tenantName, tenantConfig) in logicalView._tenants)
+            {
+                if (!_tenantFactories.TryGetValue(tenantConfig.ComponentName, out var factory))
+                    throw new InvalidOperationException("Missing pool");
+
+                var component = acquiredComponents[tenantConfig.ComponentName];
+                var tenant = await factory.AddTenantAsync(component, tenantName, tenantConfig.DataSource);
+                var tenantInfo = new TenantInfo(
+                    tenant,
+                    tenantName,
+                    tenantConfig.ComponentName,
+                    component,
+                    tenantDataAccesses[tenantName]);
+                tenants.Add(tenantInfo);
+            }
         }
 
         return tenants;
@@ -50,8 +80,27 @@ internal class TenantsFactory : ITenantsFactory
     {
         foreach (var tenantInfo in tenants)
         {
-            var pool = _pools[tenantInfo.ComponentName];
-            await pool.RemoveTenantAsync(tenantInfo.Instance);
+            var tenantFactory = _tenantFactories[tenantInfo.ComponentName];
+            await tenantFactory.RemoveTenantAsync(tenantInfo.Component, tenantInfo.Instance);
         }
+    }
+
+    private static Dictionary<Type, Dictionary<string, ComponentSpec>> GetComponents(LogicalView logicalView)
+    {
+        var result = new Dictionary<Type, Dictionary<string, ComponentSpec>>();
+        var usedComponents = logicalView._components.ToLookup(
+            x => x.Value.ComponentType,
+            x => (ComponentName: x.Key, Spec: x.Value));
+
+        foreach (var oneTypeComponents in usedComponents)
+        {
+            Type componentType = oneTypeComponents.Key;
+            Dictionary<string, ComponentSpec> componentSpecs =
+                oneTypeComponents.ToDictionary(x => x.ComponentName, x => x.Spec);
+
+            result.Add(componentType, componentSpecs);
+        }
+
+        return result;
     }
 }

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Sanctuary.Demo;
 
-[ScopedTenants]
+[ScopedTenants("DefaultView")]
 public class UnitTest2 : IClassFixture<ClassFixture>
 {
     private readonly ClassFixture _fixture;

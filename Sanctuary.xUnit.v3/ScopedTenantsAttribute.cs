@@ -7,10 +7,17 @@ using Xunit.v3;
 
 namespace Sanctuary.xUnit.v3;
 
-public class ScopedTenantsAttribute(string _logicalViewName) : BeforeAfterTestAttribute
+public class ScopedTenantsAttribute : BeforeAfterTestAttribute
 {
+    private readonly string _logicalViewName;
+    
     public ScopedTenantsAttribute() : this("DefaultView")
     {
+    }
+
+    public ScopedTenantsAttribute(string logicalViewName)
+    {
+        _logicalViewName = logicalViewName;
     }
 
     public override async ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -8,27 +9,25 @@ using Microsoft.Data.SqlClient;
 
 namespace Sanctuary.SqlServer;
 
-public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlDatabaseDataSource>
+public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlServerComponent, SqlDatabaseDataSource>
 {
-    private readonly SqlServerComponent _component;
     private readonly string _basePath;
     private readonly SqlDatabaseDataSource _dataSource;
 
-    public SqlDatabaseTenantFactory(SqlServerComponent component, string basePath, SqlDatabaseDataSource dataSource)
+    public SqlDatabaseTenantFactory(string basePath, SqlDatabaseDataSource dataSource)
     {
-        _component = component;
         _basePath = basePath;
         _dataSource = dataSource;
     }
 
     /// <inheritdoc />
-    public Task<SqlDatabaseTenant> AddTenantAsync(string tenantName, SqlDatabaseDataSource? dataSource)
+    public Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, string tenantName, SqlDatabaseDataSource? dataSource)
     {
         // Use connections string
         var tenantDbName = Guid.NewGuid().ToString();
 
         // Because connection string of component doesn't differ, it will be pooled.
-        using var connection = new SqlConnection(_component.ConnectionString);
+        using var connection = new SqlConnection(component.ConnectionString);
         connection.Open();
 
         var command = connection.CreateCommand();
@@ -65,18 +64,18 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         command.ExecuteNonQuery();
         connection.Close();
 
-        var tenantConnectionString = new SqlConnectionStringBuilder(_component.ConnectionString)
+        var tenantConnectionString = new SqlConnectionStringBuilder(component.ConnectionString)
         {
             InitialCatalog = tenantDbName
         }.ConnectionString;
 
-        return Task.FromResult(new SqlDatabaseTenant(tenantName, tenantConnectionString, _component, tenantDbName));
+        return Task.FromResult(new SqlDatabaseTenant(tenantName, tenantConnectionString, component, tenantDbName));
     }
 
     /// <inheritdoc />
-    public Task RemoveTenantAsync(SqlDatabaseTenant tenant)
+    public Task RemoveTenantAsync(SqlServerComponent component, SqlDatabaseTenant tenant)
     {
-        using var connection = new SqlConnection(_component.ConnectionString);
+        using var connection = new SqlConnection(component.ConnectionString);
         connection.Open();
         
         var dropConnections = connection.CreateCommand();
@@ -132,13 +131,13 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         return databaseName.Replace("[", "[[").Replace("]", "]]");
     }
 
-    async Task<object> ITenantFactory.AddTenantAsync(string tenantName, object? dataSource)
+    async Task<object> ITenantFactory.AddTenantAsync(object component, string tenantName, object? dataSource)
     {
-        return await AddTenantAsync(tenantName, (SqlDatabaseDataSource?)dataSource);
+        return await AddTenantAsync((SqlServerComponent)component, tenantName, (SqlDatabaseDataSource?)dataSource);
     }
 
-    async Task ITenantFactory.RemoveTenantAsync(object tenant)
+    async Task ITenantFactory.RemoveTenantAsync(object component, object tenant)
     {
-        await RemoveTenantAsync((SqlDatabaseTenant)tenant);
+        await RemoveTenantAsync((SqlServerComponent)component, (SqlDatabaseTenant)tenant);
     }
 }

@@ -17,16 +17,23 @@ public class LogicalView
     /// </summary>
     internal readonly Dictionary<string, TenantConfig> _tenants;
 
+    /// <summary>
+    /// Key: component name. Value: component specification.
+    /// </summary>
+    internal readonly Dictionary<string, ComponentSpec> _components;
+
     internal LogicalView()
     {
         _dataAccess = new();
         _tenants = new();
+        _components = new();
     }
 
     internal LogicalView(LogicalView original)
     {
         _dataAccess = new Dictionary<Type, string>(original._dataAccess);
         _tenants = new Dictionary<string, TenantConfig>(original._tenants);
+        _components = new Dictionary<string, ComponentSpec>(original._components);
     }
 
     public LogicalView AddDataAccess<TDataAccess>(string tenantName)
@@ -40,6 +47,11 @@ public class LogicalView
     {
         _tenants.Add(tenantName, new TenantConfig(typeof(TTenant), componentName, null));
         return new InternalBuilder<TTenant>(this, tenantName);
+    }
+
+    public void AddComponent<TComponent>(string componentName)
+    {
+        _components.Add(componentName, new ComponentSpec(typeof(TComponent)));
     }
 
     private class InternalBuilder<TTenant>(LogicalView logicalView, string tenantName)

@@ -31,9 +31,6 @@ public class TenantFixture : IAsyncLifetime
         // Component pool is responsible for creating or dropping test databases
         // on one component (SQL Server). In essence, it is a factory for databases.
         var factory = new SqlDatabaseTenantFactory(
-            // SQL Server where databases are created/dropped.
-            componentPool.GetComponent("DefaultComponent"),
-            
             // Directory on the SQL Server machine to store .mdf and .ldf files
             // for test databases.
             @"c:\Temp\sanctuary\files",
@@ -54,14 +51,15 @@ public class TenantFixture : IAsyncLifetime
         // Each test can specify view using [ScopedTenants("nominal")]
         // attribute.
         Lake = new TenantLakeBuilder()
-
             // Tenant lake will contain only one component - SQL Server defined
             // above.
-            .AddComponentFactory("DefaultComponent", factory)
+            .AddComponent("DefaultComponent", componentPool, factory)
 
             // For default logical view, we request the following state of external components:
             .AddLogicalView("DefaultView", opt =>
             {
+                opt.AddComponent<SqlServerComponent>("DefaultComponent");
+
                 // Create a single database on the default pool. It doesn't specify
                 // special data source = use the default data source from the pool.
                 opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");

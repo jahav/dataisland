@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Sanctuary.SqlServer;
 
@@ -14,11 +16,14 @@ internal sealed class OneSqlServer : IComponentPool<SqlServerComponent>
         _component = new SqlServerComponent(name, connectionString);
     }
 
-    public SqlServerComponent GetComponent(string componentName)
+    public IReadOnlyDictionary<string, SqlServerComponent> AcquireComponents(IReadOnlyDictionary<string, ComponentSpec> requestedComponents)
     {
-        if (componentName != _component.Name)
+        if (requestedComponents.Count != 1 || requestedComponents.Single().Key != _component.Name)
             throw new InvalidOperationException($"Pool contains only component '{_component.Name}'.");
 
-        return _component;
+        return new Dictionary<string, SqlServerComponent>
+        {
+            { requestedComponents.Single().Key, _component }
+        };
     }
 }
