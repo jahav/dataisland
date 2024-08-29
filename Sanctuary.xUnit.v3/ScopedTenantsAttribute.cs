@@ -19,27 +19,36 @@ public class ScopedTenantsAttribute(string _profileName) : BeforeAfterTestAttrib
 
         var tenantsFactory = GetTenantsFactory(ctx, test);
         var tenants = await tenantsFactory.AddTenantsAsync(_profileName);
-
-        // The KeyValueStorage should never contain the test keys at this point,
-        // so use Add in order to throw if there is anything.
-        ctx.KeyValueStorage.Add(GetTenantsKey(ctx), tenants);
-
         var dataAccessMap = tenants
             .SelectMany(tenantInfo => tenantInfo.DataAccess.Select(dataAccess => (dataAccess, tenantInfo)))
             .ToDictionary(x => x.dataAccess, x => x.tenantInfo);
-        ctx.KeyValueStorage.Add(GetDataAccessMapKey(ctx), dataAccessMap);
+
+        // The KeyValueStorage should never contain the test keys at this point,
+        // so use Add in order to throw if there is anything. Also use lock,
+        // because it is a normal collection, not concurrency safe collection.
+        // The KeyValueStorage can therefore throw exception if multiple threads
+        // try to modify it at the same time.
+        lock (ctx.KeyValueStorage)
+        {
+            ctx.KeyValueStorage.Add(GetTenantsKey(ctx), tenants);
+            ctx.KeyValueStorage.Add(GetDataAccessMapKey(ctx), dataAccessMap);
+        }
     }
 
     public override async ValueTask After(MethodInfo methodUnderTest, IXunitTest test)
     {
         var ctx = Xunit.TestContext.Current;
+        object? untypedTenants;
+        lock (ctx.KeyValueStorage)
+        {
+            var tenantsKey = GetTenantsKey(ctx);
+            if (!ctx.KeyValueStorage.TryGetValue(tenantsKey, out untypedTenants) || untypedTenants is null)
+                throw new InvalidOperationException("Test didn't have tenants.");
 
-        var tenantsKey = GetTenantsKey(ctx);
-        if (!ctx.KeyValueStorage.TryGetValue(tenantsKey, out var untypedTenants) || untypedTenants is null)
-            throw new InvalidOperationException("Test didn't have tenants.");
+            ctx.KeyValueStorage.Remove(tenantsKey);
+            ctx.KeyValueStorage.Remove(GetDataAccessMapKey(ctx));
+        }
 
-        ctx.KeyValueStorage.Remove(tenantsKey);
-        ctx.KeyValueStorage.Remove(GetDataAccessMapKey(ctx));
         var tenants = (IEnumerable<TenantInfo>)untypedTenants;
         var tenantsFactory = GetTenantsFactory(ctx, test);
         await tenantsFactory.RemoveTenantsAsync(tenants);
