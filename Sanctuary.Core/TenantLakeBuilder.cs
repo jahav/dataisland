@@ -8,13 +8,13 @@ namespace Sanctuary;
 [PublicAPI]
 public class TenantLakeBuilder
 {
-    private readonly Dictionary<string, ITenantPool> _componentPools = new();
+    private readonly Dictionary<string, ITenantFactory> _tenantFactories = new();
     private readonly Dictionary<string, DataAccessProfile> _profiles = new();
     private readonly Dictionary<Type, object> _patchers = new();
 
-    public TenantLakeBuilder AddComponentPool<TTenant, TDataSource>(string componentName, ITenantPool<TTenant, TDataSource> pool)
+    public TenantLakeBuilder AddComponentFactory<TTenant, TDataSource>(string componentName, ITenantFactory<TTenant, TDataSource> factory)
     {
-        _componentPools.Add(componentName, pool);
+        _tenantFactories.Add(componentName, factory);
         return this;
     }
 
@@ -37,9 +37,9 @@ public class TenantLakeBuilder
     {
         // TODO: Validate everything
         var patchersCopy = _patchers.Values.ToList();
-        var componentPoolsCopy = new Dictionary<string, ITenantPool>(_componentPools);
+        var tenantFactoriesCopy = new Dictionary<string, ITenantFactory>(_tenantFactories);
         var profilesCopy = _profiles.ToDictionary(x => x.Key, x => new DataAccessProfile(x.Value));
-        var factory = new TenantsFactory(profilesCopy, componentPoolsCopy);
+        var factory = new TenantsFactory(profilesCopy, tenantFactoriesCopy);
         return new TenantLake(factory, testContext, patchersCopy);
     }
 }

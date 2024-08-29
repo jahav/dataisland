@@ -8,13 +8,13 @@ using Microsoft.Data.SqlClient;
 
 namespace Sanctuary.SqlServer;
 
-public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDatabaseDataSource>
+public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlDatabaseDataSource>
 {
     private readonly SqlServerComponent _component;
     private readonly string _basePath;
     private readonly SqlDatabaseDataSource _dataSource;
 
-    public SqlDatabaseTenantPool(SqlServerComponent component, string basePath, SqlDatabaseDataSource dataSource)
+    public SqlDatabaseTenantFactory(SqlServerComponent component, string basePath, SqlDatabaseDataSource dataSource)
     {
         _component = component;
         _basePath = basePath;
@@ -132,12 +132,12 @@ public sealed class SqlDatabaseTenantPool : ITenantPool<SqlDatabaseTenant, SqlDa
         return databaseName.Replace("[", "[[").Replace("]", "]]");
     }
 
-    async Task<object> ITenantPool.AddTenantAsync(string tenantName, object? dataSource)
+    async Task<object> ITenantFactory.AddTenantAsync(string tenantName, object? dataSource)
     {
         return await AddTenantAsync(tenantName, (SqlDatabaseDataSource?)dataSource);
     }
 
-    async Task ITenantPool.RemoveTenantAsync(object tenant)
+    async Task ITenantFactory.RemoveTenantAsync(object tenant)
     {
         await RemoveTenantAsync((SqlDatabaseTenant)tenant);
     }

@@ -8,9 +8,9 @@ namespace Sanctuary;
 internal class TenantsFactory : ITenantsFactory
 {
     private readonly Dictionary<string, DataAccessProfile> _profiles;
-    private readonly IReadOnlyDictionary<string, ITenantPool> _pools;
+    private readonly IReadOnlyDictionary<string, ITenantFactory> _pools;
 
-    internal TenantsFactory(Dictionary<string, DataAccessProfile> profiles, IReadOnlyDictionary<string, ITenantPool> pools)
+    internal TenantsFactory(Dictionary<string, DataAccessProfile> profiles, IReadOnlyDictionary<string, ITenantFactory> pools)
     {
         _profiles = profiles;
         _pools = pools;

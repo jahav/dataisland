@@ -30,7 +30,7 @@ public class TenantFixture : IAsyncLifetime
 
         // Component pool is responsible for creating or dropping test databases
         // on one component (SQL Server). In essence, it is a factory for databases.
-        var pool = new SqlDatabaseTenantPool(
+        var factory = new SqlDatabaseTenantFactory(
             // SQL Server where databases are created/dropped.
             componentPool.GetComponent("DefaultComponent"),
             
@@ -57,7 +57,7 @@ public class TenantFixture : IAsyncLifetime
 
             // Tenant lake will contain only one component - SQL Server defined
             // above.
-            .AddComponentPool("DefaultComponent", pool)
+            .AddComponentFactory("DefaultComponent", factory)
 
             // For default profile, we request the following state of external components:
             .AddProfile("DefaultProfile", opt =>

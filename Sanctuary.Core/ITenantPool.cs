@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Sanctuary;
 
 [PublicAPI]
-public interface ITenantPool
+public interface ITenantFactory
 {
     Task<object> AddTenantAsync(string tenantName, object? dataSource);
 
