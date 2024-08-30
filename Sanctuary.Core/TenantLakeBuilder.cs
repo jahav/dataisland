@@ -51,7 +51,7 @@ public class TenantLakeBuilder
         var tenantFactoriesCopy = new Dictionary<string, object>(_tenantFactories);
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
-        var factory = new TenantsFactory(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);
-        return new TenantLake(factory, testContext, patchersCopy);
+        var materializer = new Materializer(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);
+        return new TenantLake(materializer, testContext, patchersCopy);
     }
 }

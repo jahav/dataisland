@@ -24,8 +24,8 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
     {
         var ctx = Xunit.TestContext.Current;
 
-        var tenantsFactory = GetTenantsFactory(ctx, test);
-        var tenants = await tenantsFactory.AddTenantsAsync(_templateName);
+        var materializationFactory = GetMaterializer(ctx, test);
+        var tenants = await materializationFactory.MaterializeTenantsAsync(_templateName);
         var dataAccessMap = tenants
             .SelectMany(tenantInfo => tenantInfo.DataAccess.Select(dataAccess => (dataAccess, tenantInfo)))
             .ToDictionary(x => x.dataAccess, x => x.tenantInfo);
@@ -57,8 +57,8 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
         }
 
         var tenants = (IEnumerable<TenantInfo>)untypedTenants;
-        var tenantsFactory = GetTenantsFactory(ctx, test);
-        await tenantsFactory.RemoveTenantsAsync(tenants);
+        var materializer = GetMaterializer(ctx, test);
+        await materializer.DematerializeTenantsAsync(tenants);
     }
 
     private static Type GetFixtureType(IXunitTest test)
@@ -73,13 +73,13 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
         return fixtureType;
     }
 
-    private static ITenantsFactory GetTenantsFactory(Xunit.TestContext context, IXunitTest test)
+    private static IMaterializer GetMaterializer(Xunit.TestContext context, IXunitTest test)
     {
         var fixtureType = GetFixtureType(test);
-        var tenantsFactory = context.KeyValueStorage[$"{fixtureType.Name}-factory"] as ITenantsFactory;
-        if (tenantsFactory is null)
-            throw new InvalidOperationException("No factory");
-        return tenantsFactory;
+        var materializer = context.KeyValueStorage[$"{fixtureType.Name}-materializer"] as IMaterializer;
+        if (materializer is null)
+            throw new InvalidOperationException("No materializer");
+        return materializer;
     }
 
     private static string GetTenantsKey(Xunit.TestContext context)

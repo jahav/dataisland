@@ -4,7 +4,7 @@ namespace Sanctuary;
 
 public interface ITenantLake
 {
-    ITenantsFactory Factory { get; }
+    IMaterializer Materializer { get; }
 
     ITestContext TestContext { get; }
 

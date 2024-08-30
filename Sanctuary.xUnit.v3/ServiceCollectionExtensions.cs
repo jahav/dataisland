@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         lock (keyValueStorage)
         {
             keyValueStorage[fixtureName] = lake;
-            keyValueStorage[$"{fixtureName}-factory"] = lake.Factory;
+            keyValueStorage[$"{fixtureName}-materializer"] = lake.Materializer;
         }
     }
 }

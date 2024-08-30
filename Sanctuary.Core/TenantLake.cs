@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Sanctuary;
 
-internal class TenantLake(ITenantsFactory _factory, ITestContext _testContext, IEnumerable<object> _patchers) : ITenantLake
+internal class TenantLake(IMaterializer _materializer, ITestContext _testContext, IEnumerable<object> _patchers) : ITenantLake
 {
-    public ITenantsFactory Factory => _factory;
+    public IMaterializer Materializer => _materializer;
 
     public ITestContext TestContext => _testContext;
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sanctuary;
 
-internal class TenantsFactory : ITenantsFactory
+internal class Materializer : IMaterializer
 {
     private readonly Dictionary<string, Template> _templates;
 
@@ -21,7 +21,7 @@ internal class TenantsFactory : ITenantsFactory
     /// </summary>
     private readonly IReadOnlyDictionary<Type, object> _componentPools;
 
-    internal TenantsFactory(
+    internal Materializer(
         Dictionary<string, Template> templates, 
         IReadOnlyDictionary<string, object> tenantFactories,
         IReadOnlyDictionary<Type, object> componentPools)
@@ -31,7 +31,7 @@ internal class TenantsFactory : ITenantsFactory
         _componentPools = componentPools;
     }
 
-    public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string templateName)
+    public async Task<IReadOnlyCollection<TenantInfo>> MaterializeTenantsAsync(string templateName)
     {
         var tenants = new List<TenantInfo>();
 
@@ -74,7 +74,7 @@ internal class TenantsFactory : ITenantsFactory
         return tenants;
     }
 
-    public async Task RemoveTenantsAsync(IEnumerable<TenantInfo> tenants)
+    public async Task DematerializeTenantsAsync(IEnumerable<TenantInfo> tenants)
     {
         foreach (var tenantInfo in tenants)
         {
