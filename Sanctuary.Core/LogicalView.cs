@@ -13,9 +13,9 @@ public class Template
     internal readonly Dictionary<Type, string> _dataAccess;
 
     /// <summary>
-    /// Key: tenant name. Value: component name and data source.
+    /// Key: tenant name. Value: tenant specification.
     /// </summary>
-    internal readonly Dictionary<string, TenantConfig> _tenants;
+    internal readonly Dictionary<string, TenantSpec> _tenants;
 
     /// <summary>
     /// Key: component name. Value: component specification.
@@ -32,7 +32,7 @@ public class Template
     internal Template(Template original)
     {
         _dataAccess = new Dictionary<Type, string>(original._dataAccess);
-        _tenants = new Dictionary<string, TenantConfig>(original._tenants);
+        _tenants = new Dictionary<string, TenantSpec>(original._tenants);
         _components = new Dictionary<string, ComponentSpec>(original._components);
     }
 
@@ -45,7 +45,7 @@ public class Template
 
     public ITenantSpecBuilder<TTenant> AddTenant<TTenant>(string tenantName, string componentName)
     {
-        _tenants.Add(tenantName, new TenantConfig(typeof(TTenant), componentName, null));
+        _tenants.Add(tenantName, new TenantSpec(typeof(TTenant), componentName, null));
         return new TenantSpecBuilder<TTenant>(this, tenantName);
     }
 
