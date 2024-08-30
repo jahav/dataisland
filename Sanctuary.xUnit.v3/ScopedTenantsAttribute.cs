@@ -9,15 +9,15 @@ namespace Sanctuary.xUnit.v3;
 
 public class ScopedTenantsAttribute : BeforeAfterTestAttribute
 {
-    private readonly string _logicalViewName;
+    private readonly string _templateName;
     
-    public ScopedTenantsAttribute() : this("DefaultView")
+    public ScopedTenantsAttribute() : this("DefaultTemplate")
     {
     }
 
-    public ScopedTenantsAttribute(string logicalViewName)
+    public ScopedTenantsAttribute(string templateName)
     {
-        _logicalViewName = logicalViewName;
+        _templateName = templateName;
     }
 
     public override async ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)
@@ -25,7 +25,7 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
         var ctx = Xunit.TestContext.Current;
 
         var tenantsFactory = GetTenantsFactory(ctx, test);
-        var tenants = await tenantsFactory.AddTenantsAsync(_logicalViewName);
+        var tenants = await tenantsFactory.AddTenantsAsync(_templateName);
         var dataAccessMap = tenants
             .SelectMany(tenantInfo => tenantInfo.DataAccess.Select(dataAccess => (dataAccess, tenantInfo)))
             .ToDictionary(x => x.dataAccess, x => x.tenantInfo);

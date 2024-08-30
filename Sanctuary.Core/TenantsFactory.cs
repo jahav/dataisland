@@ -9,7 +9,7 @@ namespace Sanctuary;
 
 internal class TenantsFactory : ITenantsFactory
 {
-    private readonly Dictionary<string, LogicalView> _logicalViews;
+    private readonly Dictionary<string, Template> _templates;
     private readonly IReadOnlyDictionary<string, ITenantFactory> _tenantFactories;
 
     /// <summary>
@@ -18,21 +18,21 @@ internal class TenantsFactory : ITenantsFactory
     private readonly IReadOnlyDictionary<Type, object> _componentPools;
 
     internal TenantsFactory(
-        Dictionary<string, LogicalView> logicalViews, 
+        Dictionary<string, Template> templates, 
         IReadOnlyDictionary<string, ITenantFactory> tenantFactories,
         IReadOnlyDictionary<Type, object> componentPools)
     {
-        _logicalViews = logicalViews;
+        _templates = templates;
         _tenantFactories = tenantFactories;
         _componentPools = componentPools;
     }
 
-    public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string logicalViewName)
+    public async Task<IReadOnlyCollection<TenantInfo>> AddTenantsAsync(string templateName)
     {
         var tenants = new List<TenantInfo>();
 
-        var logicalView = _logicalViews[logicalViewName];
-        var usedComponents = GetComponents(logicalView);
+        var template = _templates[templateName];
+        var usedComponents = GetComponents(template);
         var allComponents = new Dictionary<string, object>();
         foreach (var (componentType, componentSpecs) in usedComponents)
         {
@@ -52,11 +52,11 @@ internal class TenantsFactory : ITenantsFactory
                 allComponents.Add(componentName, component);
             }
 
-            var tenantDataAccesses = logicalView._dataAccess
+            var tenantDataAccesses = template._dataAccess
                 .GroupBy(x => x.Value)
                 .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
 
-            foreach (var (tenantName, tenantConfig) in logicalView._tenants)
+            foreach (var (tenantName, tenantConfig) in template._tenants)
             {
                 if (!_tenantFactories.TryGetValue(tenantConfig.ComponentName, out var factory))
                     throw new InvalidOperationException("Missing pool");
@@ -85,10 +85,10 @@ internal class TenantsFactory : ITenantsFactory
         }
     }
 
-    private static Dictionary<Type, Dictionary<string, ComponentSpec>> GetComponents(LogicalView logicalView)
+    private static Dictionary<Type, Dictionary<string, ComponentSpec>> GetComponents(Template template)
     {
         var result = new Dictionary<Type, Dictionary<string, ComponentSpec>>();
-        var usedComponents = logicalView._components.ToLookup(
+        var usedComponents = template._components.ToLookup(
             x => x.Value.ComponentType,
             x => (ComponentName: x.Key, Spec: x.Value));
 

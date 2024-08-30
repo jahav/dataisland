@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace Sanctuary;
 
 [PublicAPI]
-public class LogicalView
+public class Template
 {
     /// <summary>
     /// Key: data access. Value: tenant name.
@@ -22,21 +22,21 @@ public class LogicalView
     /// </summary>
     internal readonly Dictionary<string, ComponentSpec> _components;
 
-    internal LogicalView()
+    internal Template()
     {
         _dataAccess = new();
         _tenants = new();
         _components = new();
     }
 
-    internal LogicalView(LogicalView original)
+    internal Template(Template original)
     {
         _dataAccess = new Dictionary<Type, string>(original._dataAccess);
         _tenants = new Dictionary<string, TenantConfig>(original._tenants);
         _components = new Dictionary<string, ComponentSpec>(original._components);
     }
 
-    public LogicalView AddDataAccess<TDataAccess>(string tenantName)
+    public Template AddDataAccess<TDataAccess>(string tenantName)
         where TDataAccess : class
     {
         _dataAccess.Add(typeof(TDataAccess), tenantName);
@@ -54,12 +54,12 @@ public class LogicalView
         _components.Add(componentName, new ComponentSpec(typeof(TComponent)));
     }
 
-    private class TenantSpecBuilder<TTenant>(LogicalView logicalView, string tenantName)
+    private class TenantSpecBuilder<TTenant>(Template template, string tenantName)
         : ITenantSpecBuilder<TTenant>
     {
         public ITenantSpecBuilder<TTenant> WithDataSource<TDataSource>(TDataSource dataSource)
         {
-            logicalView._tenants[tenantName] = logicalView._tenants[tenantName] with { DataSource = dataSource };
+            template._tenants[tenantName] = template._tenants[tenantName] with { DataSource = dataSource };
             return this;
         }
     }

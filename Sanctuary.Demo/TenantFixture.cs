@@ -55,8 +55,8 @@ public class TenantFixture : IAsyncLifetime
             // above.
             .AddComponent("DefaultComponent", componentPool, factory)
 
-            // For default logical view, we request the following state of external components:
-            .AddLogicalView("DefaultView", opt =>
+            // For default template, we request the following state of external components:
+            .AddTemplate("DefaultTemplate", opt =>
             {
                 opt.AddComponent<SqlServerComponent>("DefaultComponent");
 
@@ -69,7 +69,7 @@ public class TenantFixture : IAsyncLifetime
             })
 
             // Patcher hooks into the MSDI and patches the resolving logic, so the
-            // data access (QueryDbContext) uses tenant of the logical view. EfCorePatcher
+            // data access (QueryDbContext) uses tenant of the template. EfCorePatcher
             // replaces connection string with one that points to a test database
             // created for the test. It doesn't check that databases are compatible
             // to keep patcher agnostic to any relational database.

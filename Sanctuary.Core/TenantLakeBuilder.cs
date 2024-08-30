@@ -17,7 +17,7 @@ public class TenantLakeBuilder
     /// Key: type of component. Value: IComponentPool.
     /// </summary>
     private readonly Dictionary<Type, object> _componentPools = new();
-    private readonly Dictionary<string, LogicalView> _logicalViews = new();
+    private readonly Dictionary<string, Template> _templates = new();
     private readonly Dictionary<Type, object> _patchers = new();
 
     public TenantLakeBuilder AddComponent<TTenant, TComponent, TDataSource>(
@@ -30,12 +30,11 @@ public class TenantLakeBuilder
         return this;
     }
 
-    public TenantLakeBuilder AddLogicalView(string logicalViewName, Action<LogicalView> configure)
+    public TenantLakeBuilder AddTemplate(string templateName, Action<Template> configure)
     {
-        var logicalView = new LogicalView();
-        configure(logicalView);
-
-        _logicalViews.Add(logicalViewName, logicalView);
+        var template = new Template();
+        configure(template);
+        _templates.Add(templateName, template);
         return this;
     }
 
@@ -50,9 +49,9 @@ public class TenantLakeBuilder
         // TODO: Validate everything
         var patchersCopy = _patchers.Values.ToList();
         var tenantFactoriesCopy = new Dictionary<string, ITenantFactory>(_tenantFactories);
-        var logicalViewsCopy = _logicalViews.ToDictionary(x => x.Key, x => new LogicalView(x.Value));
+        var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
-        var factory = new TenantsFactory(logicalViewsCopy, tenantFactoriesCopy, componentPoolsCopy);
+        var factory = new TenantsFactory(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);
         return new TenantLake(factory, testContext, patchersCopy);
     }
 }
