@@ -11,19 +11,23 @@ internal sealed class OneSqlServer : IComponentPool<SqlServerComponent>
 {
     private readonly SqlServerComponent _component;
 
-    internal OneSqlServer(string name, string connectionString)
+    internal OneSqlServer(string connectionString)
     {
-        _component = new SqlServerComponent(name, connectionString);
+        _component = new SqlServerComponent(connectionString);
     }
 
     public IReadOnlyDictionary<string, SqlServerComponent> AcquireComponents(IReadOnlyDictionary<string, ComponentSpec> requestedComponents)
     {
-        if (requestedComponents.Count != 1 || requestedComponents.Single().Key != _component.Name)
-            throw new InvalidOperationException($"Pool contains only component '{_component.Name}'.");
+        if (requestedComponents.Count != 1)
+            throw new InvalidOperationException("Pool contains only one component. You must construct additional pylons.");
+
+        var (componentName, componentSpec) = requestedComponents.Single();
+        if (componentSpec.ComponentType != typeof(SqlServerComponent))
+            throw new InvalidOperationException("Incorrect component type.");
 
         return new Dictionary<string, SqlServerComponent>
         {
-            { requestedComponents.Single().Key, _component }
+            { componentName, _component }
         };
     }
 }
