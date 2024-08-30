@@ -5,6 +5,10 @@ namespace Sanctuary;
 
 /// <summary>
 /// <para>
+/// A glue that connects MSDI in the tested application to materialized
+/// template of a test.
+/// </para>
+/// <para>
 /// An interface that abstracts away a concrete testing framework context. DI
 /// will use this class to get actual tenant for a data access. The test
 /// context only holds tenants, it doesn't create them. The tenants are created
