@@ -43,10 +43,10 @@ public class LogicalView
         return this;
     }
 
-    public ITenantConfig<TTenant> AddTenant<TTenant>(string tenantName, string componentName)
+    public ITenantSpecBuilder<TTenant> AddTenant<TTenant>(string tenantName, string componentName)
     {
         _tenants.Add(tenantName, new TenantConfig(typeof(TTenant), componentName, null));
-        return new InternalBuilder<TTenant>(this, tenantName);
+        return new TenantSpecBuilder<TTenant>(this, tenantName);
     }
 
     public void AddComponent<TComponent>(string componentName)
@@ -54,10 +54,10 @@ public class LogicalView
         _components.Add(componentName, new ComponentSpec(typeof(TComponent)));
     }
 
-    private class InternalBuilder<TTenant>(LogicalView logicalView, string tenantName)
-        : ITenantConfig<TTenant>
+    private class TenantSpecBuilder<TTenant>(LogicalView logicalView, string tenantName)
+        : ITenantSpecBuilder<TTenant>
     {
-        public ITenantConfig<TTenant> WithDataSource<TDataSource>(TDataSource dataSource)
+        public ITenantSpecBuilder<TTenant> WithDataSource<TDataSource>(TDataSource dataSource)
         {
             logicalView._tenants[tenantName] = logicalView._tenants[tenantName] with { DataSource = dataSource };
             return this;
