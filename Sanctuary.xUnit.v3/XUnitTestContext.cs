@@ -18,7 +18,7 @@ public class XUnitTestContext : ITestContext
             if (untypedDataAccessMap is null)
                 throw new InvalidOperationException("No data access map.");
 
-            if (untypedDataAccessMap is not IReadOnlyDictionary<Type, TenantInfo> dataAccessMap)
+            if (untypedDataAccessMap is not IReadOnlyDictionary<Type, Tenant> dataAccessMap)
                 throw new InvalidOperationException("Incorrect type for data access map");
 
             return (TTenant)dataAccessMap[dataAccessType].Instance;

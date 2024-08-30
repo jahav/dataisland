@@ -5,9 +5,9 @@ using JetBrains.Annotations;
 namespace Sanctuary;
 
 [PublicAPI]
-public class TenantInfo
+public class Tenant
 {
-    internal TenantInfo(object instance, string tenantName, string componentName, object component, HashSet<Type> dataAccess)
+    internal Tenant(object instance, string tenantName, string componentName, object component, HashSet<Type> dataAccess)
     {
         Instance = instance;
         TenantName = tenantName;

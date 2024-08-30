@@ -31,9 +31,9 @@ internal class Materializer : IMaterializer
         _componentPools = componentPools;
     }
 
-    public async Task<IReadOnlyCollection<TenantInfo>> MaterializeTenantsAsync(string templateName)
+    public async Task<IReadOnlyCollection<Tenant>> MaterializeTenantsAsync(string templateName)
     {
-        var tenants = new List<TenantInfo>();
+        var tenants = new List<Tenant>();
 
         var template = _templates[templateName];
         var usedComponents = GetComponents(template);
@@ -61,7 +61,7 @@ internal class Materializer : IMaterializer
 
                 // Dynamic call of await factory.AddTenantAsync(component, tenantName, tenantConfig.DataSource);
                 var tenant = await CallAddTenantAsync(factory, component, tenantName, tenantConfig.DataSource);
-                var tenantInfo = new TenantInfo(
+                var tenantInfo = new Tenant(
                     tenant,
                     tenantName,
                     tenantConfig.ComponentName,
@@ -74,7 +74,7 @@ internal class Materializer : IMaterializer
         return tenants;
     }
 
-    public async Task DematerializeTenantsAsync(IEnumerable<TenantInfo> tenants)
+    public async Task DematerializeTenantsAsync(IEnumerable<Tenant> tenants)
     {
         foreach (var tenantInfo in tenants)
         {

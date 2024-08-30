@@ -56,7 +56,7 @@ public class ScopedTenantsAttribute : BeforeAfterTestAttribute
             ctx.KeyValueStorage.Remove(GetDataAccessMapKey(ctx));
         }
 
-        var tenants = (IEnumerable<TenantInfo>)untypedTenants;
+        var tenants = (IEnumerable<Tenant>)untypedTenants;
         var materializer = GetMaterializer(ctx, test);
         await materializer.DematerializeTenantsAsync(tenants);
     }

@@ -12,7 +12,7 @@ public interface IMaterializer
     /// Create all tenants defined in a template.
     /// </summary>
     /// <param name="templateName">Name of the template.</param>
-    Task<IReadOnlyCollection<TenantInfo>> MaterializeTenantsAsync(string templateName);
+    Task<IReadOnlyCollection<Tenant>> MaterializeTenantsAsync(string templateName);
 
-    Task DematerializeTenantsAsync(IEnumerable<TenantInfo> tenants);
+    Task DematerializeTenantsAsync(IEnumerable<Tenant> tenants);
 }
