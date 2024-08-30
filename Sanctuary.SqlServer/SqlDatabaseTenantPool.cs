@@ -130,14 +130,4 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     {
         return databaseName.Replace("[", "[[").Replace("]", "]]");
     }
-
-    async Task<object> ITenantFactory.AddTenantAsync(object component, string tenantName, object? dataSource)
-    {
-        return await AddTenantAsync((SqlServerComponent)component, tenantName, (SqlDatabaseDataSource?)dataSource);
-    }
-
-    async Task ITenantFactory.RemoveTenantAsync(object component, object tenant)
-    {
-        await RemoveTenantAsync((SqlServerComponent)component, (SqlDatabaseTenant)tenant);
-    }
 }

@@ -9,9 +9,9 @@ namespace Sanctuary;
 public class TenantLakeBuilder
 {
     /// <summary>
-    /// Key: component name. Value: tenant factory.
+    /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
     /// </summary>
-    private readonly Dictionary<string, ITenantFactory> _tenantFactories = new();
+    private readonly Dictionary<string, object> _tenantFactories = new();
 
     /// <summary>
     /// Key: type of component. Value: IComponentPool.
@@ -48,7 +48,7 @@ public class TenantLakeBuilder
     {
         // TODO: Validate everything
         var patchersCopy = _patchers.Values.ToList();
-        var tenantFactoriesCopy = new Dictionary<string, ITenantFactory>(_tenantFactories);
+        var tenantFactoriesCopy = new Dictionary<string, object>(_tenantFactories);
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
         var factory = new TenantsFactory(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);

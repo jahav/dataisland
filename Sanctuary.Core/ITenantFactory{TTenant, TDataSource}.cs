@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace Sanctuary;
 
 [PublicAPI]
-public interface ITenantFactory<TTenant, TComponent, in TDataSource> : ITenantFactory
+public interface ITenantFactory<TTenant, TComponent, in TDataSource>
 {
     Task<TTenant> AddTenantAsync(TComponent component, string tenantName, TDataSource? dataSource);
 

@@ -10,7 +10,11 @@ namespace Sanctuary;
 internal class TenantsFactory : ITenantsFactory
 {
     private readonly Dictionary<string, Template> _templates;
-    private readonly IReadOnlyDictionary<string, ITenantFactory> _tenantFactories;
+
+    /// <summary>
+    /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
+    /// </summary>
+    private readonly IReadOnlyDictionary<string, object> _tenantFactories;
 
     /// <summary>
     /// Key: type of component. Value: <see cref="IComponentPool{TComponent}">pool</see> of the component.
@@ -19,7 +23,7 @@ internal class TenantsFactory : ITenantsFactory
 
     internal TenantsFactory(
         Dictionary<string, Template> templates, 
-        IReadOnlyDictionary<string, ITenantFactory> tenantFactories,
+        IReadOnlyDictionary<string, object> tenantFactories,
         IReadOnlyDictionary<Type, object> componentPools)
     {
         _templates = templates;
@@ -33,7 +37,6 @@ internal class TenantsFactory : ITenantsFactory
 
         var template = _templates[templateName];
         var usedComponents = GetComponents(template);
-        var allComponents = new Dictionary<string, object>();
         foreach (var (componentType, componentSpecs) in usedComponents)
         {
             var componentPool = _componentPools[componentType];
@@ -45,13 +48,6 @@ internal class TenantsFactory : ITenantsFactory
             // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
             IDictionary acquiredComponents = (IDictionary)getComponentMethod.Invoke(componentPool, [componentSpecs]);
 
-            foreach (DictionaryEntry entry in acquiredComponents)
-            {
-                var componentName = (string)entry.Key;
-                var component = entry.Value;
-                allComponents.Add(componentName, component);
-            }
-
             var tenantDataAccesses = template._dataAccess
                 .GroupBy(x => x.Value)
                 .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
@@ -62,7 +58,9 @@ internal class TenantsFactory : ITenantsFactory
                     throw new InvalidOperationException("Missing pool");
 
                 var component = acquiredComponents[tenantConfig.ComponentName];
-                var tenant = await factory.AddTenantAsync(component, tenantName, tenantConfig.DataSource);
+
+                // Dynamic call of await factory.AddTenantAsync(component, tenantName, tenantConfig.DataSource);
+                var tenant = await CallAddTenantAsync(factory, component, tenantName, tenantConfig.DataSource);
                 var tenantInfo = new TenantInfo(
                     tenant,
                     tenantName,
@@ -81,7 +79,7 @@ internal class TenantsFactory : ITenantsFactory
         foreach (var tenantInfo in tenants)
         {
             var tenantFactory = _tenantFactories[tenantInfo.ComponentName];
-            await tenantFactory.RemoveTenantAsync(tenantInfo.Component, tenantInfo.Instance);
+            await CallRemoveTenantAsync(tenantFactory, tenantInfo.Component, tenantInfo.Instance);
         }
     }
 
@@ -102,5 +100,32 @@ internal class TenantsFactory : ITenantsFactory
         }
 
         return result;
+    }
+
+    private async Task<object> CallAddTenantAsync(object tenantFactory, object component, string tenantName, object? dataSource)
+    {
+        var interfaceType = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
+        var method = interfaceType?.GetMethod("AddTenantAsync");
+        if (method is null)
+            throw new UnreachableException();
+
+        var taskWithResult = (Task)method.Invoke(tenantFactory, [component, tenantName, dataSource]);
+        await taskWithResult;
+        var resultProperty = taskWithResult.GetType().GetProperty("Result");
+        if (resultProperty is null)
+            throw new UnreachableException();
+
+        return resultProperty.GetValue(taskWithResult);
+    }
+
+    private async Task CallRemoveTenantAsync(object tenantFactory, object component, object tenant)
+    {
+        var interfaceType = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
+        var method = interfaceType?.GetMethod("RemoveTenantAsync");
+        if (method is null)
+            throw new UnreachableException();
+
+        var task = (Task)method.Invoke(tenantFactory, [component, tenant]);
+        await task;
     }
 }
