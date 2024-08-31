@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable disable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -128,14 +129,14 @@ internal class Materializer : IMaterializer
         return acquiredComponents;
     }
 
-    private async Task<object> CallAddTenantAsync(object tenantFactory, object component, string tenantName, object? dataSource)
+    private static async Task<object> CallAddTenantAsync(object tenantFactory, object component, string tenantName, object tenantSpec)
     {
         var interfaceType = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
         var method = interfaceType?.GetMethod("AddTenantAsync");
         if (method is null)
             throw new UnreachableException();
 
-        var taskWithResult = (Task)method.Invoke(tenantFactory, [component, tenantName, dataSource]);
+        var taskWithResult = (Task)method.Invoke(tenantFactory, [component, tenantName, tenantSpec]);
         await taskWithResult;
         var resultProperty = taskWithResult.GetType().GetProperty("Result");
         if (resultProperty is null)
