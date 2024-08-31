@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\sanctuary.core\Sanctuary.Core.csproj" />
+    <ProjectReference Include="..\..\Sanctuary.Core\Sanctuary.Core.csproj" />
   </ItemGroup>
 
 </Project>
