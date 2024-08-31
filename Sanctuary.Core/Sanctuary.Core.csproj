@@ -6,7 +6,15 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Sanctuary</RootNamespace>
     <AssemblyName>Sanctuary</AssemblyName>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>Sanctuary.Core</PackageId>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/jahav/sancturary</RepositoryUrl>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2024.2.0" />
