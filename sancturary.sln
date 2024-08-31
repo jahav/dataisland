@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.Core", "sanctuary.core\Sanctuary.Core.csproj", "{17ED1991-B83F-475E-8313-01946106D49D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.Core", "Sanctuary.Core\Sanctuary.Core.csproj", "{17ED1991-B83F-475E-8313-01946106D49D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.EfCore", "Sanctuary.EfCore\Sanctuary.EfCore.csproj", "{01E65B99-8631-4F78-9924-1EE9AA7D7E29}"
 EndProject
