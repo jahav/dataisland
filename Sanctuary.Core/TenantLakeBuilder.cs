@@ -20,10 +20,12 @@ public class TenantLakeBuilder
     private readonly Dictionary<string, Template> _templates = new();
     private readonly Dictionary<Type, object> _patchers = new();
 
-    public TenantLakeBuilder AddComponent<TTenant, TComponent, TDataSource>(
-        string componentName, 
-        IComponentPool<TComponent> componentPool, 
-        ITenantFactory<TTenant, TComponent, TDataSource> factory)
+    public TenantLakeBuilder AddComponent<TComponent, TComponentSpec, TTenant, TTenantSpec>(
+        string componentName,
+        IComponentPool<TComponent, TComponentSpec> componentPool,
+        ITenantFactory<TTenant, TComponent, TTenantSpec> factory)
+        where TComponentSpec : ComponentSpec<TComponent>
+        where TTenantSpec : TenantSpec<TTenant>
     {
         _componentPools.Add(typeof(TComponent), componentPool);
         _tenantFactories.Add(componentName, factory);

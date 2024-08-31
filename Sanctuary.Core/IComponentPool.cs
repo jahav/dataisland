@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Sanctuary;
 
-public interface IComponentPool<TComponent>
+[PublicAPI]
+public interface IComponentPool<TComponent, TComponentSpec>
+    where TComponentSpec : ComponentSpec<TComponent>
 {
-    IReadOnlyDictionary<string, TComponent> AcquireComponents(IReadOnlyDictionary<string, ComponentSpec> requestedComponents);
+    Task<IReadOnlyDictionary<string, TComponent>> AcquireComponentsAsync(IReadOnlyDictionary<string, TComponentSpec> requestedComponents);
 }

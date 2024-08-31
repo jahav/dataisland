@@ -17,12 +17,14 @@ internal class Materializer : IMaterializer
     private readonly IReadOnlyDictionary<string, object> _tenantFactories;
 
     /// <summary>
-    /// Key: type of component. Value: <see cref="IComponentPool{TComponent}">pool</see> of the component.
+    /// Key: type of component. Value: <see cref="IComponentPool{TComponent,TComponentSpec}">
+    /// pool</see> of the component. Each type has a different spec type in the value, so we
+    /// can't use strong types.
     /// </summary>
     private readonly IReadOnlyDictionary<Type, object> _componentPools;
 
     internal Materializer(
-        Dictionary<string, Template> templates, 
+        Dictionary<string, Template> templates,
         IReadOnlyDictionary<string, object> tenantFactories,
         IReadOnlyDictionary<Type, object> componentPools)
     {
@@ -40,13 +42,7 @@ internal class Materializer : IMaterializer
         foreach (var (componentType, componentSpecs) in usedComponents)
         {
             var componentPool = _componentPools[componentType];
-            var interfaceType = componentPool.GetType().GetInterface(typeof(IComponentPool<>).Name);
-            var getComponentMethod = interfaceType?.GetMethod(nameof(IComponentPool<object>.AcquireComponents));
-            if (getComponentMethod is null)
-                throw new UnreachableException($"Type '{componentPool.GetType()}' is not a {typeof(IComponentPool<>)}.");
-
-            // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
-            IDictionary acquiredComponents = (IDictionary)getComponentMethod.Invoke(componentPool, [componentSpecs]);
+            var acquiredComponents = await CallAcquiredComponentsAsync(componentPool, componentSpecs);
 
             var tenantDataAccesses = template._dataAccess
                 .GroupBy(x => x.Value)
@@ -83,23 +79,53 @@ internal class Materializer : IMaterializer
         }
     }
 
-    private static Dictionary<Type, Dictionary<string, ComponentSpec>> GetComponents(Template template)
+    private static Dictionary<Type, object> GetComponents(Template template)
     {
-        var result = new Dictionary<Type, Dictionary<string, ComponentSpec>>();
+        // The dictionary value is Dictionary<string, {Some}Spec>
+        // but we can't do that, because value is invariant. The
+        // value would have to be covariant, but that would cause
+        // serious problems (potential runtime exception).
+        var result = new Dictionary<Type, object>();
         var usedComponents = template._components.ToLookup(
-            x => x.Value.ComponentType,
+            x => 
+            (
+                ComponentSpecType: x.Value.GetType(),
+                x.Value.ComponentType
+            ),
             x => (ComponentName: x.Key, Spec: x.Value));
 
         foreach (var oneTypeComponents in usedComponents)
         {
-            Type componentType = oneTypeComponents.Key;
-            Dictionary<string, ComponentSpec> componentSpecs =
-                oneTypeComponents.ToDictionary(x => x.ComponentName, x => x.Spec);
+            Type componentType = oneTypeComponents.Key.ComponentType;
+            Type componentSpecType = oneTypeComponents.Key.ComponentSpecType;
 
-            result.Add(componentType, componentSpecs);
+            var dictionaryType = typeof(Dictionary<,>).MakeGenericType(typeof(string), componentSpecType);
+            var oneTypeSpecs = (IDictionary)Activator.CreateInstance(dictionaryType);
+            foreach (var (componentName, componentSpec) in oneTypeComponents)
+                oneTypeSpecs.Add(componentName, componentSpec);
+
+            result.Add(componentType, oneTypeSpecs);
         }
 
         return result;
+    }
+
+    private static async Task<IDictionary> CallAcquiredComponentsAsync(object componentPool, object componentSpecs)
+    {
+        var interfaceType = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
+        var getComponentMethod = interfaceType?.GetMethod("AcquireComponentsAsync");
+        if (getComponentMethod is null)
+            throw new UnreachableException($"Type '{componentPool.GetType()}' is not a {typeof(IComponentPool<,>)}.");
+
+        var task = (Task)getComponentMethod.Invoke(componentPool, [componentSpecs]);
+        await task;
+        var resultProperty = task.GetType().GetProperty("Result");
+        if (resultProperty is null)
+            throw new UnreachableException();
+
+        // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
+        IDictionary acquiredComponents = (IDictionary)resultProperty.GetValue(task);
+        return acquiredComponents;
     }
 
     private async Task<object> CallAddTenantAsync(object tenantFactory, object component, string tenantName, object? dataSource)

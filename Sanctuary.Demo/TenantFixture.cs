@@ -59,7 +59,9 @@ public class TenantFixture : IAsyncLifetime
             // For default template, we request the following state of external components:
             .AddTemplate("DefaultTemplate", opt =>
             {
-                opt.AddComponent<SqlServerComponent>("DefaultComponent");
+                opt.AddComponent<SqlServerComponent, SqlServerSpec>(
+                    "DefaultComponent",
+                    spec => spec.WithCollation("SQL_Latin1_General_CP1_CI_AS"));
 
                 // Create a single database on the default pool. It doesn't specify
                 // special data source = use the default data source from the pool.

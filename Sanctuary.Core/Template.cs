@@ -54,8 +54,11 @@ public class Template
         _tenants.Add(tenantName, spec);
     }
 
-    public void AddComponent<TComponent>(string componentName)
+    public void AddComponent<TComponent, TComponentSpec>(string componentName, Func<TComponentSpec, TComponentSpec>? config = null)
+        where TComponentSpec : ComponentSpec<TComponent>, new()
     {
-        _components.Add(componentName, new ComponentSpec(typeof(TComponent)));
+        var spec = new TComponentSpec();
+        spec = config?.Invoke(spec) ?? spec;
+        _components.Add(componentName, spec);
     }
 }

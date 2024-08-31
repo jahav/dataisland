@@ -5,6 +5,7 @@ namespace Sanctuary;
 
 [PublicAPI]
 public interface ITenantFactory<TTenant, TComponent, TTenantSpec>
+    where TTenantSpec : TenantSpec<TTenant>
 {
     Task<TTenant> AddTenantAsync(TComponent component, string tenantName, TTenantSpec spec);
 

@@ -15,7 +15,7 @@ public static class SqlServerComponentFactory
     ///     component (add/remove databases, load data). This connection string is also used as a template
     ///     for connection strings for each tenant (the database in the string will be adjusted for a tenant).
     /// </param>
-    public static IComponentPool<SqlServerComponent> ExistingSqlServer(string connectionString)
+    public static IComponentPool<SqlServerComponent, SqlServerSpec> ExistingSqlServer(string connectionString)
     {
         return new OneSqlServer(connectionString);
     }
