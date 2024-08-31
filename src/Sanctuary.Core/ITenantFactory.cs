@@ -17,10 +17,9 @@ public interface ITenantFactory<TTenant, in TComponent, in TTenantSpec>
     /// Create a new tenant that doesn't conflict with any other tenant on a <paramref name="component"/>.
     /// </summary>
     /// <param name="component">Component where tenant will be created.</param>
-    /// <param name="tenantName">Logical name of a tenant from <see cref="Template"/>.</param>  // TODO: Why does this exist?
     /// <param name="spec">Tenant specification that describes how should returned tenant look like.</param>
     /// <returns>Created tenant.</returns>
-    Task<TTenant> AddTenantAsync(TComponent component, string tenantName, TTenantSpec spec);
+    Task<TTenant> AddTenantAsync(TComponent component, TTenantSpec spec);
 
     /// <summary>
     /// Remove a tenant from component.

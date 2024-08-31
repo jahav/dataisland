@@ -56,8 +56,8 @@ internal class Materializer : IMaterializer
 
                 var component = acquiredComponents[tenantSpec.ComponentName];
 
-                // Dynamic call of await factory.AddTenantAsync(component, tenantName, tenantSpec);
-                var tenant = await CallAddTenantAsync(factory, component, tenantName, tenantSpec);
+                // Dynamic call of await factory.AddTenantAsync(component, tenantSpec);
+                var tenant = await CallAddTenantAsync(factory, component, tenantSpec);
                 var tenantInfo = new Tenant(
                     tenant,
                     tenantName,
@@ -129,14 +129,14 @@ internal class Materializer : IMaterializer
         return acquiredComponents;
     }
 
-    private static async Task<object> CallAddTenantAsync(object tenantFactory, object component, string tenantName, object tenantSpec)
+    private static async Task<object> CallAddTenantAsync(object tenantFactory, object component, object tenantSpec)
     {
         var interfaceType = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
         var method = interfaceType?.GetMethod("AddTenantAsync");
         if (method is null)
             throw new UnreachableException();
 
-        var taskWithResult = (Task)method.Invoke(tenantFactory, [component, tenantName, tenantSpec]);
+        var taskWithResult = (Task)method.Invoke(tenantFactory, [component, tenantSpec]);
         await taskWithResult;
         var resultProperty = taskWithResult.GetType().GetProperty("Result");
         if (resultProperty is null)

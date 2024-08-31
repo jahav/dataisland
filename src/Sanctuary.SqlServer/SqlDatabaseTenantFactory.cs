@@ -19,7 +19,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     }
 
     /// <inheritdoc />
-    public async Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, string tenantName, SqlDatabaseSpec spec)
+    public async Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, SqlDatabaseSpec spec)
     {
         // Use connections string
         var tenantDbName = Guid.NewGuid().ToString();
@@ -71,7 +71,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
             InitialCatalog = tenantDbName
         }.ConnectionString;
 
-        return new SqlDatabaseTenant(tenantName, tenantConnectionString, component, tenantDbName);
+        return new SqlDatabaseTenant(tenantConnectionString, component, tenantDbName);
     }
 
     /// <inheritdoc />
