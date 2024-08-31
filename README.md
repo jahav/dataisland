@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/jahav/dataisland/actions/workflows/build.yml/badge.svg)](https://github.com/jahav/dataisland/actions/workflows/build.yml)
 [![codecov](https://codecov.io/github/jahav/dataisland/graph/badge.svg?token=1PGEZFGIVW)](https://codecov.io/github/jahav/dataisland)
+[![Documentation Status](https://readthedocs.org/projects/dataisland/badge/?version=latest)](https://dataisland.readthedocs.io/en/latest/?badge=latest)
 
 DataIsland is a project to enable parallel execution of integration tests.
 
