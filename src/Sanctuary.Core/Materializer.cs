@@ -88,7 +88,7 @@ internal class Materializer : IMaterializer
         // serious problems (potential runtime exception).
         var result = new Dictionary<Type, object>();
         var usedComponents = template._components.ToLookup(
-            x => 
+            x =>
             (
                 ComponentSpecType: x.Value.GetType(),
                 x.Value.ComponentType
@@ -131,28 +131,27 @@ internal class Materializer : IMaterializer
 
     private static async Task<object> CallAddTenantAsync(object tenantFactory, object component, object tenantSpec)
     {
-        var interfaceType = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
-        var method = interfaceType?.GetMethod("AddTenantAsync");
-        if (method is null)
-            throw new UnreachableException();
-
-        var taskWithResult = (Task)method.Invoke(tenantFactory, [component, tenantSpec]);
-        await taskWithResult;
+        // Actually return Task<TTenant>
+        var taskWithResult = await InvokeTenantFactoryMethod(tenantFactory, "AddTenantAsync", [component, tenantSpec]);
         var resultProperty = taskWithResult.GetType().GetProperty("Result");
-        if (resultProperty is null)
-            throw new UnreachableException();
-
+        Debug.Assert(resultProperty is not null);
         return resultProperty.GetValue(taskWithResult);
     }
 
-    private async Task CallRemoveTenantAsync(object tenantFactory, object component, object tenant)
+    private static async Task CallRemoveTenantAsync(object tenantFactory, object component, object tenant)
     {
-        var interfaceType = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
-        var method = interfaceType?.GetMethod("RemoveTenantAsync");
-        if (method is null)
-            throw new UnreachableException();
+        await InvokeTenantFactoryMethod(tenantFactory, "RemoveTenantAsync", [component, tenant]);
+    }
 
-        var task = (Task)method.Invoke(tenantFactory, [component, tenant]);
+    private static async ValueTask<Task> InvokeTenantFactoryMethod(object tenantFactory, string methodName, object[] args)
+    {
+        var tenantFactoryInterface = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
+        Debug.Assert(tenantFactoryInterface is not null);
+        var method = tenantFactoryInterface.GetMethod(methodName);
+        Debug.Assert(method is not null);
+        var task = (Task)method.Invoke(tenantFactory, args);
+        Debug.Assert(task is not null);
         await task;
+        return task;
     }
 }
