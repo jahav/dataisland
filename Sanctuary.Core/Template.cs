@@ -43,24 +43,19 @@ public class Template
         return this;
     }
 
-    public ITenantSpecBuilder<TTenant> AddTenant<TTenant>(string tenantName, string componentName)
+    public void AddTenant<TTenant, TTenantSpec>(string tenantName, string componentName, Func<TTenantSpec, TTenantSpec>? config = null)
+        where TTenantSpec : TenantSpec<TTenant>, new()
     {
-        _tenants.Add(tenantName, new TenantSpec(typeof(TTenant), componentName, null));
-        return new TenantSpecBuilder<TTenant>(this, tenantName);
+        var spec = new TTenantSpec
+        {
+            ComponentName = componentName
+        };
+        spec = config?.Invoke(spec) ?? spec;
+        _tenants.Add(tenantName, spec);
     }
 
     public void AddComponent<TComponent>(string componentName)
     {
         _components.Add(componentName, new ComponentSpec(typeof(TComponent)));
-    }
-
-    private class TenantSpecBuilder<TTenant>(Template template, string tenantName)
-        : ITenantSpecBuilder<TTenant>
-    {
-        public ITenantSpecBuilder<TTenant> WithDataSource<TDataSource>(TDataSource dataSource)
-        {
-            template._tenants[tenantName] = template._tenants[tenantName] with { DataSource = dataSource };
-            return this;
-        }
     }
 }

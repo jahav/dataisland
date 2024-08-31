@@ -62,7 +62,10 @@ public class TenantFixture : IAsyncLifetime
 
                 // Create a single database on the default pool. It doesn't specify
                 // special data source = use the default data source from the pool.
-                opt.AddTenant<SqlDatabaseTenant>("DefaultTenant", "DefaultComponent");
+                opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>(
+                    "DefaultTenant",
+                    "DefaultComponent",
+                    spec => spec.WithMaxDop(4));
 
                 // The patcher should patch QueryDbContext to hook into a database above.
                 opt.AddDataAccess<QueryDbContext>("DefaultTenant");

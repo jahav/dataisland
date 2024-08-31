@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -9,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Sanctuary.SqlServer;
 
-public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlServerComponent, SqlDatabaseDataSource>
+public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlServerComponent, SqlDatabaseSpec>
 {
     private readonly string _basePath;
     private readonly SqlDatabaseDataSource _dataSource;
@@ -21,7 +20,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     }
 
     /// <inheritdoc />
-    public Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, string tenantName, SqlDatabaseDataSource? dataSource)
+    public Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, string tenantName, SqlDatabaseSpec spec)
     {
         // Use connections string
         var tenantDbName = Guid.NewGuid().ToString();
@@ -31,7 +30,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         connection.Open();
 
         var command = connection.CreateCommand();
-        dataSource ??= _dataSource;
+        var dataSource = spec.DataSource ?? _dataSource;
         if (dataSource.Path is null || dataSource.File is null)
         {
             command.CommandText = $"CREATE DATABASE [{EscapeDbName(tenantDbName)}]";

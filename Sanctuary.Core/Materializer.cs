@@ -52,19 +52,19 @@ internal class Materializer : IMaterializer
                 .GroupBy(x => x.Value)
                 .ToDictionary(x => x.Key, x => x.Select(y => y.Key).ToHashSet());
 
-            foreach (var (tenantName, tenantConfig) in template._tenants)
+            foreach (var (tenantName, tenantSpec) in template._tenants)
             {
-                if (!_tenantFactories.TryGetValue(tenantConfig.ComponentName, out var factory))
+                if (!_tenantFactories.TryGetValue(tenantSpec.ComponentName, out var factory))
                     throw new InvalidOperationException("Missing pool");
 
-                var component = acquiredComponents[tenantConfig.ComponentName];
+                var component = acquiredComponents[tenantSpec.ComponentName];
 
-                // Dynamic call of await factory.AddTenantAsync(component, tenantName, tenantConfig.DataSource);
-                var tenant = await CallAddTenantAsync(factory, component, tenantName, tenantConfig.DataSource);
+                // Dynamic call of await factory.AddTenantAsync(component, tenantName, tenantSpec);
+                var tenant = await CallAddTenantAsync(factory, component, tenantName, tenantSpec);
                 var tenantInfo = new Tenant(
                     tenant,
                     tenantName,
-                    tenantConfig.ComponentName,
+                    tenantSpec.ComponentName,
                     component,
                     tenantDataAccesses[tenantName]);
                 tenants.Add(tenantInfo);
