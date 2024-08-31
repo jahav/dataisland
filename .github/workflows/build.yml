@@ -14,15 +14,17 @@ jobs:
 
     steps:
       - name: Checkout code 🔄
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup .NET 📦
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install dependencies 📂
-        run: dotnet restore Sanctuary.Core
+      - name: Restore NuGet packages 📂
+        run: dotnet restore
+        working-directory: ./
 
       - name: Build 🧱
-        run: dotnet build Sanctuary.Core --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore
+        working-directory: ./
