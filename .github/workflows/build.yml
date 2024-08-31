@@ -33,4 +33,12 @@ jobs:
       - name: Test 🧪
         run: dotnet test tests/Sanctuary.Core.Tests/Sanctuary.Core.Tests.csproj --configuration Release --logger GitHubActions --no-build
         working-directory: ./
-        
+
+      - name: Pack
+        run: dotnet pack --configuration Release
+
+      - name: Authenticate to Nuget
+        run: dotnet nuget add source --username jahav --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/jahav/index.json"
+
+      - name: Publish to GitHub packages
+        run: dotnet nuget push "Sanctuary.Core/bin/Release/Sanctuary.Core.1.0.0.nupkg" --source "github"
