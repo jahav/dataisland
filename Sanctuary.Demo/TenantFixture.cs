@@ -67,7 +67,8 @@ public class TenantFixture : IAsyncLifetime
                     "DefaultTenant",
                     "DefaultComponent",
                     spec => spec
-                        .WithDataSource(userTableBackup));
+                        .WithDataSource(userTableBackup)
+                        .WithMaxDop(1));
 
                 // The patcher should patch QueryDbContext to hook into a database above.
                 opt.AddDataAccess<QueryDbContext>("DefaultTenant");

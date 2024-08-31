@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -18,7 +19,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     }
 
     /// <inheritdoc />
-    public Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, string tenantName, SqlDatabaseSpec spec)
+    public async Task<SqlDatabaseTenant> AddTenantAsync(SqlServerComponent component, string tenantName, SqlDatabaseSpec spec)
     {
         // Use connections string
         var tenantDbName = Guid.NewGuid().ToString();
@@ -59,6 +60,10 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         }
 
         command.ExecuteNonQuery();
+
+        if (spec.MaxDop is { } maxDop)
+            await SetMaxDopAsync(connection, tenantDbName, maxDop);
+
         connection.Close();
 
         var tenantConnectionString = new SqlConnectionStringBuilder(component.ConnectionString)
@@ -66,7 +71,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
             InitialCatalog = tenantDbName
         }.ConnectionString;
 
-        return Task.FromResult(new SqlDatabaseTenant(tenantName, tenantConnectionString, component, tenantDbName));
+        return new SqlDatabaseTenant(tenantName, tenantConnectionString, component, tenantDbName);
     }
 
     /// <inheritdoc />
@@ -74,7 +79,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     {
         using var connection = new SqlConnection(component.ConnectionString);
         connection.Open();
-        
+
         var dropConnections = connection.CreateCommand();
         dropConnections.CommandText = $"ALTER DATABASE [{tenant.DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE";
         dropConnections.ExecuteNonQuery();
@@ -126,5 +131,24 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     private static string EscapeDbName(string databaseName)
     {
         return databaseName.Replace("[", "[[").Replace("]", "]]");
+    }
+
+    private static async Task SetMaxDopAsync(DbConnection connection, string dbName, int maxDop)
+    {
+        using var setMaxDop = connection.CreateCommand();
+        setMaxDop.CommandText = $"""
+                                 USE [{EscapeDbName(dbName)}];
+                                 DECLARE @currentMaxDop int =
+                                     (
+                                         SELECT CONVERT(int, [value])
+                                         FROM sys.database_scoped_configurations
+                                         WHERE [name] = 'MAXDOP'
+                                     );
+                                 IF (@currentMaxDop != {maxDop})
+                                 BEGIN
+                                     ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = {maxDop};
+                                 END;
+                                 """;
+        await setMaxDop.ExecuteNonQueryAsync();
     }
 }
