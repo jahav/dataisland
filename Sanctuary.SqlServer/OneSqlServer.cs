@@ -44,4 +44,9 @@ internal sealed class OneSqlServer : IComponentPool<SqlServerComponent, SqlServe
             { componentName, _component }
         };
     }
+
+    public ValueTask DisposeAsync()
+    {
+        return default;
+    }
 }

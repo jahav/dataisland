@@ -75,7 +75,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
     }
 
     /// <inheritdoc />
-    public Task RemoveTenantAsync(SqlServerComponent component, SqlDatabaseTenant tenant)
+    public Task<bool> RemoveTenantAsync(SqlServerComponent component, SqlDatabaseTenant tenant)
     {
         using var connection = new SqlConnection(component.ConnectionString);
         connection.Open();
@@ -88,7 +88,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         createDatabaseCommand.CommandText = $"DROP DATABASE [{tenant.DatabaseName}]";
         createDatabaseCommand.ExecuteNonQuery();
         connection.Close();
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
     private static List<BackupFile> GetLogicalFiles(SqlConnection connection, string diskPath, int file)
