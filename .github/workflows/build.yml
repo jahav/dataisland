@@ -41,8 +41,8 @@ jobs:
 
       - name: Pack Sanctuary.Core
         if: startsWith(github.ref, 'refs/tags/')
-        run: dotnet pack Sanctuary.Core/Sanctuary.Core.csproj --configuration Release /p:PackageVersion=1.0.0-${{ github.run_number }}-${{ github.sha }}
+        run: dotnet pack src/Sanctuary.Core/Sanctuary.Core.csproj --configuration Release /p:PackageVersion=1.0.0-${{ github.run_number }}-${{ github.sha }}
 
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
-        run: dotnet nuget push Sanctuary.Core/bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jahav/index.json"
+        run: dotnet nuget push src/Sanctuary.Core/bin/Release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jahav/index.json"
