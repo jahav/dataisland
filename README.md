@@ -1,9 +1,9 @@
-# Sancturary
+# DataIsland
 
-[![CI](https://github.com/jahav/sanctuary/actions/workflows/build.yml/badge.svg)](https://github.com/jahav/sanctuary/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/jahav/sanctuary/graph/badge.svg?token=1PGEZFGIVW)](https://codecov.io/gh/jahav/sanctuary)
+[![CI](https://github.com/jahav/dataisland/actions/workflows/build.yml/badge.svg)](https://github.com/jahav/dataisland/actions/workflows/build.yml)
+[![codecov](https://codecov.io/github/jahav/dataisland/graph/badge.svg?token=1PGEZFGIVW)](https://codecov.io/github/jahav/dataisland)
 
-Sanctuary is a project to enable parallel execution of integration tests.
+DataIsland is a project to enable parallel execution of integration tests.
 
 ## How does it work?
 
