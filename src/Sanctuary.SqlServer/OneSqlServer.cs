@@ -33,7 +33,7 @@ internal sealed class OneSqlServer : IComponentPool<SqlServerComponent, SqlServe
             await connection.OpenAsync();
             var command = connection.CreateCommand();
             command.CommandText = "SELECT SERVERPROPERTY('Collation')";
-            var collation = (string)await command.ExecuteScalarAsync();
+            var collation = (string?)await command.ExecuteScalarAsync();
             connection.Close();
             if (collation != componentSpec.Collation)
                 throw new InvalidOperationException($"Unable to find a server with collation {componentSpec.Collation}.");
