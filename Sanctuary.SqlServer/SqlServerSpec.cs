@@ -13,6 +13,6 @@ public sealed record SqlServerSpec : ComponentSpec<SqlServerComponent>
     /// <param name="collation">Desired collation name.</param>
     public SqlServerSpec WithCollation(string collation)
     {
-        return this with { Collation = collation };
+        return new SqlServerSpec { Collation = collation };
     }
 }
