@@ -1,6 +1,7 @@
 # Sancturary
 
 [![CI](https://github.com/jahav/sanctuary/actions/workflows/build.yml/badge.svg)](https://github.com/jahav/sanctuary/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/jahav/sanctuary/graph/badge.svg?token=1PGEZFGIVW)](https://codecov.io/gh/jahav/sanctuary)
 
 Sanctuary is a project to enable parallel execution of integration tests.
 
