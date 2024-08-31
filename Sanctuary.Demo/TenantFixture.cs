@@ -33,11 +33,12 @@ public class TenantFixture : IAsyncLifetime
         var factory = new SqlDatabaseTenantFactory(
             // Directory on the SQL Server machine to store .mdf and .ldf files
             // for test databases.
-            @"c:\Temp\sanctuary\files",
-            
-            // Default data source used to create database, unless tenant specifies
-            // otherwise. File path is on the SQL Server machine.
-            new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak"));
+            @"c:\Temp\sanctuary\files");
+
+
+        // Default data source used to create database, unless tenant specifies
+        // otherwise. File path is on the SQL Server machine.
+        var userTableBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak");
 
         // Build a definition of possible configurations of external state.
         // Each view describes a state of external components (e.g.
@@ -65,7 +66,8 @@ public class TenantFixture : IAsyncLifetime
                 opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>(
                     "DefaultTenant",
                     "DefaultComponent",
-                    spec => spec.WithMaxDop(4));
+                    spec => spec
+                        .WithDataSource(userTableBackup));
 
                 // The patcher should patch QueryDbContext to hook into a database above.
                 opt.AddDataAccess<QueryDbContext>("DefaultTenant");
@@ -87,7 +89,7 @@ public class TenantFixture : IAsyncLifetime
     }
 
     public ITenantLake Lake { get; }
-    
+
     public ValueTask InitializeAsync()
     {
         return ValueTask.CompletedTask;

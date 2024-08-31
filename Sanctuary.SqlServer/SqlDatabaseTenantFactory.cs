@@ -11,12 +11,10 @@ namespace Sanctuary.SqlServer;
 public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlServerComponent, SqlDatabaseSpec>
 {
     private readonly string _basePath;
-    private readonly SqlDatabaseDataSource _dataSource;
 
-    public SqlDatabaseTenantFactory(string basePath, SqlDatabaseDataSource dataSource)
+    public SqlDatabaseTenantFactory(string basePath)
     {
         _basePath = basePath;
-        _dataSource = dataSource;
     }
 
     /// <inheritdoc />
@@ -30,8 +28,8 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         connection.Open();
 
         var command = connection.CreateCommand();
-        var dataSource = spec.DataSource ?? _dataSource;
-        if (dataSource.Path is null || dataSource.File is null)
+        var dataSource = spec.DataSource;
+        if (dataSource?.Path is null || dataSource.File is null)
         {
             command.CommandText = $"CREATE DATABASE [{EscapeDbName(tenantDbName)}]";
         }
