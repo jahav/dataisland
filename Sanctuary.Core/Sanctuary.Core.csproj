@@ -9,10 +9,11 @@
     <PackageId>Sanctuary.Core</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/jahav/sancturary</RepositoryUrl>
+    <Version>1.0.0-pre1</Version>
   </PropertyGroup>
   
   <ItemGroup>
-    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
