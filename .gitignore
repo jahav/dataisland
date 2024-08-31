@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# readthedocs.org Sphinx-doc build output
+/docs/_build
+/docs/_static
+/docs/_templates
