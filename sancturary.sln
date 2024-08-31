@@ -11,12 +11,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.SqlServer", "Sanc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{AF1CDBE7-ADF7-4A67-A076-AF6D1C32A394}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanctuary.Demo", "Sanctuary.Demo\Sanctuary.Demo.csproj", "{69DCBDFB-B09D-4308-B865-4C5FF6688B18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.Demo", "Sanctuary.Demo\Sanctuary.Demo.csproj", "{69DCBDFB-B09D-4308-B865-4C5FF6688B18}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.xUnit.v3", "Sanctuary.xUnit.v3\Sanctuary.xUnit.v3.csproj", "{FA38F084-991D-4C72-8313-40204188BF82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanctuary.Core.Tests", "tests\Sanctuary.Core.Tests\Sanctuary.Core.Tests.csproj", "{9660CA87-1C21-46A8-B31B-BFE432A18D9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +47,10 @@ Global
 		{FA38F084-991D-4C72-8313-40204188BF82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA38F084-991D-4C72-8313-40204188BF82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA38F084-991D-4C72-8313-40204188BF82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9660CA87-1C21-46A8-B31B-BFE432A18D9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9660CA87-1C21-46A8-B31B-BFE432A18D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9660CA87-1C21-46A8-B31B-BFE432A18D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9660CA87-1C21-46A8-B31B-BFE432A18D9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
