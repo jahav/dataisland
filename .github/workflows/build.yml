@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code 🔄
+        uses: actions/checkout@v3
+
+      - name: Setup .NET 📦
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install dependencies 📂
+        run: dotnet restore Sanctuary.Core
+
+      - name: Build 🧱
+        run: dotnet build Sanctuary.Core --configuration Release --no-restore
