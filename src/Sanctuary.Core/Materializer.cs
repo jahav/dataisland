@@ -1,5 +1,4 @@
-﻿#nullable disable
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -54,7 +53,7 @@ internal class Materializer : IMaterializer
                 if (!_tenantFactories.TryGetValue(tenantSpec.ComponentName, out var factory))
                     throw new InvalidOperationException("Missing pool");
 
-                var component = acquiredComponents[tenantSpec.ComponentName];
+                var component = acquiredComponents[tenantSpec.ComponentName]!;
 
                 // Dynamic call of await factory.AddTenantAsync(component, tenantSpec);
                 var tenant = await CallAddTenantAsync(factory, component, tenantSpec);
@@ -101,7 +100,7 @@ internal class Materializer : IMaterializer
             Type componentSpecType = oneTypeComponents.Key.ComponentSpecType;
 
             var dictionaryType = typeof(Dictionary<,>).MakeGenericType(typeof(string), componentSpecType);
-            var oneTypeSpecs = (IDictionary)Activator.CreateInstance(dictionaryType);
+            var oneTypeSpecs = (IDictionary?)Activator.CreateInstance(dictionaryType)!;
             foreach (var (componentName, componentSpec) in oneTypeComponents)
                 oneTypeSpecs.Add(componentName, componentSpec);
 
@@ -113,19 +112,19 @@ internal class Materializer : IMaterializer
 
     private static async Task<IDictionary> CallAcquiredComponentsAsync(object componentPool, object componentSpecs)
     {
-        var interfaceType = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
-        var getComponentMethod = interfaceType?.GetMethod("AcquireComponentsAsync");
-        if (getComponentMethod is null)
-            throw new UnreachableException($"Type '{componentPool.GetType()}' is not a {typeof(IComponentPool<,>)}.");
-
-        var task = (Task)getComponentMethod.Invoke(componentPool, [componentSpecs]);
+        var componentPoolInterface = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
+        Debug.Assert(componentPoolInterface is not null);
+        var getComponentMethod = componentPoolInterface.GetMethod("AcquireComponentsAsync");
+        Debug.Assert(getComponentMethod is not null);
+        var task = (Task?)getComponentMethod.Invoke(componentPool, [componentSpecs]);
+        Debug.Assert(task is not null);
         await task;
         var resultProperty = task.GetType().GetProperty("Result");
-        if (resultProperty is null)
-            throw new UnreachableException();
+        Debug.Assert(resultProperty is not null);
 
         // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
-        IDictionary acquiredComponents = (IDictionary)resultProperty.GetValue(task);
+        var acquiredComponents = (IDictionary?)resultProperty.GetValue(task);
+        Debug.Assert(acquiredComponents is not null);
         return acquiredComponents;
     }
 
@@ -135,7 +134,9 @@ internal class Materializer : IMaterializer
         var taskWithResult = await InvokeTenantFactoryMethod(tenantFactory, "AddTenantAsync", [component, tenantSpec]);
         var resultProperty = taskWithResult.GetType().GetProperty("Result");
         Debug.Assert(resultProperty is not null);
-        return resultProperty.GetValue(taskWithResult);
+        var tenant = resultProperty.GetValue(taskWithResult);
+        Debug.Assert(tenant is not null);
+        return tenant;
     }
 
     private static async Task CallRemoveTenantAsync(object tenantFactory, object component, object tenant)
@@ -149,7 +150,7 @@ internal class Materializer : IMaterializer
         Debug.Assert(tenantFactoryInterface is not null);
         var method = tenantFactoryInterface.GetMethod(methodName);
         Debug.Assert(method is not null);
-        var task = (Task)method.Invoke(tenantFactory, args);
+        var task = (Task?)method.Invoke(tenantFactory, args);
         Debug.Assert(task is not null);
         await task;
         return task;

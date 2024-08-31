@@ -11,6 +11,15 @@
     <RepositoryUrl>https://github.com/jahav/sancturary</RepositoryUrl>
     <Version>1.0.0-pre1</Version>
   </PropertyGroup>
+
+  <!-- netstandard2.0 doesn't have baked in nullabel attributes and thus reports false positive
+       nullable warnings. Example: !string.IsNullOrEmpty(text) would indicate text is not null
+       doesn't work because it's missing baked annotations [NotNullWhen(false)]).
+       This disables warnings for netstandard2.0, but because library is targeting multiple
+       frameworks, the nullable analysis and warnigns are still reported by net8.0. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <NoWarn>$(NoWarn);nullable</NoWarn>
+  </PropertyGroup>
   
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="" />
