@@ -1,5 +1,7 @@
 # Sancturary
 
+[![CI](https://github.com/jahav/sanctuary/actions/workflows/build.yml/badge.svg)](https://github.com/jahav/sanctuary/actions/workflows/build.yml)
+
 Sanctuary is a project to enable parallel execution of integration tests.
 
 ## How does it work?
