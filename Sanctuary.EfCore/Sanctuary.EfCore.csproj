@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\sanctuary.core\Sanctuary.Core.csproj" />
+    <ProjectReference Include="..\Sanctuary.Core\Sanctuary.Core.csproj" />
     <ProjectReference Include="..\Sanctuary.SqlServer\Sanctuary.SqlServer.csproj" />
   </ItemGroup>
 
