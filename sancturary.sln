@@ -5,8 +5,11 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{AF1CDBE7-ADF7-4A67-A076-AF6D1C32A394}"
 	ProjectSection(SolutionItems) = preProject
+		.readthedocs.yaml = .readthedocs.yaml
 		.github\workflows\build.yml = .github\workflows\build.yml
+		docs\conf.py = docs\conf.py
 		README.md = README.md
+		docs\requirements.txt = docs\requirements.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sanctuary.Core", "src\Sanctuary.Core\Sanctuary.Core.csproj", "{A200D947-A719-4972-977A-AED40292A211}"
