@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: src/Sanctuary.Core/Sanctuary.Core/bin/Release/*.nupkg
+          path: src/Sanctuary.Core/bin/Release/*.nupkg
 
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
