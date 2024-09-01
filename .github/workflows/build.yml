@@ -57,7 +57,7 @@ jobs:
       - name: Archive Core package
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: core-package
           path: src/Sanctuary.Core/bin/Release/*.nupkg
 
       - name: Publish
