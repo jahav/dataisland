@@ -1,9 +1,9 @@
-name: Build & Test
+name: Publish
 
 on:
   push:
-    branches:
-      - develop
+    tags:
+      - '*.*.*'
 
 permissions:
   packages: write
@@ -50,10 +50,23 @@ jobs:
           files: tests/DataIsland.Core.Tests/TestResults/**/coverage.opencover.xml
 
       - name: Pack NuGet packages
-        run: dotnet pack --no-build --configuration Release --output nuget_packages /p:PackageVersion=1.0.0-${{ github.run_number }}-${{ github.sha }}
+        run: dotnet pack --no-build --configuration Release --output nuget_packages /p:PackageVersion=${{ github.ref_name }}
 
       - name: Artifact CI NuGet packages
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
           path: nuget_packages/*.nupkg
+
+      - name: Publish Core
+        run: dotnet nuget push nuget_packages/DataIsland.Core.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jahav/index.json"
+
+      - name: Publish SqlServer
+        run: dotnet nuget push nuget_packages/DataIsland.SqlServer.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jahav/index.json"
+
+      - name: Publish EfCore
+        run: dotnet nuget push nuget_packages/DataIsland.EfCore.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jahav/index.json"
+
+      - name: Publish xUnit.v3
+        run: dotnet nuget push nuget_packages/DataIsland.xUnit.v3.*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jahav/index.json"
+

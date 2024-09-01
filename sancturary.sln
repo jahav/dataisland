@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		.readthedocs.yaml = .readthedocs.yaml
 		.github\workflows\build.yml = .github\workflows\build.yml
 		docs\conf.py = docs\conf.py
+		.github\workflows\publish.yml = .github\workflows\publish.yml
 		README.md = README.md
 		docs\requirements.txt = docs\requirements.txt
 	EndProjectSection
