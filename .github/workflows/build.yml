@@ -51,9 +51,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: tests/Sanctuary.Core.Tests/TestResults/**/coverage.opencover.xml
 
-      - name: Pack Sanctuary.Core
+      - name: Pack DataIsland.Core
         if: startsWith(github.ref, 'refs/tags/')
         run: dotnet pack src/Sanctuary.Core/Sanctuary.Core.csproj --configuration Release /p:PackageVersion=1.0.0-${{ github.run_number }}-${{ github.sha }}
+
+      - name: Archive Core package
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: src/Sanctuary.Core/Sanctuary.Core/bin/Release/*.nupkg
 
       - name: Publish
         if: startsWith(github.ref, 'refs/tags/')
