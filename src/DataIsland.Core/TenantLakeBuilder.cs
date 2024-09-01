@@ -20,15 +20,36 @@ public class TenantLakeBuilder
     private readonly Dictionary<string, Template> _templates = new();
     private readonly Dictionary<Type, object> _patchers = new();
 
-    public TenantLakeBuilder AddComponent<TComponent, TComponentSpec, TTenant, TTenantSpec>(
+    /// <summary>
+    /// Register a component pool that will be providing components when <see cref="Template"/>
+    /// is going to be instantiated. When a <see cref="Template"/> says it wants to use
+    /// a component, it will use a logical name (<see cref="componentName"/>) that be used to
+    /// select this pool.
+    /// </summary>
+    /// <typeparam name="TComponent">Type of component the pool will be providing.</typeparam>
+    /// <typeparam name="TComponentSpec">The component specification of a <typeparamref name="TComponent"/>.</typeparam>
+    /// <typeparam name="TTenant">Tenant that can be created in the component.</typeparam>
+    /// <typeparam name="TTenantSpec">The tenant specification of a <typeparamref name="TTenant"/>.</typeparam>
+    /// <param name="componentName">Logical name of a component that will be used in <see cref="Template"/>.</param>
+    /// <param name="componentPool">Instance of a pool that will be providing the components.</param>
+    /// <param name="tenantFactory">Factory that is going to create tenants on components from <paramref name="componentPool"/>.</param>
+    /// <exception cref="ArgumentException">Component pool for the <typeparamref name="TComponent"/> has already been registered.</exception>
+    /// <exception cref="ArgumentException"><paramref name="componentName"/> has already been used.</exception>
+    public TenantLakeBuilder AddComponentPool<TComponent, TComponentSpec, TTenant, TTenantSpec>(
         string componentName,
         IComponentPool<TComponent, TComponentSpec> componentPool,
-        ITenantFactory<TTenant, TComponent, TTenantSpec> factory)
+        ITenantFactory<TTenant, TComponent, TTenantSpec> tenantFactory)
         where TComponentSpec : ComponentSpec<TComponent>
         where TTenantSpec : TenantSpec<TTenant>
     {
-        _componentPools.Add(typeof(TComponent), componentPool);
-        _tenantFactories.Add(componentName, factory);
+        var addedPool = _componentPools.TryAdd(typeof(TComponent), componentPool);
+        if (!addedPool)
+            throw new ArgumentException($"Component pool for {typeof(TComponent)} is already registered.");
+
+        var addedFactory = _tenantFactories.TryAdd(componentName, tenantFactory);
+        if (!addedFactory)
+            throw new ArgumentException($"Component name '{componentName}' is already registered.");
+
         return this;
     }
 
@@ -57,3 +78,18 @@ public class TenantLakeBuilder
         return new TenantLake(materializer, testContext, patchersCopy);
     }
 }
+
+// TODO: Remove once Polyfill contains method TryAdd
+#if NETSTANDARD2_0
+internal static class DictionaryExtensions
+{
+    public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        where TKey : notnull
+    {
+        if (dictionary.ContainsKey(key))
+            return false;
+        dictionary.Add(key, value);
+        return true;
+    }
+}
+#endif

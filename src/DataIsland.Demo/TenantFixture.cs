@@ -54,7 +54,7 @@ public class TenantFixture : IAsyncLifetime
         Lake = new TenantLakeBuilder()
             // Tenant lake will contain only one component - SQL Server defined
             // above.
-            .AddComponent("DefaultComponent", componentPool, factory)
+            .AddComponentPool("DefaultComponent", componentPool, factory)
 
             // For default template, we request the following state of external components:
             .AddTemplate("DefaultTemplate", opt =>

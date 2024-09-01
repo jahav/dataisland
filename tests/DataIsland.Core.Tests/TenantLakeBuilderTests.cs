@@ -61,7 +61,44 @@ public class TenantLakeBuilderTests
     #endregion
 
     #region AddTenant
-    // TODO:
+
+    [Fact]
+    public void Each_component_type_has_exactly_one_pool()
+    {
+        var builder = new TenantLakeBuilder();
+
+        builder.AddComponentPool("test",
+            Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+        {
+            // Try to register same component with a different name.
+            builder.AddComponentPool("differentName",
+                Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
+        });
+        Assert.Equal("Component pool for DataIsland.Core.Tests.TenantLakeBuilderTests+DummyComponent is already registered.", ex.Message);
+    }
+
+    [Fact]
+    public void Each_component_pool_name_has_to_be_unique()
+    {
+        var builder = new TenantLakeBuilder();
+
+        builder.AddComponentPool("tested name",
+            Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
+
+        var ex = Assert.Throws<ArgumentException>(() =>
+        {
+            builder.AddComponentPool("tested name",
+                Mock.Of<IComponentPool<DummyComponent2, ComponentSpec<DummyComponent2>>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent2, TenantSpec<DummyTenant>>>());
+        });
+        Assert.Equal("Component name 'tested name' is already registered.", ex.Message);
+    }
+
     #endregion
 
     #region AddComponent
@@ -77,4 +114,13 @@ public class TenantLakeBuilderTests
 
     [UsedImplicitly]
     public class TestDataAccess2;
+
+    [UsedImplicitly]
+    public class DummyTenant;
+
+    [UsedImplicitly]
+    public class DummyComponent;
+
+    [UsedImplicitly]
+    public class DummyComponent2;
 }
