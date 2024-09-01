@@ -51,10 +51,10 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: tests/DataIsland.Core.Tests/TestResults/**/coverage.opencover.xml
 
-      - name: Pack DataIsland.Core
+      - name: Pack NuGet packages
         run: dotnet pack --no-build --configuration Release --output nuget_packages /p:PackageVersion=1.0.0-${{ github.run_number }}-${{ github.sha }}
 
-      - name: Archive Core package
+      - name: Artifact CI NuGet packages
         uses: actions/upload-artifact@v4
         with:
           name: core-package
