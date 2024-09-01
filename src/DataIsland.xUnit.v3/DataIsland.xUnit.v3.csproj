@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sanctuary.Core\Sanctuary.Core.csproj" />
+    <ProjectReference Include="..\DataIsland.Core\DataIsland.Core.csproj" />
   </ItemGroup>
 
 </Project>

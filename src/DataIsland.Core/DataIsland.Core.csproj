@@ -4,9 +4,9 @@
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <RootNamespace>Sanctuary</RootNamespace>
-    <AssemblyName>Sanctuary</AssemblyName>
-    <PackageId>Sanctuary.Core</PackageId>
+    <RootNamespace>DataIsland</RootNamespace>
+    <AssemblyName>DataIsland</AssemblyName>
+    <PackageId>DataIsland.Core</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/jahav/sancturary</RepositoryUrl>
     <Version>1.0.0-pre1</Version>
