@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Sanctuary.xUnit.v3;
+namespace DataIsland.xUnit.v3;
 
 [PublicAPI]
 public class XUnitTestContext : ITestContext

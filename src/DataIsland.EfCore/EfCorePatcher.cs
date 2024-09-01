@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Sanctuary.SqlServer;
+using DataIsland.SqlServer;
 
-namespace Sanctuary.EfCore;
+namespace DataIsland.EfCore;
 
 /// <typeparam name="TDbContext">The concrete type of DbContext that is going to be instantiated.</typeparam>
 [PublicAPI]

@@ -1,7 +1,7 @@
-﻿using Sanctuary.Demo;
-using Sanctuary.EfCore;
-using Sanctuary.SqlServer;
-using Sanctuary.xUnit.v3;
+﻿using DataIsland.Demo;
+using DataIsland.EfCore;
+using DataIsland.SqlServer;
+using DataIsland.xUnit.v3;
 using Xunit;
 
 // Register TenantLake as an assembly level fixture. It will therefore
@@ -9,7 +9,7 @@ using Xunit;
 // components) and after (spin down the docker containers).
 [assembly: AssemblyFixture(typeof(TenantFixture))]
 
-namespace Sanctuary.Demo;
+namespace DataIsland.Demo;
 
 /// <summary>
 /// A fixture that is initialized before any test in the assembly is run, and it is inserted into individual
@@ -33,12 +33,12 @@ public class TenantFixture : IAsyncLifetime
         var factory = new SqlDatabaseTenantFactory(
             // Directory on the SQL Server machine to store .mdf and .ldf files
             // for test databases.
-            @"c:\Temp\sanctuary\files");
+            @"c:\Temp\dataisland\files");
 
 
         // Default data source used to create database, unless tenant specifies
         // otherwise. File path is on the SQL Server machine.
-        var userTableBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\sanctuary\test-001.bak");
+        var userTableBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\dataisland\test-001.bak");
 
         // Build a definition of possible configurations of external state.
         // Each view describes a state of external components (e.g.

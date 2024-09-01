@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Sanctuary.SqlServer;
+namespace DataIsland.SqlServer;
 
 [PublicAPI]
 public sealed record SqlServerSpec : ComponentSpec<SqlServerComponent>

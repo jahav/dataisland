@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Sanctuary.Demo;
+namespace DataIsland.Demo;
 
 public class QueryDbContext : DbContext
 {

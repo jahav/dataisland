@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 [PublicAPI]
 public abstract record TenantSpec<TTenant> : ITenantSpec

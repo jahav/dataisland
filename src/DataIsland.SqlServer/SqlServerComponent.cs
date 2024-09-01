@@ -1,4 +1,4 @@
-﻿namespace Sanctuary.SqlServer
+﻿namespace DataIsland.SqlServer
 {
     /// <summary>
     /// A component for ADO.NET SQL server.

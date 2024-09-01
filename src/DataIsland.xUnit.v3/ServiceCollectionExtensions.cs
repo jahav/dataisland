@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Sanctuary.xUnit.v3;
+namespace DataIsland.xUnit.v3;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddSanctuary<TFixture>(this IServiceCollection services, ITenantLake lake)
+    public static void AddDataIsland<TFixture>(this IServiceCollection services, ITenantLake lake)
     {
         // Register all data context factories.
         lake.PatchServices(services);

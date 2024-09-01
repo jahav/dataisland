@@ -1,4 +1,4 @@
-﻿namespace Sanctuary.SqlServer;
+﻿namespace DataIsland.SqlServer;
 
 /// <summary>
 /// A data source object specifying the data that are used to fill the newly created tenant database with data.

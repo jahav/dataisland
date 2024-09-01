@@ -134,10 +134,10 @@ There are three strategies:
 * Instantiate a separate dependency for each test. This is seriously problematic because of resources and slow startup time and is least practical one.
   E.g. SQL Server docker requires 1.1 GB and takes tens of seconds to start.
 
-Sanctuary tries to solve this problem by taking advantage of multi-tenancy available to most data stores. It's expensive to spin-up a new SQL Server, but
+DataIsland tries to solve this problem by taking advantage of multi-tenancy available to most data stores. It's expensive to spin-up a new SQL Server, but
 very fast to create empty database.
 
-The test project has to define what kind of data sources it requires and dataset it shoudl use to initialize them and after that, just run your tests. Sanctuary
+The test project has to define what kind of data sources it requires and dataset it shoudl use to initialize them and after that, just run your tests. DataIsland
 hooks up into DI to create a new tenants in data sources and adjusts the connections for data access frameworks (e.g. `EFCore`).
 
 |  Component    | Tenant       | Data access              |

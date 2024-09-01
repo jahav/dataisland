@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 [PublicAPI]
 public class Tenant

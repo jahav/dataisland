@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// An assembly fixture that set-up tenants before each test, clean them up afterward and

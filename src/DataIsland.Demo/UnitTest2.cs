@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Sanctuary.xUnit.v3;
+using DataIsland.xUnit.v3;
 using Xunit;
 
-namespace Sanctuary.Demo;
+namespace DataIsland.Demo;
 
 [ScopedTenants("DefaultTemplate")]
 public class UnitTest2 : IClassFixture<ClassFixture>

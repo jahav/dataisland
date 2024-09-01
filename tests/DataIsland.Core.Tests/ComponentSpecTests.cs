@@ -1,4 +1,4 @@
-namespace Sanctuary.Core.Tests;
+namespace DataIsland.Core.Tests;
 
 public class ComponentSpecTests
 {

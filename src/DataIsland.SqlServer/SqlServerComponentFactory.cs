@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Sanctuary.SqlServer;
+namespace DataIsland.SqlServer;
 
 /// <summary>
 /// A class that provides various component pools for a <see cref="SqlServerComponent"/>.

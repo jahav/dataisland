@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Sanctuary.xUnit.v3;
+using DataIsland.xUnit.v3;
 
-namespace Sanctuary.Demo;
+namespace DataIsland.Demo;
 
 /// <summary>
 /// A fixture that is created for each test class/collection.
@@ -19,7 +19,7 @@ public class ClassFixture
 
         // Needs to be last, because it overrides service registrations
         // of data access services.
-        services.AddSanctuary<ClassFixture>(tenantFixture.Lake);
+        services.AddDataIsland<ClassFixture>(tenantFixture.Lake);
 
         ServiceProvider = services.BuildServiceProvider();
     }

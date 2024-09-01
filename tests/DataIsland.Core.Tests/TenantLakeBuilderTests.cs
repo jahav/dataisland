@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Sanctuary;
+using DataIsland;
 
 namespace DataIsland.Core.Tests;
 

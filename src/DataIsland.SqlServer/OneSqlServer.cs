@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
-namespace Sanctuary.SqlServer;
+namespace DataIsland.SqlServer;
 
 /// <summary>
 /// A pool with a single an existing external ADO.NET SQL server.

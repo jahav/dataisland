@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.v3;
 
-namespace Sanctuary.xUnit.v3;
+namespace DataIsland.xUnit.v3;
 
 public class ScopedTenantsAttribute : BeforeAfterTestAttribute
 {

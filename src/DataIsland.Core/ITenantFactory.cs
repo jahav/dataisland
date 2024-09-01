@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// A factory that creates and removes tenants on a component.

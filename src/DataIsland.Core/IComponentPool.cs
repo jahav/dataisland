@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// A pool that is responsible for providing components of one type for each test. The pool might

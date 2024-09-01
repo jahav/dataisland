@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
-namespace Sanctuary.SqlServer;
+namespace DataIsland.SqlServer;
 
 public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlServerComponent, SqlDatabaseSpec>
 {

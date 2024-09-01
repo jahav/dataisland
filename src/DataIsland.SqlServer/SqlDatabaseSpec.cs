@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Sanctuary.SqlServer;
+namespace DataIsland.SqlServer;
 
 /// <summary>
 /// A configuration of a SQL Database <see cref="SqlDatabaseTenant">tenant</see>

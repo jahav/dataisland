@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// A component specification. It contains conditions that must be satisfied in order to

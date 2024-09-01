@@ -2,7 +2,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// A patcher of a data access library. 

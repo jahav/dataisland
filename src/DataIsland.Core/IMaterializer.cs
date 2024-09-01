@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// A factory that materializes a <see cref="Template"/>. It's called before/after a test to

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Sanctuary;
+namespace DataIsland;
 
 /// <summary>
 /// <para>
@@ -16,7 +16,7 @@ namespace Sanctuary;
 /// and released after test is run.
 /// </para>
 /// <para>
-/// There is one instance per sanctuary config, and it must be registered to DI,
+/// There is one instance per data island config, and it must be registered to DI,
 /// so it can fulfill its job of bridging concrete testing framework and generic
 /// data accessor patcher. It can't implement <see cref="IDisposable"/> or
 /// <see cref="IAsyncDisposable"/>, because it is registered to multiple DI
