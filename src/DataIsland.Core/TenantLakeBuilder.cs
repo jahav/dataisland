@@ -49,7 +49,7 @@ public class TenantLakeBuilder
     public ITenantLake Build(ITestContext testContext)
     {
         // TODO: Validate everything
-        var patchersCopy = _patchers.Values.ToList();
+        var patchersCopy = new Dictionary<Type, object>(_patchers);
         var tenantFactoriesCopy = new Dictionary<string, object>(_tenantFactories);
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);

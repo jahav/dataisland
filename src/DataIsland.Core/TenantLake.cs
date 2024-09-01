@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Sanctuary;
 
-internal class TenantLake(IMaterializer _materializer, ITestContext _testContext, IEnumerable<object> _patchers) : ITenantLake
+internal class TenantLake(IMaterializer _materializer, ITestContext _testContext, IReadOnlyDictionary<Type, object> _patchers) : ITenantLake
 {
     public IMaterializer Materializer => _materializer;
 
@@ -12,13 +13,12 @@ internal class TenantLake(IMaterializer _materializer, ITestContext _testContext
 
     public void PatchServices(IServiceCollection services)
     {
-        foreach (var patcher in _patchers)
+        foreach (var (dataAccessType, patcher) in _patchers)
         {
-            var interfaceType = patcher.GetType().GetInterface(typeof(IDependencyPatcher<>).Name);
-            var registerMethod = interfaceType?.GetMethod(nameof(IDependencyPatcher<object>.Register));
-            if (registerMethod is null)
-                throw new UnreachableException($"Type '{patcher.GetType()}' is not a {typeof(IDependencyPatcher<>)}.");
-
+            // Single type can implement multiple patchers
+            var patcherInterface = typeof(IDependencyPatcher<>).MakeGenericType(dataAccessType);
+            var registerMethod = patcherInterface.GetMethod(nameof(IDependencyPatcher<object>.Register));
+            Debug.Assert(registerMethod is not null);
             registerMethod.Invoke(patcher, [services]);
         }
     }
