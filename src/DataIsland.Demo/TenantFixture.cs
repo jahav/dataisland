@@ -49,7 +49,7 @@ public class TenantFixture : IAsyncLifetime
         // * "blobs" would also create a tenant for blob storage that wouldn't
         //   be created in others, because it is only needed in some tests and
         //   is expansive to build (=not always necessary).
-        // Each test can specify view using [ScopedTenants("nominal")]
+        // Each test can specify view using [ApplyTemplate("nominal")]
         // attribute.
         Lake = new TenantLakeBuilder()
             // Tenant lake will contain only one component - SQL Server defined

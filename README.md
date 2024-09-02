@@ -97,13 +97,13 @@ public class ClassFixture
 
 ### 3. Assign template
 
-Use `[ScopedTenants]` attribute to declare theat DataIsland should set-up database for each test in the class. Because
+Use `[ApplyTemplate]` attribute to declare theat DataIsland should set-up database for each test in the class. Because
 of class fixture, tests in MyTests class are executed sequentially, but MyTests is run in parallel with other tests.
 
 ```csharp
-// the ScopedTenants attribute declares that Materializer should create database
+// the ApplyTemplate attribute declares that Materializer should create database
 // per template before each test is run and clean it up afterward.
-[ScopedTenants("Template name")]
+[ApplyTemplate("Template name")]
 public class MyTests : IClassFixture<ClassFixture>
 {
     private readonly ClassFixture _fixture;

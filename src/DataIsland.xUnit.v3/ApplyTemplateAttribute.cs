@@ -7,15 +7,15 @@ using Xunit.v3;
 
 namespace DataIsland.xUnit.v3;
 
-public class ScopedTenantsAttribute : BeforeAfterTestAttribute
+public class ApplyTemplateAttribute : BeforeAfterTestAttribute
 {
     private readonly string _templateName;
     
-    public ScopedTenantsAttribute() : this("DefaultTemplate")
+    public ApplyTemplateAttribute() : this("DefaultTemplate")
     {
     }
 
-    public ScopedTenantsAttribute(string templateName)
+    public ApplyTemplateAttribute(string templateName)
     {
         _templateName = templateName;
     }
