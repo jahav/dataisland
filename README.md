@@ -11,7 +11,7 @@ few resources.
 Integration tests generally either run sequentially (if they use real components) or use fakes (e.g. in memory SQLite). Both options are suboptimal.
 Sequential processing is slow and fakes mean integration tests are not using same environment as on PROD and thus don't know if it actually works.
 
-![DataIsland](https://github.com/user-attachments/assets/a92fcf6b-6ed4-478e-9b9f-43fbf9e03b58)
+![DataIsland1](https://github.com/user-attachments/assets/006cb17e-3683-46ce-8145-ce74462ebfcd)
 
 ## Quick Start
 
