@@ -8,6 +8,103 @@ DataIsland is a project to enable parallel execution of integration tests.
 
 ![DataIsland](https://github.com/user-attachments/assets/a92fcf6b-6ed4-478e-9b9f-43fbf9e03b58)
 
+## Quick Start
+
+The QuickStart assumes that there is only one database and it is accessed through an EfCore using a single DbContext. Testing framework is xUnit v3.
+
+### 1. Define template
+
+Template is a definition of how should whole data access look like for each test that uses the template. In this case, materializer should create
+one database, fill it with data from a backup and the database should be accessed through MyDbContext.
+
+```csharp
+// Only one instance per assembly
+[assembly: AssemblyFixture(typeof(AssemblyFixture))]
+namespace Demo;
+
+public class AssemblyFixture
+{
+    public AssemblyFixture()
+    {
+        // Pool where materializer creates database for each test. Just use locally installed one.
+        var sqlServerPool = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
+
+        // Factory used by materializer to create database for each test
+        var databaseFactory = new SqlDatabaseTenantFactory(Path.GetTempPath());
+        Lake = new TenantLakeBuilder()
+            .AddComponentPool("Sql Server", sqlServerPool, databaseFactory)
+            .AddPatcher(new EfCorePatcher<MyDbContext>())
+            .AddTemplate("Template name", opt =>
+            {
+                // Database is accessed through EFCore with a DbContext MyDbContext
+                opt.AddDataAccess<MyDbContext>("SQL Database");
+
+                // Optional, but useful. Each created db will be filled with data from the backup.
+                var initialStateBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\dataisland\test-001.bak");
+
+                // Materializer will create database for each test on "SQL Server" pool.
+                opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("SQL Database", "SQL Server", spec => spec.WithDataSource(initialStateBackup));
+
+                // This template is using "Sql Server" pool.
+                opt.AddComponent<SqlServerComponent, SqlServerSpec>("Sql Server");
+            })      
+            .Build(new XUnitTestContext());
+    }
+}
+```
+
+### 2. Patch DI
+
+The application must use the database set-up for each test and that is done through patchers. They modify registration of EfCore DbContext, so when
+Microsoft Dependency Injection (MSDI) resolves MyDbContext, it will use connection string to database created for the test instead of original
+connections string.
+
+```csharp
+public class ClassFixture
+{
+    public ClassFixture(AssemblyFixture dataIslandFixrur)
+    {
+        // Register application services
+        var services = new ServiceCollection();      
+        services.AddDbContext<MyDbContext>(opt => opt.UseSqlServer("doesnt matter, will be replaced"));
+
+        // This method must be last! It is overriding previous service registrations.
+        services.AddDataIsland<ClassFixture>(tenantFixture.Lake);
+        ServiceProvider = services.BuildServiceProvider();
+    }
+
+    public ServiceProvider ServiceProvider { get; }
+}
+```
+
+### 3. Assign template
+
+```csharp
+// the ScopedTenants attribute declares that Materializer should create database
+// per template before each test is run and clean it up afterward.
+[ScopedTenants("Template name")]
+public class MyTests : IClassFixture<ClassFixture>
+{
+    private readonly ClassFixture _fixture;
+
+    public UnitTest2(ClassFixture fixture)
+    {
+        _fixture = fixture;
+    }
+
+    [Fact]
+    public async Task Test1()
+    {
+        // By here, materializer already created database for this test and MSDI is patched
+        // to resolve MyDbContext that is connected to newly created database.
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var test = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+        var userCount = test.Users.Count();
+        Assert.Equal(5, userCount);
+    }
+}
+```
+
 ## How does it work?
 
 1. Create a pool of components
