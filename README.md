@@ -20,9 +20,9 @@ The QuickStart assumes that there is only one database and it is accessed throug
 ```sh
 dotnet new install xunit.v3.templates
 dotnet new xunit3
-dotnet add package DataIsland.SqlServer -v 1.0.2
-dotnet add package DataIsland.EfCore -v 1.0.2
-dotnet add package DataIsland.xUnit.v3 -v 1.0.2
+dotnet add package DataIsland.SqlServer -v 1.0.3-beta1
+dotnet add package DataIsland.EfCore -v 1.0.3-beta1
+dotnet add package DataIsland.xUnit.v3 -v 1.0.3-beta1
 ```
 
 ### 1. Define template
