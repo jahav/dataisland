@@ -23,20 +23,20 @@ public class TenantLakeBuilder
     /// <summary>
     /// Register a component pool that will be providing components when <see cref="Template"/>
     /// is going to be instantiated. When a <see cref="Template"/> says it wants to use
-    /// a component, it will use a logical name (<see cref="componentName"/>) that be used to
+    /// a component, it will use a logical name (<see cref="componentPoolName"/>) that be used to
     /// select this pool.
     /// </summary>
     /// <typeparam name="TComponent">Type of component the pool will be providing.</typeparam>
     /// <typeparam name="TComponentSpec">The component specification of a <typeparamref name="TComponent"/>.</typeparam>
     /// <typeparam name="TTenant">Tenant that can be created in the component.</typeparam>
     /// <typeparam name="TTenantSpec">The tenant specification of a <typeparamref name="TTenant"/>.</typeparam>
-    /// <param name="componentName">Logical name of a component that will be used in <see cref="Template"/>.</param>
+    /// <param name="componentPoolName">Name of the pool. The name is used in <see cref="Template"/> configuration.</param>
     /// <param name="componentPool">Instance of a pool that will be providing the components.</param>
     /// <param name="tenantFactory">Factory that is going to create tenants on components from <paramref name="componentPool"/>.</param>
     /// <exception cref="ArgumentException">Component pool for the <typeparamref name="TComponent"/> has already been registered.</exception>
-    /// <exception cref="ArgumentException"><paramref name="componentName"/> has already been used.</exception>
+    /// <exception cref="ArgumentException"><paramref name="componentPoolName"/> has already been used.</exception>
     public TenantLakeBuilder AddComponentPool<TComponent, TComponentSpec, TTenant, TTenantSpec>(
-        string componentName,
+        string componentPoolName,
         IComponentPool<TComponent, TComponentSpec> componentPool,
         ITenantFactory<TTenant, TComponent, TTenantSpec> tenantFactory)
         where TComponentSpec : ComponentSpec<TComponent>
@@ -46,9 +46,9 @@ public class TenantLakeBuilder
         if (!addedPool)
             throw new ArgumentException($"Component pool for {typeof(TComponent)} is already registered.");
 
-        var addedFactory = _tenantFactories.TryAdd(componentName, tenantFactory);
+        var addedFactory = _tenantFactories.TryAdd(componentPoolName, tenantFactory);
         if (!addedFactory)
-            throw new ArgumentException($"Component name '{componentName}' is already registered.");
+            throw new ArgumentException($"Component name '{componentPoolName}' is already registered.");
 
         return this;
     }
