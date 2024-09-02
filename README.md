@@ -4,13 +4,26 @@
 [![codecov](https://codecov.io/github/jahav/dataisland/graph/badge.svg?token=1PGEZFGIVW)](https://codecov.io/github/jahav/dataisland)
 [![Documentation Status](https://readthedocs.org/projects/dataisland/badge/?version=latest)](https://dataisland.readthedocs.io/en/latest/)
 
-DataIsland is a project to enable parallel execution of integration tests.
+DataIsland is a project to enable parallel execution of integration tests. It takes advantage of the idea, that starting up components (e.g. SQL Server)
+is slow and takes up a lot of resources, but creating very small tenant on component (e.g. new SQL database on existing SQL Server) is fast and takes very
+few resources.
+
+Integration tests generally either run sequentially (if they use real components) or use fakes (e.g. in memory SQLite). Both options are suboptimal.
+Sequential processing is slow and fakes mean integration tests are not using same environment as on PROD and thus don't know if it actually works.
 
 ![DataIsland](https://github.com/user-attachments/assets/a92fcf6b-6ed4-478e-9b9f-43fbf9e03b58)
 
 ## Quick Start
 
 The QuickStart assumes that there is only one database and it is accessed through an EfCore using a single DbContext. Testing framework is xUnit v3.
+
+```sh
+dotnet new install xunit.v3.templates
+dotnet new xunit3
+dotnet add package DataIsland.SqlServer -v 1.0.2
+dotnet add package DataIsland.EfCore -v 1.0.2
+dotnet add package DataIsland.xUnit.v3 -v 1.0.2
+```
 
 ### 1. Define template
 
@@ -19,20 +32,20 @@ one database, fill it with data from a backup and the database should be accesse
 
 ```csharp
 // Only one instance per assembly
-[assembly: AssemblyFixture(typeof(AssemblyFixture))]
+[assembly: AssemblyFixture(typeof(DataIslandFixture))]
 namespace Demo;
 
-public class AssemblyFixture
+public class DataIslandFixture
 {
-    public AssemblyFixture()
+    public DataIslandFixture()
     {
         // Pool where materializer creates database for each test. Just use locally installed one.
         var sqlServerPool = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
 
-        // Factory used by materializer to create database for each test
-        var databaseFactory = new SqlDatabaseTenantFactory(Path.GetTempPath());
+        // Factory used by materializer to create database for each test. Need a place to store mdf/ldf for test databases.
+        var databaseFactory = new SqlDatabaseTenantFactory(@"c:\Temp\dataisland\files");
         Lake = new TenantLakeBuilder()
-            .AddComponentPool("Sql Server", sqlServerPool, databaseFactory)
+            .AddComponentPool("SQL Server", sqlServerPool, databaseFactory)
             .AddPatcher(new EfCorePatcher<MyDbContext>())
             .AddTemplate("Template name", opt =>
             {
@@ -40,16 +53,21 @@ public class AssemblyFixture
                 opt.AddDataAccess<MyDbContext>("SQL Database");
 
                 // Optional, but useful. Each created db will be filled with data from the backup.
-                var initialStateBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\dataisland\test-001.bak");
+                var initialStateBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\integration-tests-backup.bak");
 
                 // Materializer will create database for each test on "SQL Server" pool.
-                opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("SQL Database", "SQL Server", spec => spec.WithDataSource(initialStateBackup));
+                opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>(
+                    "SQL Database",
+                    "SQL Server",
+                    spec => spec.WithDataSource(initialStateBackup));
 
                 // This template is using "Sql Server" pool.
-                opt.AddComponent<SqlServerComponent, SqlServerSpec>("Sql Server");
+                opt.AddComponent<SqlServerComponent, SqlServerSpec>("SQL Server");
             })      
             .Build(new XUnitTestContext());
     }
+
+    public ITenantLake Lake { get; }
 }
 ```
 
@@ -62,14 +80,14 @@ connections string.
 ```csharp
 public class ClassFixture
 {
-    public ClassFixture(AssemblyFixture dataIslandFixrur)
+    public ClassFixture(DataIslandFixture dataIslandFixture)
     {
         // Register application services
         var services = new ServiceCollection();      
-        services.AddDbContext<MyDbContext>(opt => opt.UseSqlServer("doesnt matter, will be replaced"));
+        services.AddDbContext<MyDbContext>(opt => opt.UseSqlServer("doesn't matter, will be replaced"));
 
-        // This method must be last! It is overriding previous service registrations.
-        services.AddDataIsland<ClassFixture>(tenantFixture.Lake);
+        // Patch DI. This method must be last! It is overriding previous service registrations.
+        services.AddDataIsland<ClassFixture>(dataIslandFixture.Lake);
         ServiceProvider = services.BuildServiceProvider();
     }
 
@@ -79,6 +97,9 @@ public class ClassFixture
 
 ### 3. Assign template
 
+Use `[ScopedTenants]` attribute to declare theat DataIsland should set-up database for each test in the class. Because
+of class fixture, tests in MyTests class are executed sequentially, but MyTests is run in parallel with other tests.
+
 ```csharp
 // the ScopedTenants attribute declares that Materializer should create database
 // per template before each test is run and clean it up afterward.
@@ -87,20 +108,23 @@ public class MyTests : IClassFixture<ClassFixture>
 {
     private readonly ClassFixture _fixture;
 
-    public UnitTest2(ClassFixture fixture)
+    public MyTests(ClassFixture fixture)
     {
         _fixture = fixture;
     }
 
     [Fact]
-    public async Task Test1()
+    public async Task DemoTest()
     {
         // By here, materializer already created database for this test and MSDI is patched
         // to resolve MyDbContext that is connected to newly created database.
         using var scope = _fixture.ServiceProvider.CreateScope();
         var test = scope.ServiceProvider.GetRequiredService<MyDbContext>();
         var userCount = test.Users.Count();
-        Assert.Equal(5, userCount);
+        Assert.Equal(3, userCount);
+
+        // Delay, so you can see database in SSMS
+        await Task.Delay(10000);
     }
 }
 ```
