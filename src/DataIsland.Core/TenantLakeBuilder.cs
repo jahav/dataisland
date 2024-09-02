@@ -70,6 +70,20 @@ public class TenantLakeBuilder
     public ITenantLake Build(ITestContext testContext)
     {
         // TODO: Validate everything
+        foreach (var (_, template) in _templates)
+        {
+            var availablePools = _tenantFactories.Keys;
+            foreach (var (_, tenantSpec) in template._tenants)
+            {
+                // Tenant must refer to existing pool.
+                if (!availablePools.Contains(tenantSpec.ComponentName))
+                {
+                    var availablePoolNames = string.Join(",", _tenantFactories.Keys.Select(x => $"'{x}'"));
+                    throw new InvalidOperationException($"Unable to find pool '{tenantSpec.ComponentName}'. Available pools: {availablePoolNames}.");
+                }
+            }
+        }
+
         var patchersCopy = new Dictionary<Type, object>(_patchers);
         var tenantFactoriesCopy = new Dictionary<string, object>(_tenantFactories);
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));

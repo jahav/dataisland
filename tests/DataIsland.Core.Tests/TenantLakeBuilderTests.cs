@@ -1,7 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using DataIsland;
 
 namespace DataIsland.Core.Tests;
 
@@ -106,7 +105,24 @@ public class TenantLakeBuilderTests
     #endregion
 
     #region Build
-    // TODO: Verify configuration test
+
+    [Fact]
+    public void Tenant_must_refer_only_to_registered_component_pools()
+    {
+        var builder = new TenantLakeBuilder()
+            .AddComponentPool("existing pool",
+                Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+            .AddTemplate("template name", template =>
+            {
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "missing pool");
+            });
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+
+        Assert.Equal("Unable to find pool 'missing pool'. Available pools: 'existing pool'.", ex.Message);
+    }
+
     #endregion
 
     [UsedImplicitly]
@@ -123,4 +139,7 @@ public class TenantLakeBuilderTests
 
     [UsedImplicitly]
     public class DummyComponent2;
+
+    [UsedImplicitly]
+    public record DummyTenantSpec : TenantSpec<DummyTenant>;
 }
