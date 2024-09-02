@@ -92,18 +92,3 @@ public class TenantLakeBuilder
         return new TenantLake(materializer, testContext, patchersCopy);
     }
 }
-
-// TODO: Remove once Polyfill contains method TryAdd
-#if NETSTANDARD2_0
-internal static class DictionaryExtensions
-{
-    public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
-        where TKey : notnull
-    {
-        if (dictionary.ContainsKey(key))
-            return false;
-        dictionary.Add(key, value);
-        return true;
-    }
-}
-#endif
