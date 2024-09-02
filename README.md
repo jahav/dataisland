@@ -5,6 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/dataisland/badge/?version=latest)](https://dataisland.readthedocs.io/en/latest/)
 
 DataIsland is a project to enable parallel execution of integration tests.
+![DataIsland](https://github.com/user-attachments/assets/1f689e5c-40a2-42cf-9c7b-23338302793c)
 
 ## How does it work?
 
