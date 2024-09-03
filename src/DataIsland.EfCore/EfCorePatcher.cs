@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using DataIsland.SqlServer;
 
 namespace DataIsland.EfCore;
 
@@ -47,7 +46,7 @@ public class EfCorePatcher<TDbContext> : IDependencyPatcher<TDbContext>
         Func<IServiceProvider, object> newFactory = sp =>
         {
             var testContext = sp.GetRequiredService<ITestContext>();
-            var tenant = testContext.GetTenant<SqlDatabaseTenant>(typeof(TDbContext));
+            var tenant = testContext.GetTenant<AdoNetDatabaseTenant>(typeof(TDbContext));
 
             var originalOptions = (DbContextOptions<TDbContext>)originalFactory(sp);
             var relationalExtension = originalOptions.Extensions.OfType<RelationalOptionsExtension>().Single();
