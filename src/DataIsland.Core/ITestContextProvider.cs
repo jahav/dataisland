@@ -30,7 +30,7 @@ public interface ITestContext
     /// Get tenant to a data access. Before test is run, all tenants from
     /// configuration are created and stored in the test context.
     /// </summary>
-    /// <remarks>The data access is used as a key to determine the correct tenant from <see cref="TenantLakeBuilder"/>.</remarks>
+    /// <remarks>The data access is used as a key to determine the correct tenant from <see cref="DataIslandBuilder"/>.</remarks>
     /// <typeparam name="TTenant">Type desired tenant.</typeparam>
     /// <param name="dataAccessType">Type of data access. Used to determine tenant from template configuration.</param>
     /// <returns>Found tenant for the data access.</returns>

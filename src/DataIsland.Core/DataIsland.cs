@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DataIsland;
 
-internal class TenantLake(IMaterializer _materializer, ITestContext _testContext, IReadOnlyDictionary<Type, object> _patchers) : ITenantLake
+internal class DataIsland(IMaterializer _materializer, ITestContext _testContext, IReadOnlyDictionary<Type, object> _patchers) : IDataIsland
 {
     public IMaterializer Materializer => _materializer;
 

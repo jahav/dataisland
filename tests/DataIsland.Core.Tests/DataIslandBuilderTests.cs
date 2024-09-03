@@ -4,7 +4,7 @@ using Moq;
 
 namespace DataIsland.Core.Tests;
 
-public class TenantLakeBuilderTests
+public class DataIslandBuilderTests
 {
     #region PatchServices
 
@@ -12,7 +12,7 @@ public class TenantLakeBuilderTests
     public void All_added_patches_are_applied_against_dependency_injection_container()
     {
         var patcher = new Mock<IDependencyPatcher<TestDataAccess>>();
-        var sut = new TenantLakeBuilder()
+        var sut = new DataIslandBuilder()
             .AddPatcher(patcher.Object)
             .Build(Mock.Of<ITestContext>());
 
@@ -29,7 +29,7 @@ public class TenantLakeBuilderTests
         var patcherAsInterface2 = patcherAsInterface1.As<IDependencyPatcher<TestDataAccess2>>();
 
         Assert.Same(patcherAsInterface1.Object, patcherAsInterface2.Object);
-        var sut = new TenantLakeBuilder()
+        var sut = new DataIslandBuilder()
             .AddPatcher(patcherAsInterface1.Object)
             .AddPatcher(patcherAsInterface2.Object)
             .Build(Mock.Of<ITestContext>());
@@ -50,7 +50,7 @@ public class TenantLakeBuilderTests
     {
         var patcher1 = new Mock<IDependencyPatcher<TestDataAccess>>();
         var patcher2 = new Mock<IDependencyPatcher<TestDataAccess>>();
-        var sut = new TenantLakeBuilder()
+        var sut = new DataIslandBuilder()
             .AddPatcher(patcher1.Object);
 
         var ex = Assert.Throws<ArgumentException>(() => sut.AddPatcher(patcher2.Object));
@@ -64,7 +64,7 @@ public class TenantLakeBuilderTests
     [Fact]
     public void Each_component_type_has_exactly_one_pool()
     {
-        var builder = new TenantLakeBuilder();
+        var builder = new DataIslandBuilder();
 
         builder.AddComponentPool("test",
             Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
@@ -83,7 +83,7 @@ public class TenantLakeBuilderTests
     [Fact]
     public void Each_component_pool_name_has_to_be_unique()
     {
-        var builder = new TenantLakeBuilder();
+        var builder = new DataIslandBuilder();
 
         builder.AddComponentPool("tested name",
             Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
@@ -109,7 +109,7 @@ public class TenantLakeBuilderTests
     [Fact]
     public void Tenant_must_refer_only_to_registered_component_pools()
     {
-        var builder = new TenantLakeBuilder()
+        var builder = new DataIslandBuilder()
             .AddComponentPool("existing pool",
                 Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
                 Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())

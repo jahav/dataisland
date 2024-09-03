@@ -44,7 +44,7 @@ public class DataIslandFixture
 
         // Factory used by materializer to create database for each test. Need a place to store mdf/ldf for test databases.
         var databaseFactory = new SqlDatabaseTenantFactory(@"c:\Temp\dataisland\files");
-        Lake = new TenantLakeBuilder()
+        Island = new DataIslandBuilder()
             .AddComponentPool("SQL Server", sqlServerPool, databaseFactory)
             .AddPatcher(new EfCorePatcher<MyDbContext>())
             .AddTemplate("Template name", opt =>
@@ -66,7 +66,7 @@ public class DataIslandFixture
             .Build();
     }
 
-    public ITenantLake Lake { get; }
+    public IDataIsland Island { get; }
 }
 ```
 
@@ -86,7 +86,7 @@ public class ClassFixture
         services.AddDbContext<MyDbContext>(opt => opt.UseSqlServer("doesn't matter, will be replaced"));
 
         // Patch DI. This method must be last! It is overriding previous service registrations.
-        services.AddDataIsland<ClassFixture>(dataIslandFixture.Lake);
+        services.AddDataIsland<ClassFixture>(dataIslandFixture.Island);
         ServiceProvider = services.BuildServiceProvider();
     }
 

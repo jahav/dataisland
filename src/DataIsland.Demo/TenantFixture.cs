@@ -45,7 +45,7 @@ public class TenantFixture : IAsyncLifetime
         //   is expansive to build (=not always necessary).
         // Each test can specify view using [ApplyTemplate("nominal")]
         // attribute.
-        Lake = new TenantLakeBuilder()
+        Island = new DataIslandBuilder()
             // Tenant lake will contain only one component - SQL Server defined
             // above.
             .AddComponentPool("DefaultComponent", componentPool, factory)
@@ -85,7 +85,7 @@ public class TenantFixture : IAsyncLifetime
             .Build();
     }
 
-    public ITenantLake Lake { get; }
+    public IDataIsland Island { get; }
 
     public ValueTask InitializeAsync()
     {

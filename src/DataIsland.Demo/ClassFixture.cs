@@ -19,7 +19,7 @@ public class ClassFixture
 
         // Needs to be last, because it overrides service registrations
         // of data access services.
-        services.AddDataIsland<ClassFixture>(tenantFixture.Lake);
+        services.AddDataIsland<ClassFixture>(tenantFixture.Island);
 
         ServiceProvider = services.BuildServiceProvider();
     }

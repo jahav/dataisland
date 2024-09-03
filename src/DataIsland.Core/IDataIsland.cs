@@ -8,7 +8,7 @@ namespace DataIsland;
 /// provides the tenants to data access libraries during the test run.
 /// </summary>
 [PublicAPI]
-public interface ITenantLake
+public interface IDataIsland
 {
     /// <summary>
     /// A materializer that the testing framework uses to set up tenants before each test and clean
@@ -31,7 +31,7 @@ public interface ITenantLake
     ITestContext TestContext { get; }
 
     /// <summary>
-    /// Patch all data access services with patchers added through <see cref="TenantLakeBuilder.AddPatcher{TDataAccess}"/>.
+    /// Patch all data access services with patchers added through <see cref="DataIslandBuilder.AddPatcher{TDataAccess}"/>.
     /// The patched services will use tenants set up before each test from <see cref="TestContext"/>
     /// instead of the originally specified tenants.
     /// </summary>

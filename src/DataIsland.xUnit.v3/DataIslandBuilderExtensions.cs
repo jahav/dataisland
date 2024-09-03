@@ -5,8 +5,8 @@ namespace DataIsland;
 
 public static class DataIslandBuilderExtensions
 {
-    /// <inheritdoc cref="TenantLakeBuilder.Build"/>
-    public static ITenantLake Build(this TenantLakeBuilder builder)
+    /// <inheritdoc cref="DataIslandBuilder.Build"/>
+    public static IDataIsland Build(this DataIslandBuilder builder)
     {
         return builder.Build(new XUnitTestContext());
     }

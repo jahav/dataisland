@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace DataIsland;
 
 [PublicAPI]
-public class TenantLakeBuilder
+public class DataIslandBuilder
 {
     /// <summary>
     /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
@@ -35,7 +35,7 @@ public class TenantLakeBuilder
     /// <param name="tenantFactory">Factory that is going to create tenants on components from <paramref name="componentPool"/>.</param>
     /// <exception cref="ArgumentException">Component pool for the <typeparamref name="TComponent"/> has already been registered.</exception>
     /// <exception cref="ArgumentException"><paramref name="componentPoolName"/> has already been used.</exception>
-    public TenantLakeBuilder AddComponentPool<TComponent, TComponentSpec, TTenant, TTenantSpec>(
+    public DataIslandBuilder AddComponentPool<TComponent, TComponentSpec, TTenant, TTenantSpec>(
         string componentPoolName,
         IComponentPool<TComponent, TComponentSpec> componentPool,
         ITenantFactory<TTenant, TComponent, TTenantSpec> tenantFactory)
@@ -53,7 +53,7 @@ public class TenantLakeBuilder
         return this;
     }
 
-    public TenantLakeBuilder AddTemplate(string templateName, Action<Template> configure)
+    public DataIslandBuilder AddTemplate(string templateName, Action<Template> configure)
     {
         var template = new Template();
         configure(template);
@@ -61,13 +61,13 @@ public class TenantLakeBuilder
         return this;
     }
 
-    public TenantLakeBuilder AddPatcher<TDataAccess>(IDependencyPatcher<TDataAccess> patcher)
+    public DataIslandBuilder AddPatcher<TDataAccess>(IDependencyPatcher<TDataAccess> patcher)
     {
         _patchers.Add(typeof(TDataAccess), patcher);
         return this;
     }
 
-    public ITenantLake Build(ITestContext testContext)
+    public IDataIsland Build(ITestContext testContext)
     {
         // TODO: Validate everything
         foreach (var (_, template) in _templates)
@@ -89,6 +89,6 @@ public class TenantLakeBuilder
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
         var materializer = new Materializer(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);
-        return new TenantLake(materializer, testContext, patchersCopy);
+        return new DataIsland(materializer, testContext, patchersCopy);
     }
 }

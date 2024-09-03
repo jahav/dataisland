@@ -4,7 +4,7 @@ namespace DataIsland.xUnit.v3;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddDataIsland<TFixture>(this IServiceCollection services, ITenantLake lake)
+    public static void AddDataIsland<TFixture>(this IServiceCollection services, IDataIsland lake)
     {
         // Register all data context factories.
         lake.PatchServices(services);
