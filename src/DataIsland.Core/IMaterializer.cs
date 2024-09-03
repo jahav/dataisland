@@ -16,6 +16,7 @@ public interface IMaterializer
     /// </summary>
     /// <param name="templateName">Name of the template.</param>
     /// <returns>A collection of all tenants from <see cref="Template"/></returns>
+    /// <exception cref="KeyNotFoundException">Template <paramref name="templateName"/> is not found.</exception>
     Task<IReadOnlyCollection<Tenant>> MaterializeTenantsAsync(string templateName);
 
     /// <summary>

@@ -6,6 +6,18 @@ namespace DataIsland.Core.Tests;
 
 public class DataIslandTests
 {
+    [Fact]
+    public void TestContext_is_exposed_for_integration_with_test_framework()
+    {
+        var testContext = Mock.Of<ITestContext>();
+        var patcher = new Mock<IDependencyPatcher<TestDataAccess>>();
+        var sut = new DataIslandBuilder()
+            .AddPatcher(patcher.Object)
+            .Build(testContext);
+
+        Assert.Same(testContext, sut.TestContext);
+    }
+
     #region PatchServices
 
     [Fact]
