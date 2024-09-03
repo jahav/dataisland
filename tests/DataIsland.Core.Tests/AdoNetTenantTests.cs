@@ -36,6 +36,14 @@ public class AdoNetTenantTests
         Assert.Equal(invalidConnectionString, tenant.ConnectionString);
     }
 
+    [Fact]
+    public void Properties_are_set_through_ctor()
+    {
+        var tenant = new TestAdoNetTenant("connection string", "component");
+        Assert.Equal("connection string", tenant.ConnectionString);
+        Assert.Equal("component", tenant.DatabaseName);
+    }
+
     private record TestAdoNetTenant(string ConnectionString, string DatabaseName)
         : AdoNetTenant(ConnectionString, DatabaseName);
 }
