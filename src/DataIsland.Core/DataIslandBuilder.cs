@@ -69,18 +69,58 @@ public class DataIslandBuilder
 
     public IDataIsland Build(ITestContext testContext)
     {
-        // TODO: Validate everything
-        foreach (var (_, template) in _templates)
+        foreach (var (templateName, template) in _templates)
         {
             var availablePools = _tenantFactories.Keys;
+            var specifiedComponents = template._components.Keys;
+            var referencedComponents = template._tenants.Values.Select(x => x.ComponentName).ToList();
             foreach (var (_, tenantSpec) in template._tenants)
             {
-                // Tenant must refer to existing pool.
-                if (!availablePools.Contains(tenantSpec.ComponentName))
+                var tenantComponentName = tenantSpec.ComponentName;
+
+                // All tenant must refer to existing pool.
+                if (!availablePools.Contains(tenantComponentName))
                 {
                     var availablePoolNames = string.Join(",", _tenantFactories.Keys.Select(x => $"'{x}'"));
-                    throw new InvalidOperationException($"Unable to find pool '{tenantSpec.ComponentName}'. Available pools: {availablePoolNames}.");
+                    throw new InvalidOperationException($"Unable to find pool '{tenantSpec.ComponentName}'. Available pools: {availablePoolNames}. Use method DataIslandBuilder.AddPool(poolName) to add a pool.");
                 }
+
+                // All tenants must refer to specified component.
+                if (!specifiedComponents.Contains(tenantComponentName))
+                {
+                    throw new InvalidOperationException($"Template '{templateName}' didn't specify component '{tenantComponentName}'. Specify the component in the template by template.AddComponent(\"{tenantComponentName}\") for the template. Method has optional second parameter that contains required properties of component resolved from the pool.");
+                }
+            }
+
+            // No component can be orphaned
+            var orphanedComponents = specifiedComponents.Except(referencedComponents).ToList();
+            if (orphanedComponents.Any())
+            {
+                var orphanedComponentNames = string.Join("','", orphanedComponents);
+                throw new InvalidOperationException($"Template '{templateName}' specified component '{orphanedComponentNames}', but that component wasn't used. Remove it.");
+            }
+
+            // No tenant can be orphaned.
+            var referencedTenants = template._dataAccess.Values;
+            var specifiedTenants = template._tenants.Keys;
+            var orphanedTenants = specifiedTenants.Except(referencedTenants);
+            var orphanedTenantsString = string.Join("','", orphanedTenants);
+            if (orphanedTenantsString.Length > 0)
+            {
+                throw new InvalidOperationException($"Template '{templateName}' specifies unused tenants '{orphanedTenantsString}'. Remove them.");
+            }
+
+            // All referenced tenants must be present.
+            var missingTenants = referencedTenants.Except(specifiedTenants);
+            var missingTenantsString = string.Join("','", missingTenants);
+            if (missingTenantsString.Length > 0)
+            {
+                throw new InvalidOperationException($"Template '{templateName}' didn't specify component '{missingTenantsString}'. Specify the tenant in the template by template.AddTenant(tenantName). Method has optional second parameter that contains required properties of tenant that will be created.");
+            }
+
+            if (template._dataAccess.Count == 0)
+            {
+                throw new InvalidOperationException($"Template '{templateName}' doesn't specify any data access. Add it by using tenant.AddDataAccess method.");
             }
         }
 

@@ -77,7 +77,7 @@ public class DataIslandBuilderTests
                 Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
                 Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
         });
-        Assert.Equal("Component pool for DataIsland.Core.Tests.TenantLakeBuilderTests+DummyComponent is already registered.", ex.Message);
+        Assert.Equal("Component pool for DataIsland.Core.Tests.DataIslandBuilderTests+DummyComponent is already registered.", ex.Message);
     }
 
     [Fact]
@@ -106,6 +106,58 @@ public class DataIslandBuilderTests
 
     #region Build
 
+    #region DataAccess
+
+    [Fact]
+    public void Template_must_have_at_least_one_data_access()
+    {
+        var builder = new DataIslandBuilder()
+            .AddTemplate("template name", _ => { });
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        Assert.Equal("Template 'template name' doesn't specify any data access. Add it by using tenant.AddDataAccess method.", ex.Message);
+
+    }
+
+    #endregion
+
+    #region Tenants
+
+    [Fact]
+    public void Template_must_specify_all_used_tenants()
+    {
+        var builder = new DataIslandBuilder()
+            .AddTemplate("template name", template =>
+            {
+                template.AddDataAccess<TestDataAccess>("unspecified tenant");
+            });
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        Assert.Equal("Template 'template name' didn't specify component 'unspecified tenant'. Specify the tenant in the template by template.AddTenant(tenantName). Method has optional second parameter that contains required properties of tenant that will be created.", ex.Message);
+    }
+
+    [Fact]
+    public void All_specified_tenants_must_be_used()
+    {
+        var builder = new DataIslandBuilder()
+            .AddComponentPool("component",
+                Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+            .AddTemplate("template name", template =>
+            {
+                // No data access
+                template.AddTenant<DummyTenant, DummyTenantSpec>("unused tenant", "component");
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component");
+            });
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        Assert.Equal("Template 'template name' specifies unused tenants 'unused tenant'. Remove them.", ex.Message);
+    }
+
+    #endregion
+
+    #region Components
+
     [Fact]
     public void Tenant_must_refer_only_to_registered_component_pools()
     {
@@ -119,9 +171,45 @@ public class DataIslandBuilderTests
             });
 
         var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
-
-        Assert.Equal("Unable to find pool 'missing pool'. Available pools: 'existing pool'.", ex.Message);
+        Assert.Equal("Unable to find pool 'missing pool'. Available pools: 'existing pool'. Use method DataIslandBuilder.AddPool(poolName) to add a pool.", ex.Message);
     }
+
+    [Fact]
+    public void Template_must_specify_all_used_components()
+    {
+        // Each template must explicitly specify used components. template.AddComponents is
+        // for specifying component specs, i.e. which component from pool to take. It's
+        // not there just to declare I need a component from this pool.
+        var builder = new DataIslandBuilder()
+            .AddComponentPool("component name",
+                Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+            .AddTemplate("template name", template =>
+            {
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component name");
+            });
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        Assert.Equal("Template 'template name' didn't specify component 'component name'. Specify the component in the template by template.AddComponent(\"component name\") for the template. Method has optional second parameter that contains required properties of component resolved from the pool.", ex.Message);
+    }
+
+    [Fact]
+    public void All_specified_components_must_be_used()
+    {
+        var builder = new DataIslandBuilder()
+            .AddComponentPool("component name",
+                Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+            .AddTemplate("template name", template =>
+            {
+                template.AddComponent<DummyComponent, DummyComponentSpec>("unused component");
+            });
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        Assert.Equal("Template 'template name' specified component 'unused component', but that component wasn't used. Remove it.", ex.Message);
+    }
+
+    #endregion
 
     #endregion
 
@@ -142,4 +230,7 @@ public class DataIslandBuilderTests
 
     [UsedImplicitly]
     public record DummyTenantSpec : TenantSpec<DummyTenant>;
+
+    [UsedImplicitly]
+    public record DummyComponentSpec : ComponentSpec<DummyComponent>;
 }
