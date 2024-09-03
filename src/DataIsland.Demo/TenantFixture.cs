@@ -35,11 +35,6 @@ public class TenantFixture : IAsyncLifetime
             // for test databases.
             @"c:\Temp\dataisland\files");
 
-
-        // Default data source used to create database, unless tenant specifies
-        // otherwise. File path is on the SQL Server machine.
-        var userTableBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\dataisland\test-001.bak");
-
         // Build a definition of possible configurations of external state.
         // Each view describes a state of external components (e.g.
         // * "nominal" view would only contain a database without data
@@ -69,7 +64,7 @@ public class TenantFixture : IAsyncLifetime
                     "DefaultTenant",
                     "DefaultComponent",
                     spec => spec
-                        .WithDataSource(userTableBackup)
+                        .WithDataSource(@"c:\Temp\dataisland\test-001.bak")
                         .WithMaxDop(1));
 
                 // The patcher should patch QueryDbContext to hook into a database above.

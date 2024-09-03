@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
 namespace DataIsland.SqlServer;
@@ -10,16 +11,21 @@ namespace DataIsland.SqlServer;
 [PublicAPI]
 public sealed record SqlDatabaseSpec : TenantSpec<SqlDatabaseTenant>
 {
-    internal SqlDatabaseDataSource? DataSource { get; private set; }
+    [MemberNotNullWhen(true, nameof(DataSource), nameof(File))]
+    internal bool HasDataSource => DataSource is not null;
+
+    internal string? DataSource { get; private set; }
+
+    internal int? File { get; private set; }
 
     internal int? MaxDop { get; private set; }
 
     /// <summary>
     /// Database must be restored using specified backup.
     /// </summary>
-    public SqlDatabaseSpec WithDataSource(SqlDatabaseDataSource dataSource)
+    public SqlDatabaseSpec WithDataSource(string dataSource, int file = 1)
     {
-        return this with { DataSource = dataSource };
+        return this with { DataSource = dataSource, File = file };
     }
 
     /// <summary>

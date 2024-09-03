@@ -52,14 +52,13 @@ public class DataIslandFixture
                 // Database is accessed through EFCore with a DbContext MyDbContext
                 opt.AddDataAccess<MyDbContext>("SQL Database");
 
-                // Optional, but useful. Each created db will be filled with data from the backup.
-                var initialStateBackup = new SqlDatabaseDataSource().FromDisk(@"c:\Temp\integration-tests-backup.bak");
-
                 // Materializer will create database for each test on "SQL Server" pool.
                 opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>(
                     "SQL Database",
                     "SQL Server",
-                    spec => spec.WithDataSource(initialStateBackup));
+                    spec => spec
+                        // Optional, but useful. Each created db will be filled with data from the backup.
+                        .WithDataSource(@"c:\Temp\integration-tests-backup.bak"));
 
                 // This template is using "Sql Server" pool.
                 opt.AddComponent<SqlServerComponent, SqlServerSpec>("SQL Server");

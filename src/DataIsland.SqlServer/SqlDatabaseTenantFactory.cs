@@ -29,15 +29,14 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
         connection.Open();
 
         var command = connection.CreateCommand();
-        var dataSource = spec.DataSource;
-        if (dataSource?.Path is null || dataSource.File is null)
+        if (!spec.HasDataSource)
         {
             command.CommandText = $"CREATE DATABASE [{EscapeDbName(tenantDbName)}]";
         }
         else
         {
-            var escapedPath = EscapePath(dataSource.Path);
-            var files = GetLogicalFiles(connection, dataSource.Path, dataSource.File.Value);
+            var escapedPath = EscapePath(spec.DataSource);
+            var files = GetLogicalFiles(connection, spec.DataSource, spec.File.Value);
             var cmd = new StringBuilder($"""
                     DBCC TRACEON(1800, -1);
                     RESTORE DATABASE [{EscapeDbName(tenantDbName)}]
