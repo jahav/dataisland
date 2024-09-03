@@ -63,7 +63,7 @@ public class DataIslandFixture
                 // This template is using "Sql Server" pool.
                 opt.AddComponent<SqlServerComponent, SqlServerSpec>("SQL Server");
             })      
-            .Build(new XUnitTestContext());
+            .Build();
     }
 
     public ITenantLake Lake { get; }

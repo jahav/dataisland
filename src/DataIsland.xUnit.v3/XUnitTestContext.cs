@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace DataIsland.xUnit.v3;
 
-[PublicAPI]
-public class XUnitTestContext : ITestContext
+internal class XUnitTestContext : ITestContext
 {
     /// <inheritdoc />
     public TTenant GetTenant<TTenant>(Type dataAccessType)
