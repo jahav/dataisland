@@ -46,7 +46,7 @@ public class EfCorePatcher<TDbContext> : IDependencyPatcher<TDbContext>
         Func<IServiceProvider, object> newFactory = sp =>
         {
             var testContext = sp.GetRequiredService<ITestContext>();
-            var tenant = testContext.GetTenant<AdoNetDatabaseTenant>(typeof(TDbContext));
+            var tenant = testContext.GetTenant<AdoNetTenant>(typeof(TDbContext));
 
             var originalOptions = (DbContextOptions<TDbContext>)originalFactory(sp);
             var relationalExtension = originalOptions.Extensions.OfType<RelationalOptionsExtension>().Single();
