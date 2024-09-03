@@ -25,14 +25,8 @@ public abstract record AdoNetTenant
     }
 
     /// <summary>Connection string to the database. Can't be empty.</summary>
-    public string ConnectionString { get; init; }
+    public string ConnectionString { get; }
 
     /// <summary>Name of the database (unescaped). Can't be empty.</summary>
-    public string DatabaseName { get; init; }
-
-    public void Deconstruct(out string ConnectionString, out string DatabaseName)
-    {
-        ConnectionString = this.ConnectionString;
-        DatabaseName = this.DatabaseName;
-    }
+    public string DatabaseName { get; }
 }
