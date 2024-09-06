@@ -35,6 +35,9 @@ public interface IComponentPool<TComponent, TComponentSpec> : IAsyncDisposable
     /// All values refer to different components. Even if one component could satisfy two entries,
     /// it can only be used for one and other entry must use a different component.
     /// </para>
+    /// <para>
+    /// This method must be thread safe.
+    /// </para>
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Pool wasn't able to match all <see cref="requestedComponents"/>.
