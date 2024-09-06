@@ -3,12 +3,15 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using IComponentPool = object;
+using ITenantFactory = object;
+using IDependencyPatcher = object;
 
 namespace DataIsland;
 
 internal static class DynamicCaller
 {
-    public static void Register(this object patcher, Type dataAccessType, IServiceCollection services)
+    public static void Register(this IDependencyPatcher patcher, Type dataAccessType, IServiceCollection services)
     {
         var patcherInterface = typeof(IDependencyPatcher<>).MakeGenericType(dataAccessType);
         var registerMethod = patcherInterface.GetMethod("Register");
@@ -16,7 +19,7 @@ internal static class DynamicCaller
         registerMethod.Invoke(patcher, [services]);
     }
 
-    public static async Task<IDictionary> AcquireComponentsAsync(this object componentPool, object componentSpecs)
+    public static async Task<IDictionary> AcquireComponentsAsync(this IComponentPool componentPool, object componentSpecs)
     {
         var componentPoolInterface = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
         Debug.Assert(componentPoolInterface is not null);
@@ -34,7 +37,7 @@ internal static class DynamicCaller
         return acquiredComponents;
     }
 
-    public static async Task<object> AddTenantAsync(this object tenantFactory, object component, object tenantSpec)
+    public static async Task<object> AddTenantAsync(this ITenantFactory tenantFactory, object component, object tenantSpec)
     {
         // Actually return Task<TTenant>
         var taskWithResult = await InvokeTenantFactoryMethod(tenantFactory, "AddTenantAsync", [component, tenantSpec]);
@@ -45,12 +48,12 @@ internal static class DynamicCaller
         return tenant;
     }
 
-    public static async Task RemoveTenantAsync(this object tenantFactory, object component, object tenant)
+    public static async Task RemoveTenantAsync(this ITenantFactory tenantFactory, object component, object tenant)
     {
         await InvokeTenantFactoryMethod(tenantFactory, "RemoveTenantAsync", [component, tenant]);
     }
 
-    private static async ValueTask<Task> InvokeTenantFactoryMethod(object tenantFactory, string methodName, object[] args)
+    private static async ValueTask<Task> InvokeTenantFactoryMethod(ITenantFactory tenantFactory, string methodName, object[] args)
     {
         var tenantFactoryInterface = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
         Debug.Assert(tenantFactoryInterface is not null);

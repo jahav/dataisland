@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IComponentPool = object;
+using ITenantFactory = object;
 
 namespace DataIsland;
 
@@ -13,19 +15,19 @@ internal class Materializer : IMaterializer
     /// <summary>
     /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
     /// </summary>
-    private readonly IReadOnlyDictionary<string, object> _tenantFactories;
+    private readonly IReadOnlyDictionary<string, ITenantFactory> _tenantFactories;
 
     /// <summary>
     /// Key: type of component. Value: <see cref="IComponentPool{TComponent,TComponentSpec}">
     /// pool</see> of the component. Each type has a different spec type in the value, so we
     /// can't use strong types.
     /// </summary>
-    private readonly IReadOnlyDictionary<Type, object> _componentPools;
+    private readonly IReadOnlyDictionary<Type, IComponentPool> _componentPools;
 
     internal Materializer(
         Dictionary<string, Template> templates,
-        IReadOnlyDictionary<string, object> tenantFactories,
-        IReadOnlyDictionary<Type, object> componentPools)
+        IReadOnlyDictionary<string, ITenantFactory> tenantFactories,
+        IReadOnlyDictionary<Type, IComponentPool> componentPools)
     {
         _templates = templates;
         _tenantFactories = tenantFactories;

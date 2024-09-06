@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using IComponentPool = object;
+using ITenantFactory = object;
+using IDependencyPatcher = object;
 
 namespace DataIsland;
 
@@ -11,14 +14,14 @@ public class DataIslandBuilder
     /// <summary>
     /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
     /// </summary>
-    private readonly Dictionary<string, object> _tenantFactories = new();
+    private readonly Dictionary<string, ITenantFactory> _tenantFactories = new();
 
     /// <summary>
     /// Key: type of component. Value: IComponentPool.
     /// </summary>
-    private readonly Dictionary<Type, object> _componentPools = new();
+    private readonly Dictionary<Type, IComponentPool> _componentPools = new();
     private readonly Dictionary<string, Template> _templates = new();
-    private readonly Dictionary<Type, object> _patchers = new();
+    private readonly Dictionary<Type, IDependencyPatcher> _patchers = new();
 
     /// <summary>
     /// Register a component pool that will be providing components when <see cref="Template"/>
@@ -124,8 +127,8 @@ public class DataIslandBuilder
             }
         }
 
-        var patchersCopy = new Dictionary<Type, object>(_patchers);
-        var tenantFactoriesCopy = new Dictionary<string, object>(_tenantFactories);
+        var patchersCopy = new Dictionary<Type, IDependencyPatcher>(_patchers);
+        var tenantFactoriesCopy = new Dictionary<string, ITenantFactory>(_tenantFactories);
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
         var materializer = new Materializer(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);

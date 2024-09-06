@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using IDependencyPatcher = object;
 
 namespace DataIsland;
 
-internal class DataIsland(IMaterializer _materializer, ITestContext _testContext, IReadOnlyDictionary<Type, object> _patchers) : IDataIsland
+internal class DataIsland(IMaterializer _materializer, ITestContext _testContext, IReadOnlyDictionary<Type, IDependencyPatcher> _patchers) : IDataIsland
 {
     public IMaterializer Materializer => _materializer;
 
