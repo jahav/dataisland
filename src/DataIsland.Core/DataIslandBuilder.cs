@@ -85,7 +85,7 @@ public class DataIslandBuilder
                 if (!availablePools.Contains(tenantComponentName))
                 {
                     var availablePoolNames = string.Join(",", _tenantFactories.Keys.Select(x => $"'{x}'"));
-                    throw new InvalidOperationException($"Unable to find pool '{tenantSpec.ComponentName}'. Available pools: {availablePoolNames}. Use method DataIslandBuilder.AddPool(poolName) to add a pool.");
+                    throw new InvalidOperationException($"Unable to find pool '{tenantSpec.ComponentName}'. Available pools: {availablePoolNames}. Use method DataIslandBuilder.AddComponentPool(poolName) to add a pool.");
                 }
 
                 // All tenants must refer to specified component.
