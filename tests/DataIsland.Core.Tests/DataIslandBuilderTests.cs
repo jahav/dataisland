@@ -21,7 +21,38 @@ public class DataIslandBuilderTests
 
     #endregion
 
-    #region AddTenant
+    #region AddComponent
+
+    [Fact]
+    public void Component_has_specification_passed_to_pool()
+    {
+        var retrievedNumber = -1;
+        var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
+        pool
+            .Setup(p => p.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, DummyComponentSpec>>()))
+            .ReturnsAsync((IReadOnlyDictionary<string, DummyComponentSpec> p) =>
+            {
+                // Specification from builder is passed to the AcquireComponentsAsync method
+                // Can't use assert here, because exception is eaten by Moq.
+                retrievedNumber = p.Single().Value.Number;
+                return new Dictionary<string, DummyComponent> { { "tenant", new DummyComponent() } };
+            });
+        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var dataIsland = new DataIslandBuilder()
+            .AddComponentPool("component",
+                pool.Object,
+                factory.Object)
+            .AddTemplate("template", template =>
+            {
+                template.AddDataAccess<TestDataAccess>("tenant");
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component", spec => spec.WithNumber(5));
+            }).Build(Mock.Of<ITestContext>());
+
+        dataIsland.Materializer.MaterializeTenantsAsync("template");
+
+        Assert.Equal(5, retrievedNumber);
+    }
 
     [Fact]
     public void Each_component_type_has_exactly_one_pool()
@@ -29,15 +60,15 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder();
 
         builder.AddComponentPool("test",
-            Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
-            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
+            Mock.Of<IComponentPool<DummyComponent, DummyComponentSpec>>(),
+            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>());
 
         var ex = Assert.Throws<ArgumentException>(() =>
         {
             // Try to register same component with a different name.
             builder.AddComponentPool("differentName",
-                Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
+                Mock.Of<IComponentPool<DummyComponent, DummyComponentSpec>>(),
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>());
         });
         Assert.Equal("Component pool for DataIsland.Core.Tests.DataIslandBuilderTests+DummyComponent is already registered.", ex.Message);
     }
@@ -48,21 +79,21 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder();
 
         builder.AddComponentPool("tested name",
-            Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
-            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>());
+            Mock.Of<IComponentPool<DummyComponent, DummyComponentSpec>>(),
+            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>());
 
         var ex = Assert.Throws<ArgumentException>(() =>
         {
             builder.AddComponentPool("tested name",
                 Mock.Of<IComponentPool<DummyComponent2, ComponentSpec<DummyComponent2>>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent2, TenantSpec<DummyTenant>>>());
+                Mock.Of<ITenantFactory<DummyTenant, DummyComponent2, DummyTenantSpec>>());
         });
         Assert.Equal("Component name 'tested name' is already registered.", ex.Message);
     }
 
     #endregion
+    #region AddTenant
 
-    #region AddComponent
     // TODO: 
     #endregion
 
@@ -133,7 +164,7 @@ public class DataIslandBuilderTests
             });
 
         var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
-        Assert.Equal("Unable to find pool 'missing pool'. Available pools: 'existing pool'. Use method DataIslandBuilder.AddPool(poolName) to add a pool.", ex.Message);
+        Assert.Equal("Unable to find pool 'missing pool'. Available pools: 'existing pool'. Use method DataIslandBuilder.AddComponentPool(poolName) to add a pool.", ex.Message);
     }
 
     [Fact]
@@ -191,8 +222,24 @@ public class DataIslandBuilderTests
     public class DummyComponent2;
 
     [UsedImplicitly]
-    public record DummyTenantSpec : TenantSpec<DummyTenant>;
+    public record DummyTenantSpec : TenantSpec<DummyTenant>
+    {
+        public int Value { get; private init; }
+
+        public DummyTenantSpec WithValue(int value)
+        {
+            return this with { Value = value };
+        }
+    }
 
     [UsedImplicitly]
-    public record DummyComponentSpec : ComponentSpec<DummyComponent>;
+    public record DummyComponentSpec : ComponentSpec<DummyComponent>
+    {
+        public int Number { get; private init; }
+
+        public DummyComponentSpec WithNumber(int value)
+        {
+            return new DummyComponentSpec { Number = value };
+        }
+    }
 }
