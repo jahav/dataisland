@@ -24,9 +24,9 @@ public class Template
 
     internal Template()
     {
-        _dataAccess = new();
-        _tenants = new();
-        _components = new();
+        _dataAccess = [];
+        _tenants = [];
+        _components = [];
     }
 
     internal Template(Template original)

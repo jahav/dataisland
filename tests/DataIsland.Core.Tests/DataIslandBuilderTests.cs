@@ -259,9 +259,11 @@ public class DataIslandBuilderTests
     {
         public int Number { get; private init; }
 
-        public DummyComponentSpec WithNumber(int value)
+#pragma warning disable CA1822
+        public DummyComponentSpec WithNumber(int number)
         {
-            return new DummyComponentSpec { Number = value };
+            return new DummyComponentSpec { Number = number };
         }
+#pragma warning restore CA1822
     }
 }

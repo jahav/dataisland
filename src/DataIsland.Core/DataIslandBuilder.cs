@@ -14,14 +14,14 @@ public class DataIslandBuilder
     /// <summary>
     /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
     /// </summary>
-    private readonly Dictionary<string, ITenantFactory> _tenantFactories = new();
+    private readonly Dictionary<string, ITenantFactory> _tenantFactories = [];
 
     /// <summary>
     /// Key: type of component. Value: IComponentPool.
     /// </summary>
-    private readonly Dictionary<Type, IComponentPool> _componentPools = new();
-    private readonly Dictionary<string, Template> _templates = new();
-    private readonly Dictionary<Type, IDependencyPatcher> _patchers = new();
+    private readonly Dictionary<Type, IComponentPool> _componentPools = [];
+    private readonly Dictionary<string, Template> _templates = [];
+    private readonly Dictionary<Type, IDependencyPatcher> _patchers = [];
 
     /// <summary>
     /// Register a component pool that will be providing components when <see cref="Template"/>
@@ -97,7 +97,7 @@ public class DataIslandBuilder
 
             // No component can be orphaned
             var orphanedComponents = specifiedComponents.Except(referencedComponents).ToList();
-            if (orphanedComponents.Any())
+            if (orphanedComponents.Count > 0)
             {
                 var orphanedComponentNames = string.Join("','", orphanedComponents);
                 throw new InvalidOperationException($"Template '{templateName}' specified component '{orphanedComponentNames}', but that component wasn't used. Remove it.");
