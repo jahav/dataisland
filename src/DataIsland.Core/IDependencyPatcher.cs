@@ -20,6 +20,11 @@ public interface IDependencyPatcher<TDataAccessor>
     /// keep service as similar as possible, e.g. keep scope and service properties.
     /// </para>
     /// <para>
+    /// Patcher must ensure that if the test is not in a tested context (through <see cref="ITestContext.HasMaterializedTemplate"/>),
+    /// it must redirect to the original factory. That is essential for tests outside of context to
+    /// continue working.
+    /// </para>
+    /// <para>
     /// Example:
     /// <example>
     /// <code>

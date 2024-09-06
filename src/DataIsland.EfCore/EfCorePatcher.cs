@@ -46,6 +46,9 @@ public class EfCorePatcher<TDbContext> : IDependencyPatcher<TDbContext>
         Func<IServiceProvider, object> newFactory = sp =>
         {
             var testContext = sp.GetRequiredService<ITestContext>();
+            if (!testContext.HasMaterializedTemplate)
+                return originalFactory(sp);
+
             var tenant = testContext.GetTenant<AdoNetTenant>(typeof(TDbContext));
 
             var originalOptions = (DbContextOptions<TDbContext>)originalFactory(sp);

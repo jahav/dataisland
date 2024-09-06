@@ -5,6 +5,18 @@ namespace DataIsland.xUnit.v3;
 
 internal class XUnitTestContext : ITestContext
 {
+    public bool HasMaterializedTemplate
+    {
+        get
+        {
+            var ctx = Xunit.TestContext.Current;
+            lock (ctx.KeyValueStorage)
+            {
+                return ctx.KeyValueStorage.ContainsKey(ctx.TestMethod!.UniqueID + "-data-access-map");
+            }
+        }
+    }
+
     /// <inheritdoc />
     public TTenant GetTenant<TTenant>(Type dataAccessType)
         where TTenant : class

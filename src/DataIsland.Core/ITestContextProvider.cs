@@ -27,6 +27,11 @@ namespace DataIsland;
 public interface ITestContext
 {
     /// <summary>
+    /// Is current thread in a running test that has materialized templates.
+    /// </summary>
+    bool HasMaterializedTemplate { get; }
+
+    /// <summary>
     /// Get tenant to a data access. Before test is run, all tenants from
     /// configuration are created and stored in the test context.
     /// </summary>
