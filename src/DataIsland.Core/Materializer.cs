@@ -42,7 +42,7 @@ internal class Materializer : IMaterializer
         foreach (var (componentType, componentSpecs) in usedComponents)
         {
             var componentPool = _componentPools[componentType];
-            var acquiredComponents = await CallAcquiredComponentsAsync(componentPool, componentSpecs);
+            var acquiredComponents = await CallAcquireComponentsAsync(componentPool, componentSpecs);
 
             var tenantDataAccesses = template._dataAccess
                 .GroupBy(x => x.Value)
@@ -110,7 +110,7 @@ internal class Materializer : IMaterializer
         return result;
     }
 
-    private static async Task<IDictionary> CallAcquiredComponentsAsync(object componentPool, object componentSpecs)
+    private static async Task<IDictionary> CallAcquireComponentsAsync(object componentPool, object componentSpecs)
     {
         var componentPoolInterface = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
         Debug.Assert(componentPoolInterface is not null);
