@@ -50,9 +50,7 @@ internal class Materializer : IMaterializer
 
             foreach (var (tenantName, tenantSpec) in template._tenants)
             {
-                if (!_tenantFactories.TryGetValue(tenantSpec.ComponentName, out var factory))
-                    throw new InvalidOperationException("Missing pool");
-
+                var factory = _tenantFactories[tenantSpec.ComponentName];
                 var component = acquiredComponents[tenantSpec.ComponentName]!;
 
                 // Dynamic call of await factory.AddTenantAsync(component, tenantSpec);
