@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,7 +41,7 @@ internal class Materializer : IMaterializer
         foreach (var (componentType, componentSpecs) in usedComponents)
         {
             var componentPool = _componentPools[componentType];
-            var acquiredComponents = await CallAcquireComponentsAsync(componentPool, componentSpecs);
+            var acquiredComponents = await componentPool.AcquireComponentsAsync(componentSpecs);
 
             var tenantDataAccesses = template._dataAccess
                 .GroupBy(x => x.Value)
@@ -53,8 +52,7 @@ internal class Materializer : IMaterializer
                 var factory = _tenantFactories[tenantSpec.ComponentName];
                 var component = acquiredComponents[tenantSpec.ComponentName]!;
 
-                // Dynamic call of await factory.AddTenantAsync(component, tenantSpec);
-                var tenant = await CallAddTenantAsync(factory, component, tenantSpec);
+                var tenant = await factory.AddTenantAsync(component, tenantSpec);
                 var tenantInfo = new Tenant(
                     tenant,
                     tenantName,
@@ -73,7 +71,7 @@ internal class Materializer : IMaterializer
         foreach (var tenantInfo in tenants)
         {
             var tenantFactory = _tenantFactories[tenantInfo.ComponentName];
-            await CallRemoveTenantAsync(tenantFactory, tenantInfo.Component, tenantInfo.Instance);
+            await tenantFactory.RemoveTenantAsync(tenantInfo.Component, tenantInfo.Instance);
         }
     }
 
@@ -106,51 +104,5 @@ internal class Materializer : IMaterializer
         }
 
         return result;
-    }
-
-    private static async Task<IDictionary> CallAcquireComponentsAsync(object componentPool, object componentSpecs)
-    {
-        var componentPoolInterface = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
-        Debug.Assert(componentPoolInterface is not null);
-        var getComponentMethod = componentPoolInterface.GetMethod("AcquireComponentsAsync");
-        Debug.Assert(getComponentMethod is not null);
-        var task = (Task?)getComponentMethod.Invoke(componentPool, [componentSpecs]);
-        Debug.Assert(task is not null);
-        await task;
-        var resultProperty = task.GetType().GetProperty("Result");
-        Debug.Assert(resultProperty is not null);
-
-        // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
-        var acquiredComponents = (IDictionary?)resultProperty.GetValue(task);
-        Debug.Assert(acquiredComponents is not null);
-        return acquiredComponents;
-    }
-
-    private static async Task<object> CallAddTenantAsync(object tenantFactory, object component, object tenantSpec)
-    {
-        // Actually return Task<TTenant>
-        var taskWithResult = await InvokeTenantFactoryMethod(tenantFactory, "AddTenantAsync", [component, tenantSpec]);
-        var resultProperty = taskWithResult.GetType().GetProperty("Result");
-        Debug.Assert(resultProperty is not null);
-        var tenant = resultProperty.GetValue(taskWithResult);
-        Debug.Assert(tenant is not null);
-        return tenant;
-    }
-
-    private static async Task CallRemoveTenantAsync(object tenantFactory, object component, object tenant)
-    {
-        await InvokeTenantFactoryMethod(tenantFactory, "RemoveTenantAsync", [component, tenant]);
-    }
-
-    private static async ValueTask<Task> InvokeTenantFactoryMethod(object tenantFactory, string methodName, object[] args)
-    {
-        var tenantFactoryInterface = tenantFactory.GetType().GetInterface(typeof(ITenantFactory<,,>).Name);
-        Debug.Assert(tenantFactoryInterface is not null);
-        var method = tenantFactoryInterface.GetMethod(methodName);
-        Debug.Assert(method is not null);
-        var task = (Task?)method.Invoke(tenantFactory, args);
-        Debug.Assert(task is not null);
-        await task;
-        return task;
     }
 }
