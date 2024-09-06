@@ -92,9 +92,31 @@ public class DataIslandBuilderTests
     }
 
     #endregion
+
     #region AddTenant
 
-    // TODO: 
+    [Fact]
+    public void Tenant_has_specification_passed_to_factory()
+    {
+        var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
+        pool
+            .Setup(p => p.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, DummyComponentSpec>>()))
+            .ReturnsAsync(new Dictionary<string, DummyComponent> { { "tenant", new DummyComponent() } });
+        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var dataIsland = new DataIslandBuilder()
+            .AddComponentPool("component", pool.Object, factory.Object)
+            .AddTemplate("template", template =>
+            {
+                template.AddDataAccess<TestDataAccess>("tenant");
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component", spec => spec.WithText("Hello"));
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component");
+            }).Build(Mock.Of<ITestContext>());
+
+        dataIsland.Materializer.MaterializeTenantsAsync("template");
+
+        factory.Verify(f => f.AddTenantAsync(It.IsAny<DummyComponent>(), It.Is<DummyTenantSpec>(s => s.Text == "Hello")));
+    }
+
     #endregion
 
     #region Build
@@ -224,11 +246,11 @@ public class DataIslandBuilderTests
     [UsedImplicitly]
     public record DummyTenantSpec : TenantSpec<DummyTenant>
     {
-        public int Value { get; private init; }
+        public string? Text { get; private init; }
 
-        public DummyTenantSpec WithValue(int value)
+        public DummyTenantSpec WithText(string text)
         {
-            return this with { Value = value };
+            return this with { Text = text };
         }
     }
 
