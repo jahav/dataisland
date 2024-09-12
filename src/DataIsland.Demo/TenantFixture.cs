@@ -82,7 +82,7 @@ public class TenantFixture : IAsyncLifetime
             // fixture is global because it is in assembly fixture.
             // The supplied context is a glue/ambient context that connects
             // the created tenant lake to rest of xUnit infrastructure.
-            .Build();
+            .BuildInProc();
     }
 
     public IDataIsland Island { get; }

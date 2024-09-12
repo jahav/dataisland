@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DataIsland.xUnit.v3;
 
@@ -6,6 +7,10 @@ public static class ServiceCollectionExtensions
 {
     public static void AddDataIsland<TFixture>(this IServiceCollection services, IDataIsland lake)
     {
+        // Whether we are InProc or ASP.NET, just register everything, at worst it won't be used.
+        // I want to keep API as similar as possible.
+        RegisterAspNetMiddleware(services);
+
         // Register all data context factories.
         lake.PatchServices(services);
 
@@ -24,5 +29,15 @@ public static class ServiceCollectionExtensions
             keyValueStorage[fixtureName] = lake;
             keyValueStorage[$"{fixtureName}-materializer"] = lake.Materializer;
         }
+    }
+
+    private static void RegisterAspNetMiddleware(IServiceCollection services)
+    {
+        // Register dependencies necessary to inject middle
+        services.AddTransient<IStartupFilter, TestIdHeaderStartupFilter>();
+        services.AddSingleton<TestIdMiddleware>();
+
+        // TODO: This should be registered only for ASP.NET Core and will likely be changed when I deal with ITestContext
+        services.AddSingleton<AspNetTestProvider>();
     }
 }

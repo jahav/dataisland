@@ -62,8 +62,8 @@ public class DataIslandFixture
 
                 // This template is using "Sql Server" pool.
                 opt.AddComponent<SqlServerComponent, SqlServerSpec>("SQL Server");
-            })      
-            .Build();
+            })
+            .BuildInProc();
     }
 
     public IDataIsland Island { get; }
