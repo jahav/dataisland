@@ -70,7 +70,7 @@ public class DataIslandBuilder
         return this;
     }
 
-    public IDataIsland Build(ITestContext testContext)
+    public IDataIsland Build()
     {
         foreach (var (templateName, template) in _templates)
         {
@@ -132,6 +132,6 @@ public class DataIslandBuilder
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
         var materializer = new Materializer(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);
-        return new DataIsland(materializer, testContext, patchersCopy);
+        return new DataIsland(materializer, patchersCopy);
     }
 }

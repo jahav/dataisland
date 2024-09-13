@@ -78,11 +78,9 @@ public class DataIslandFixture : IAsyncLifetime
             .AddPatcher(new EfCorePatcher<QueryDbContext>())
 
             // Build checks that supplied configuration is valid and creates
-            // immutable tenant lake used by individual tests. Tenant lake in
+            // immutable data island used by individual tests. Data island in
             // fixture is global because it is in assembly fixture.
-            // The supplied context is a glue/ambient context that connects
-            // the created tenant lake to rest of xUnit infrastructure.
-            .BuildInProc();
+            .Build();
     }
 
     public IDataIsland Island { get; }

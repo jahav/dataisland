@@ -6,18 +6,6 @@ namespace DataIsland.Core.Tests;
 
 public class DataIslandTests
 {
-    [Fact]
-    public void TestContext_is_exposed_for_integration_with_test_framework()
-    {
-        var testContext = Mock.Of<ITestContext>();
-        var patcher = new Mock<IDependencyPatcher<TestDataAccess>>();
-        var sut = new DataIslandBuilder()
-            .AddPatcher(patcher.Object)
-            .Build(testContext);
-
-        Assert.Same(testContext, sut.TestContext);
-    }
-
     #region PatchServices
 
     [Fact]
@@ -26,7 +14,7 @@ public class DataIslandTests
         var patcher = new Mock<IDependencyPatcher<TestDataAccess>>();
         var sut = new DataIslandBuilder()
             .AddPatcher(patcher.Object)
-            .Build(Mock.Of<ITestContext>());
+            .Build();
 
         var services = new ServiceCollection();
         sut.PatchServices(services);
@@ -44,7 +32,7 @@ public class DataIslandTests
         var sut = new DataIslandBuilder()
             .AddPatcher(patcherAsInterface1.Object)
             .AddPatcher(patcherAsInterface2.Object)
-            .Build(Mock.Of<ITestContext>());
+            .Build();
 
         var services = new ServiceCollection();
         sut.PatchServices(services);

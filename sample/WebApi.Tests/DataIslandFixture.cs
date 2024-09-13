@@ -24,7 +24,7 @@ public class DataIslandFixture
                 opt.AddDataAccess<AppDbContext>("Database");
             })
             .AddPatcher(new EfCorePatcher<AppDbContext>())
-            .BuildAspNet();
+            .Build();
     }
 
     public IDataIsland Island { get; }

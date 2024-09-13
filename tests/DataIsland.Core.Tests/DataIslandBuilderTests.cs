@@ -47,7 +47,7 @@ public class DataIslandBuilderTests
                 template.AddDataAccess<TestDataAccess>("tenant");
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component", spec => spec.WithNumber(5));
-            }).Build(Mock.Of<ITestContext>());
+            }).Build();
 
         dataIsland.Materializer.MaterializeTenantsAsync("template");
 
@@ -110,7 +110,7 @@ public class DataIslandBuilderTests
                 template.AddDataAccess<TestDataAccess>("tenant");
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component", spec => spec.WithText("Hello"));
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component");
-            }).Build(Mock.Of<ITestContext>());
+            }).Build();
 
         dataIsland.Materializer.MaterializeTenantsAsync("template");
 
@@ -129,7 +129,7 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder()
             .AddTemplate("template name", _ => { });
 
-        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
         Assert.Equal("Template 'template name' doesn't specify any data access. Add it by using tenant.AddDataAccess method.", ex.Message);
 
     }
@@ -147,7 +147,7 @@ public class DataIslandBuilderTests
                 template.AddDataAccess<TestDataAccess>("unspecified tenant");
             });
 
-        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
         Assert.Equal("Template 'template name' didn't specify component 'unspecified tenant'. Specify the tenant in the template by template.AddTenant(tenantName). Method has optional second parameter that contains required properties of tenant that will be created.", ex.Message);
     }
 
@@ -165,7 +165,7 @@ public class DataIslandBuilderTests
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component");
             });
 
-        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
         Assert.Equal("Template 'template name' specifies unused tenants 'unused tenant'. Remove them.", ex.Message);
     }
 
@@ -185,7 +185,7 @@ public class DataIslandBuilderTests
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "missing pool");
             });
 
-        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
         Assert.Equal("Unable to find pool 'missing pool'. Available pools: 'existing pool'. Use method DataIslandBuilder.AddComponentPool(poolName) to add a pool.", ex.Message);
     }
 
@@ -204,7 +204,7 @@ public class DataIslandBuilderTests
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component name");
             });
 
-        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
         Assert.Equal("Template 'template name' didn't specify component 'component name'. Specify the component in the template by template.AddComponent(\"component name\") for the template. Method has optional second parameter that contains required properties of component resolved from the pool.", ex.Message);
     }
 
@@ -220,7 +220,7 @@ public class DataIslandBuilderTests
                 template.AddComponent<DummyComponent, DummyComponentSpec>("unused component");
             });
 
-        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build(Mock.Of<ITestContext>()));
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
         Assert.Equal("Template 'template name' specified component 'unused component', but that component wasn't used. Remove it.", ex.Message);
     }
 

@@ -9,15 +9,12 @@ namespace DataIsland.xUnit.v3;
 /// </summary>
 internal class AspNetTestProvider : ICurrentTestProvider
 {
-    // TODO: This is ugly, but I don't know how to fix it. Provider is built in Build() method, but
-    // I need to access in TestIdMiddleware. Remove ITestContext from DataIsland and just create it
-    // in Build*() methods.
-    private static readonly AsyncLocal<string?> TestId = new();
+    private readonly AsyncLocal<string?> _testId = new();
 
-    public string? CurrentTestId => TestId.Value;
+    public string? CurrentTestId => _testId.Value;
 
     internal void SetTestId(string? value)
     {
-        TestId.Value = value;
+        _testId.Value = value;
     }
 }
