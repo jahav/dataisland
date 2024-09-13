@@ -5,11 +5,9 @@ using IDependencyPatcher = object;
 
 namespace DataIsland;
 
-internal class DataIsland(IMaterializer _materializer, ITestContext _testContext, IReadOnlyDictionary<Type, IDependencyPatcher> _patchers) : IDataIsland
+internal class DataIsland(IMaterializer _materializer, IReadOnlyDictionary<Type, IDependencyPatcher> _patchers) : IDataIsland
 {
     public IMaterializer Materializer => _materializer;
-
-    public ITestContext TestContext => _testContext;
 
     public void PatchServices(IServiceCollection services)
     {

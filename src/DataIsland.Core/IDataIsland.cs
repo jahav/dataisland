@@ -18,19 +18,6 @@ public interface IDataIsland
     IMaterializer Materializer { get; }
 
     /// <summary>
-    /// A glue object that connects the test framework with the MSDI service. It manages data for
-    /// all running tests and provides values based on the specific test requesting them.
-    /// 
-    /// The testing framework stores the tenants (set up before each test) in the context.
-    /// Dependency injection then uses the implementation factory (from <see cref="IDependencyPatcher{TDataAccessor}"/>)
-    /// to return a data component that works with the tenants created for the test.
-    ///
-    /// Values are stored separately for each test, ensuring that data remains isolated and
-    /// concurrent.
-    /// </summary>
-    ITestContext TestContext { get; }
-
-    /// <summary>
     /// Patch all data access services with patchers added through <see cref="DataIslandBuilder.AddPatcher{TDataAccess}"/>.
     /// The patched services will use tenants set up before each test from <see cref="TestContext"/>
     /// instead of the originally specified tenants.

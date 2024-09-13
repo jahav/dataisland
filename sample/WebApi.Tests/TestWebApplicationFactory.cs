@@ -12,7 +12,7 @@ public class TestWebApplicationFactory<TProgram>(DataIslandFixture _fixture) : W
     {
         builder.ConfigureTestServices(services =>
         {
-            services.AddDataIsland<TestWebApplicationFactory<TProgram>>(_fixture.Island);
+            services.AddDataIslandAspNet<TestWebApplicationFactory<TProgram>>(_fixture.Island);
         });
     }
 }
