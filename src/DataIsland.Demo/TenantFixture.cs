@@ -6,7 +6,7 @@ using Xunit;
 // Register TenantLake as an assembly level fixture. It will therefore
 // be initialized before tests (e.g. can spin up docker containers for
 // components) and after (spin down the docker containers).
-[assembly: AssemblyFixture(typeof(TenantFixture))]
+[assembly: AssemblyFixture(typeof(DataIslandFixture))]
 
 namespace DataIsland.Demo;
 
@@ -15,9 +15,9 @@ namespace DataIsland.Demo;
 /// class/collection fixtures. Its job is to initialize components before any tests are run and also clean up
 /// components once all test did run.
 /// </summary>
-public class TenantFixture : IAsyncLifetime
+public class DataIslandFixture : IAsyncLifetime
 {
-    public TenantFixture()
+    public DataIslandFixture()
     {
         // An instance of SQL server to create/drop individual databases for tests.
         // This is a pool that might be able to create new components on demand

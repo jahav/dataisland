@@ -9,7 +9,7 @@ namespace DataIsland.Demo;
 /// </summary>
 public class ClassFixture
 {
-    public ClassFixture(TenantFixture tenantFixture)
+    public ClassFixture(DataIslandFixture dataIslandFixture)
     {
         var services = new ServiceCollection();
 
@@ -19,7 +19,7 @@ public class ClassFixture
 
         // Needs to be last, because it overrides service registrations
         // of data access services.
-        services.AddDataIsland<ClassFixture>(tenantFixture.Island);
+        services.AddDataIsland<ClassFixture>(dataIslandFixture.Island);
 
         ServiceProvider = services.BuildServiceProvider();
     }
