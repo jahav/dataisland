@@ -77,7 +77,7 @@ public class ApplyTemplateAttribute : BeforeAfterTestAttribute
         return fixtureType;
     }
 
-    private static IMaterializer GetMaterializer(Xunit.TestContext context, IXunitTest test)
+    private static IMaterializer GetMaterializer(TestContext context, IXunitTest test)
     {
         var fixtureType = GetFixtureType(test);
         if (!context.KeyValueStorage.TryGetValue(GetMaterializerKey(fixtureType.Name), out var value) ||
@@ -86,17 +86,17 @@ public class ApplyTemplateAttribute : BeforeAfterTestAttribute
         return materializer;
     }
 
-    private static string GetTenantsKey(Xunit.TestContext context)
+    private static string GetTenantsKey(TestContext context)
     {
         return GetTestKey(context, "-tenants");
     }
 
-    private static string GetDataAccessMapKey(Xunit.TestContext context)
+    private static string GetDataAccessMapKey(TestContext context)
     {
         return GetTestKey(context, "-data-access-map");
     }
 
-    private static string GetTestKey(Xunit.TestContext context, string suffix)
+    private static string GetTestKey(TestContext context, string suffix)
     {
         var testMethod = context.TestMethod;
         if (testMethod is null)
