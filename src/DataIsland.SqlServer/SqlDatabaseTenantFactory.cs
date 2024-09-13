@@ -13,6 +13,10 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant,
 {
     private readonly string _basePath;
 
+    /// <summary>
+    /// Create a new factory for creating SQL databases.
+    /// </summary>
+    /// <param name="basePath">Name of a directory at the server, where will be stored data (mdf) and log (ldf) files for test tenants.</param>
     public SqlDatabaseTenantFactory(string basePath)
     {
         _basePath = basePath;
