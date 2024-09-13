@@ -12,10 +12,6 @@ namespace DataIsland.xUnit.v3;
 public class ApplyTemplateAttribute : BeforeAfterTestAttribute
 {
     private readonly string _templateName;
-    
-    public ApplyTemplateAttribute() : this("DefaultTemplate")
-    {
-    }
 
     public ApplyTemplateAttribute(string templateName)
     {

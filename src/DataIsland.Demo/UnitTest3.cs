@@ -4,7 +4,7 @@ using Xunit;
 
 namespace DataIsland.Demo;
 
-[ApplyTemplate]
+[ApplyTemplate("DefaultTemplate")]
 public class UnitTest3 : IClassFixture<ClassFixture>
 {
     private readonly ClassFixture _fixture;
