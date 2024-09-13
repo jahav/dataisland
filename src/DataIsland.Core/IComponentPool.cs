@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -14,7 +15,7 @@ namespace DataIsland;
 /// <typeparam name="TComponent">Type of component being created.</typeparam>
 /// <typeparam name="TComponentSpec">Specification with a list of conditions specific for the <typeparamref name="TComponent"/>.</typeparam>
 [PublicAPI]
-public interface IComponentPool<TComponent, TComponentSpec> : IAsyncDisposable
+public interface IComponentPool<TComponent, TComponentSpec> : IComponentPool
     where TComponentSpec : ComponentSpec<TComponent>
 {
     /// <summary>
@@ -43,4 +44,16 @@ public interface IComponentPool<TComponent, TComponentSpec> : IAsyncDisposable
     /// Pool wasn't able to match all <see cref="requestedComponents"/>.
     /// </exception>
     Task<IReadOnlyDictionary<string, TComponent>> AcquireComponentsAsync(IReadOnlyDictionary<string, TComponentSpec> requestedComponents);
+}
+
+/// <summary>
+/// A pool of one type of components, e.g. <em>SqlServer</em> or <em>Azure Blob Storage</em>.
+/// For more info see typed interface <see cref="IComponentPool{TComponent,TComponentSpec}"/>.
+/// </summary>
+public interface IComponentPool : IAsyncDisposable
+{
+    /// <summary>
+    /// Initializes the pool. Generally called from assembly fixture, before any test are run.
+    /// </summary>
+    Task InitializeAsync(CancellationToken cancellationToken = default);
 }

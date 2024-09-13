@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IComponentPool = object;
 using ITenantFactory = object;
 
 namespace DataIsland;

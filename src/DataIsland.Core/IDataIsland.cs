@@ -1,4 +1,7 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DataIsland;
@@ -8,7 +11,7 @@ namespace DataIsland;
 /// provides the tenants to data access libraries during the test run.
 /// </summary>
 [PublicAPI]
-public interface IDataIsland
+public interface IDataIsland : IAsyncDisposable
 {
     /// <summary>
     /// A materializer that the testing framework uses to set up tenants before each test and clean
@@ -18,9 +21,14 @@ public interface IDataIsland
     IMaterializer Materializer { get; }
 
     /// <summary>
+    /// Initialize the data island, it means mostly pools.
+    /// </summary>
+    Task InitializeAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Patch all data access services with patchers added through <see cref="DataIslandBuilder.AddPatcher{TDataAccess}"/>.
-    /// The patched services will use tenants set up before each test from <see cref="TestContext"/>
-    /// instead of the originally specified tenants.
+    /// The patched services will use tenants set up before each test instead of the originally
+    /// specified tenants.
     /// </summary>
     /// <param name="services">Service collection whose services are replaced.</param>
     void PatchServices(IServiceCollection services);

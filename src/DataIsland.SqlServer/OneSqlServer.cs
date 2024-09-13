@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DataIsland.SqlServer;
@@ -15,6 +16,11 @@ internal sealed class OneSqlServer : IComponentPool<SqlServerComponent, SqlServe
     internal OneSqlServer(string connectionString)
     {
         _component = new SqlServerComponent(connectionString);
+    }
+
+    public Task InitializeAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
     }
 
     public async Task<IReadOnlyDictionary<string, SqlServerComponent>> AcquireComponentsAsync(IReadOnlyDictionary<string, SqlServerSpec> requestedComponents)
