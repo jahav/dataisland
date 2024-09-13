@@ -25,6 +25,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataIsland.Demo", "src\Data
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataIsland.Core.Tests", "tests\DataIsland.Core.Tests\DataIsland.Core.Tests.csproj", "{0FB5D8D8-A102-4D8B-A376-D54B3B5875D8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "sample\WebApi\WebApi.csproj", "{0C9EAF9A-61DC-48B7-971E-349BD6C857E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Tests", "sample\WebApi.Tests\WebApi.Tests.csproj", "{FE617736-7472-4890-8C5F-19459A2C3EDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +59,14 @@ Global
 		{0FB5D8D8-A102-4D8B-A376-D54B3B5875D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FB5D8D8-A102-4D8B-A376-D54B3B5875D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FB5D8D8-A102-4D8B-A376-D54B3B5875D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C9EAF9A-61DC-48B7-971E-349BD6C857E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C9EAF9A-61DC-48B7-971E-349BD6C857E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C9EAF9A-61DC-48B7-971E-349BD6C857E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C9EAF9A-61DC-48B7-971E-349BD6C857E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE617736-7472-4890-8C5F-19459A2C3EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE617736-7472-4890-8C5F-19459A2C3EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE617736-7472-4890-8C5F-19459A2C3EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE617736-7472-4890-8C5F-19459A2C3EDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
