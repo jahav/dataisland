@@ -42,4 +42,27 @@ public class DataIslandTests
     }
 
     #endregion
+
+    [Fact]
+    public async Task DataIsland_initializes_and_disposes_of_pools()
+    {
+        var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
+        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var sut = new DataIslandBuilder()
+            .AddComponentPool("moq pool", pool.Object, factory.Object)
+            .Build();
+
+        pool.Verify(x => x.InitializeAsync(default), Times.Never);
+        pool.Verify(x => x.DisposeAsync(), Times.Never);
+
+        await sut.InitializeAsync();
+
+        pool.Verify(x => x.InitializeAsync(default), Times.Once);
+        pool.Verify(x => x.DisposeAsync(), Times.Never);
+
+        await sut.DisposeAsync();
+
+        pool.Verify(x => x.InitializeAsync(default), Times.Once);
+        pool.Verify(x => x.DisposeAsync(), Times.Once);
+    }
 }
