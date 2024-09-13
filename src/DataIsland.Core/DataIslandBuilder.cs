@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using IComponentPool = object;
 using ITenantFactory = object;
 using IDependencyPatcher = object;
 
@@ -132,6 +131,6 @@ public class DataIslandBuilder
         var templatesCopy = _templates.ToDictionary(x => x.Key, x => new Template(x.Value));
         var componentPoolsCopy = _componentPools.ToDictionary(x => x.Key, x => x.Value);
         var materializer = new Materializer(templatesCopy, tenantFactoriesCopy, componentPoolsCopy);
-        return new DataIsland(materializer, patchersCopy);
+        return new DataIsland(materializer, patchersCopy, componentPoolsCopy.Values);
     }
 }

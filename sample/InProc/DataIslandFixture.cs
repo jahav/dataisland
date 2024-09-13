@@ -1,6 +1,7 @@
 ﻿using DataIsland.Demo;
 using DataIsland.EfCore;
 using DataIsland.SqlServer;
+using Testcontainers.MsSql;
 using Xunit;
 
 // Register TenantLake as an assembly level fixture. It will therefore
@@ -25,14 +26,19 @@ public class DataIslandFixture : IAsyncLifetime
         // It can be a single server and throw on any request of other component.
         // It can be adapter to an Azure with unlimited number of machines to spin
         // up many sql server to split the load.
-        var componentPool = SqlServerComponentFactory.ExistingSqlServer("Data Source=.;Integrated Security=True;TrustServerCertificate=True");
+        var sqlServerContainer = new MsSqlBuilder()
+            .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+            .WithBindMount(@"c:\Temp\dataisland", "/mnt/dataisland")
+            .Build();
+        var componentPool = SqlServerComponentFactory.Docker(sqlServerContainer);
 
         // Component pool is responsible for creating or dropping test databases
         // on one component (SQL Server). In essence, it is a factory for databases.
         var factory = new SqlDatabaseTenantFactory(
             // Directory on the SQL Server machine to store .mdf and .ldf files
-            // for test databases.
-            @"c:\Temp\dataisland\files");
+            // for test databases. Because files are created by SQL Server, they
+            // are created in the docker image.
+            "/tmp");
 
         // Build a definition of possible configurations of external state.
         // Each view describes a state of external components (e.g.
@@ -57,7 +63,7 @@ public class DataIslandFixture : IAsyncLifetime
                     "DefaultComponent",
                     spec => spec
                         .WithCollation("SQL_Latin1_General_CP1_CI_AS")
-                        .WithClrEnabled(true));
+                        .WithClrEnabled(false));
 
                 // Create a single database on the default pool. It doesn't specify
                 // special data source = use the default data source from the pool.
@@ -65,7 +71,7 @@ public class DataIslandFixture : IAsyncLifetime
                     "DefaultTenant",
                     "DefaultComponent",
                     spec => spec
-                        .WithDataSource(@"c:\Temp\dataisland\test-001.bak")
+                        .WithDataSource("/mnt/dataisland/test-001.bak")
                         .WithMaxDop(1));
 
                 // The patcher should patch QueryDbContext to hook into a database above.
@@ -87,13 +93,13 @@ public class DataIslandFixture : IAsyncLifetime
 
     public IDataIsland Island { get; }
 
-    public ValueTask InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
-        return ValueTask.CompletedTask;
+        await Island.InitializeAsync();
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        return ValueTask.CompletedTask;
+        await Island.DisposeAsync();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Testcontainers.MsSql;
 
 namespace DataIsland.SqlServer;
 
@@ -18,5 +19,26 @@ public static class SqlServerComponentFactory
     public static IComponentPool<SqlServerComponent, SqlServerSpec> ExistingSqlServer(string connectionString)
     {
         return new OneSqlServer(connectionString);
+    }
+
+    /// <summary>
+    /// <para>
+    /// Return a pool of SQL servers instantiated in a docker.
+    /// </para>
+    /// <para>
+    /// Simplest usage:
+    /// <example>
+    /// <code>
+    /// var sqlServerPool = SqlServerComponentFactory.Docker(new MsSqlBuilder().Build());
+    /// </code>
+    /// </example>
+    /// For more details about how to instantiate and set the docker image, see
+    /// <a href="https://dotnet.testcontainers.org/modules/mssql/">TestContainers MsSql documentation</a>.
+    /// </para>
+    /// </summary>
+    /// <param name="msSqlContainers">SQL Server containers.</param>
+    public static IComponentPool<SqlServerComponent, SqlServerSpec> Docker(params MsSqlContainer[] msSqlContainers)
+    {
+        return new DockerSqlServerPool(msSqlContainers);
     }
 }

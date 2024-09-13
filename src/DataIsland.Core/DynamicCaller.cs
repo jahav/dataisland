@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using IComponentPool = object;
 using ITenantFactory = object;
 using IDependencyPatcher = object;
 
