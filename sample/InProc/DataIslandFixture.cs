@@ -55,7 +55,9 @@ public class DataIslandFixture : IAsyncLifetime
             {
                 opt.AddComponent<SqlServerComponent, SqlServerSpec>(
                     "DefaultComponent",
-                    spec => spec.WithCollation("SQL_Latin1_General_CP1_CI_AS"));
+                    spec => spec
+                        .WithCollation("SQL_Latin1_General_CP1_CI_AS")
+                        .WithClrEnabled(true));
 
                 // Create a single database on the default pool. It doesn't specify
                 // special data source = use the default data source from the pool.
