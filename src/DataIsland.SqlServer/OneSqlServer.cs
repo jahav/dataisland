@@ -39,6 +39,24 @@ internal sealed class OneSqlServer : IComponentPool<SqlServerComponent, SqlServe
                 throw new InvalidOperationException($"Unable to find a server with collation {componentSpec.Collation}.");
         }
 
+        if (componentSpec.ClrEnabled is not null)
+        {
+            var desiredClrEnabled = componentSpec.ClrEnabled.Value;
+            using var connection = new SqlConnection(_component.ConnectionString);
+            await connection.OpenAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = """
+                                  DECLARE @T TABLE ([name] nvarchar(35), [minimum] int, [maximum] int, [config_value] int, [run_value] int);
+                                  INSERT @T EXEC sp_configure 'clr enabled';
+                                  SELECT run_value FROM @T;
+                                  """;
+            var clrConfigValue = (int?)await command.ExecuteScalarAsync();
+            var actualClrEnabled = clrConfigValue is not null && clrConfigValue.Value != 0;
+            connection.Close();
+            if (actualClrEnabled != desiredClrEnabled)
+                throw new InvalidOperationException($"Unable to find a server with clr {(desiredClrEnabled ? "enabled" : "disabled")}.");
+        }
+
         return new Dictionary<string, SqlServerComponent>
         {
             { componentName, _component }
