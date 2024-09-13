@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using static DataIsland.xUnit.v3.SharedStorageConstants;
 
 namespace DataIsland.xUnit.v3;
 
@@ -27,7 +28,7 @@ public static class ServiceCollectionExtensions
         lock (keyValueStorage)
         {
             keyValueStorage[fixtureName] = lake;
-            keyValueStorage[$"{fixtureName}-materializer"] = lake.Materializer;
+            keyValueStorage[GetMaterializerKey(fixtureName)] = lake.Materializer;
         }
     }
 
