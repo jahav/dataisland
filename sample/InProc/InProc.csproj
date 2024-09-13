@@ -28,9 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataIsland.EfCore\DataIsland.EfCore.csproj" />
-    <ProjectReference Include="..\DataIsland.SqlServer\DataIsland.SqlServer.csproj" />
-    <ProjectReference Include="..\DataIsland.xUnit.v3\DataIsland.xUnit.v3.csproj" />
+    <ProjectReference Include="..\..\src\DataIsland.EfCore\DataIsland.EfCore.csproj" />
+    <ProjectReference Include="..\..\src\DataIsland.SqlServer\DataIsland.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\DataIsland.xUnit.v3\DataIsland.xUnit.v3.csproj" />
   </ItemGroup>
 
 </Project>
