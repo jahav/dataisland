@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.v3;
 
 namespace DataIsland.xUnit.v3;
@@ -65,7 +66,9 @@ public class ApplyTemplateAttribute : BeforeAfterTestAttribute
     {
         // xUnit requires that all classes have only one ctor, otherwise it is an error.
         var ctor = test.TestMethod.TestClass.Class.GetConstructors().Single();
-        var ctorParam = ctor.GetParameters().SingleOrDefault();
+
+        // Skip ITestOutputHelper that is allowed as a parameter in addition to fixtures.
+        var ctorParam = ctor.GetParameters().SingleOrDefault(x => x.ParameterType != typeof(ITestOutputHelper));
         if (ctorParam is null)
             throw new InvalidOperationException("No fixture");
 
