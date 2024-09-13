@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.v3;
+using static DataIsland.xUnit.v3.SharedStorageConstants;
 
 namespace DataIsland.xUnit.v3;
 
@@ -79,8 +80,8 @@ public class ApplyTemplateAttribute : BeforeAfterTestAttribute
     private static IMaterializer GetMaterializer(Xunit.TestContext context, IXunitTest test)
     {
         var fixtureType = GetFixtureType(test);
-        var materializer = context.KeyValueStorage[$"{fixtureType.Name}-materializer"] as IMaterializer;
-        if (materializer is null)
+        if (!context.KeyValueStorage.TryGetValue(GetMaterializerKey(fixtureType.Name), out var value) ||
+            value is not IMaterializer materializer)
             throw new InvalidOperationException("No materializer");
         return materializer;
     }

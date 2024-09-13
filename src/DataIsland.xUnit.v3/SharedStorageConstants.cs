@@ -23,4 +23,15 @@ internal static class SharedStorageConstants
     {
         return testId + "-data-access-map";
     }
+
+    /// <summary>
+    /// Get key to shared storage that contains <see cref="IMaterializer"/>. Each class/collection
+    /// has its own materializer, so multiple collections can materialize at the same time (tests
+    /// within a collection never run in parallel).
+    /// </summary>
+    /// <param name="fixtureName">Name of a fixture, not DataIsland assembly fixture, but a collection/class fixture.</param>
+    internal static string GetMaterializerKey(string fixtureName)
+    {
+        return fixtureName + "-materializer";
+    }
 }
