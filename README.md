@@ -13,6 +13,16 @@ Sequential processing is slow and fakes mean integration tests are not using sam
 
 ![DataIsland3](https://github.com/user-attachments/assets/cdd71656-51a7-4a68-bc18-967bb0d32c3a)
 
+## Samples
+
+There are several samples in the `/samples` directory.
+
+| Name             |  Description |
+|----------------- | ------------ |
+| **InProc**       |  Parallelizes test cases. Each test thread gets its own tenants created from a template. Ideal for testing application service layer directly, without webserver in the way. |
+| **WebApi.Tests** |  Parallelizes ASP.NET integration tests. The test server runs in a separate process/thread, so the thread of test case is not connected to request. It is necessary to send current test with each request and add middleware to the ASP.NET pipeline. |
+| **LinkedServer** |  Parallelizes the data access layer that uses linked servers. The method requires all accesses to linked server tables to use SQL synonym objects. This means the project must modify all places that use direct table names, e.g., replace [SomeServer].[SomeDb].[Schema].[Table] with [SomeLinkedTableSynonym]. |
+
 ## Quick Start
 
 The QuickStart assumes that there is only one database and it is accessed through an EfCore using a single DbContext. Testing framework is xUnit v3.
