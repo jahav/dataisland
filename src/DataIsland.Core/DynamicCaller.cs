@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ITenantFactory = object;
@@ -18,7 +19,8 @@ internal static class DynamicCaller
         registerMethod.Invoke(patcher, [services]);
     }
 
-    public static async Task<IDictionary> AcquireComponentsAsync(this IComponentPool componentPool, object componentSpecs)
+    /// <inheritdoc cref="IComponentPool{TComponent,TComponentSpec}.AcquireComponentsAsync"/>
+    public static async Task<IDictionary<string, object>> AcquireComponentsAsync(this IComponentPool componentPool, object componentSpecs)
     {
         var componentPoolInterface = componentPool.GetType().GetInterface(typeof(IComponentPool<,>).Name);
         Debug.Assert(componentPoolInterface is not null);
@@ -33,7 +35,17 @@ internal static class DynamicCaller
         // TODO: Shouldn't use IDictionary, but IReadOnlyDictionary<string, TComponent>
         var acquiredComponents = (IDictionary?)resultProperty.GetValue(task);
         Debug.Assert(acquiredComponents is not null);
-        return acquiredComponents;
+
+        var result = new Dictionary<string, object>();
+        foreach (DictionaryEntry acquiredComponent in acquiredComponents)
+        {
+            var componentName = (string)acquiredComponent.Key;
+            var component = acquiredComponent.Value;
+            Debug.Assert(component is not null);
+            result.Add(componentName, component);
+        }
+
+        return result;
     }
 
     public static async Task<object> AddTenantAsync(this ITenantFactory tenantFactory, object component, object tenantSpec)

@@ -12,9 +12,9 @@ internal class Materializer : IMaterializer
     private readonly Dictionary<string, Template> _templates;
 
     /// <summary>
-    /// Key: component name. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
+    /// Key: component type. Value: <see cref="ITenantFactory{TTenant,TComponent,TDataSource}"/>.
     /// </summary>
-    private readonly IReadOnlyDictionary<string, ITenantFactory> _tenantFactories;
+    private readonly IReadOnlyDictionary<Type, ITenantFactory> _tenantFactories;
 
     /// <summary>
     /// Key: type of component. Value: <see cref="IComponentPool{TComponent,TComponentSpec}">
@@ -25,7 +25,7 @@ internal class Materializer : IMaterializer
 
     internal Materializer(
         Dictionary<string, Template> templates,
-        IReadOnlyDictionary<string, ITenantFactory> tenantFactories,
+        IReadOnlyDictionary<Type, ITenantFactory> tenantFactories,
         IReadOnlyDictionary<Type, IComponentPool> componentPools)
     {
         _templates = templates;
@@ -50,8 +50,8 @@ internal class Materializer : IMaterializer
 
             foreach (var (tenantName, tenantSpec) in template._tenants)
             {
-                var factory = _tenantFactories[tenantSpec.ComponentName];
-                var component = acquiredComponents[tenantSpec.ComponentName]!;
+                var component = acquiredComponents[tenantSpec.ComponentName];
+                var factory = _tenantFactories[componentType];
 
                 var tenant = await factory.AddTenantAsync(component, tenantSpec);
                 var tenantInfo = new Tenant(
@@ -71,8 +71,9 @@ internal class Materializer : IMaterializer
     {
         foreach (var tenantInfo in tenants)
         {
-            var tenantFactory = _tenantFactories[tenantInfo.ComponentName];
-            await tenantFactory.RemoveTenantAsync(tenantInfo.Component, tenantInfo.Instance);
+            var tenantComponent = tenantInfo.Component;
+            var tenantFactory = _tenantFactories[tenantComponent.GetType()];
+            await tenantFactory.RemoveTenantAsync(tenantComponent, tenantInfo.Instance);
         }
     }
 
