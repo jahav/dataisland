@@ -31,10 +31,6 @@ public class DataIslandFixture : IAsyncLifetime
                     spec => spec
                         .WithLinkedServerName(LinkedServerName));
 
-                // Different name -> pool will return a different instance
-                template.AddComponent<SqlServerComponent, SqlServerSpec>(
-                    "Linked server");
-
                 template.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("tenant", "Main server");
 
                 template.AddDataAccess<AppDbContext>("tenant");

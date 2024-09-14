@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageReference Include="Testcontainers.MsSql" Version="3.10.0" />
     <PackageReference Include="xunit.v3" Version="0.3.0-pre.18" />
@@ -21,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DataIsland.SqlServer\DataIsland.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\DataIsland.xUnit.v3\DataIsland.xUnit.v3.csproj" />
   </ItemGroup>
 
 </Project>
