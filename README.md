@@ -19,8 +19,8 @@ There are several samples in the `/samples` directory.
 
 | Name             |  Description |
 |----------------- | ------------ |
-| **InProc**       |  Parallelizes test cases. Each test thread gets its own tenants created from a template. Ideal for testing application service layer directly, without webserver in the way. |
-| **WebApi.Tests** |  Parallelizes ASP.NET integration tests. The test server runs in a separate process/thread, so the thread of test case is not connected to request. It is necessary to send current test with each request and add middleware to the ASP.NET pipeline. |
+| **InProc**       |  Parallelizes test cases. Each test gets its own tenants created from a template. Ideal for testing application service layer directly, without a webserver in the way. |
+| **WebApi.Tests** |  Parallelizes ASP.NET integration tests. The test server runs in a separate process/thread, so the test case is not connected to HTTP request. It is necessary to send current test with each HTTP request and add middleware to the ASP.NET pipeline. |
 | **LinkedServer** |  Parallelizes the data access layer that uses linked servers. The method requires all accesses to linked server tables to use SQL synonym objects. This means the project must modify all places that use direct table names, e.g., replace [SomeServer].[SomeDb].[Schema].[Table] with [SomeLinkedTableSynonym]. |
 
 ## Quick Start
