@@ -140,6 +140,40 @@ public class MyTests : IClassFixture<ClassFixture>
 
 ## How does it work?
 
+```mermaid
+sequenceDiagram
+    participant DI
+    participant Test
+    participant xUnit
+    participant Materializer
+
+    xUnit->xUnit:Create DataIsland  fixture
+    note right of xUnit: Assembly fixture is initialized<br/> at the start of assembly test execution.
+    xUnit->xUnit:Initialize DataIsland fixture
+
+    par xUnit executes each collection in parallel
+        note right of xUnit: xUnit executes all collections in parallel.<br/> The default behavior is that all tests in a class<br/> belong to one collection, thus two tests from different<br/> classes (=different collections) are executed in parallel.<br/> Tests within a collection are executed sequentially.
+        xUnit->>xUnit:Create collection fixture
+        note right of xUnit: Collection fixture uses assembly fixture<br/> to patch DI, so it will instantiate<br/> services using tenants materialized<br/> for the test.
+        loop For each test in collection
+            xUnit->>xUnit:Get template name<br/> from [ApplyTemplate]
+            xUnit->>Materializer:Instatiate tenants(template name)
+            Materializer-->>xUnit:Tenants
+            xUnit->>xUnit:Store tenants<br/>in TestContext
+            xUnit->>+Test:Start execution
+            note right of Test: This is actual code in the test method
+            Test->>DI:Get instance of<br/> data access class
+            DI-->>Test:Data access class<br/> that uses a tenant<br/> created by materializer.
+            Test->Test:Execute test logic
+            Test-->>xUnit:Execution ended
+            xUnit->>Materializer:Dispose of tenants
+            Materializer-->>xUnit:.
+        end        
+    end
+
+    xUnit->xUnit:Dispose of DataIsland fixture
+```
+
 1. Create a pool of components
 1. Define logical views
 2. Initialize component pool
