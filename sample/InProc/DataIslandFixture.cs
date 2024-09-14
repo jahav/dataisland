@@ -54,7 +54,7 @@ public class DataIslandFixture : IAsyncLifetime
         Island = new DataIslandBuilder()
             // Tenant lake will contain only one component - SQL Server defined
             // above.
-            .AddComponentPool("DefaultComponent", componentPool, factory)
+            .AddComponentPool(componentPool, factory)
 
             // For default template, we request the following state of external components:
             .AddTemplate("DefaultTemplate", opt =>

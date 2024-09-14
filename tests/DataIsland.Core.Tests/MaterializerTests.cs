@@ -17,7 +17,7 @@ public class MaterializerTests
         factory.Setup(x => x.AddTenantAsync(component, It.IsAny<DummyTenantSpec>())).ReturnsAsync(tenant);
 
         var dataIsland = new DataIslandBuilder()
-            .AddComponentPool("component", pool.Object, factory.Object)
+            .AddComponentPool(pool.Object, factory.Object)
             .AddTemplate("template name", template =>
             {
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component");
@@ -42,7 +42,7 @@ public class MaterializerTests
         var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
         var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
         var dataIsland = new DataIslandBuilder()
-            .AddComponentPool("test", pool.Object, factory.Object)
+            .AddComponentPool(pool.Object, factory.Object)
             .Build();
 
         await Assert.ThrowsAsync<KeyNotFoundException>(() => dataIsland.Materializer.MaterializeTenantsAsync("nonexistent template"));
@@ -63,7 +63,7 @@ public class MaterializerTests
         factory.Setup(f => f.AddTenantAsync(component, It.IsAny<DummyTenantSpec>())).ReturnsAsync(tenant);
 
         var dataIsland = new DataIslandBuilder()
-            .AddComponentPool("component", pool.Object, factory.Object)
+            .AddComponentPool(pool.Object, factory.Object)
             .AddTemplate("template", template =>
             {
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component");

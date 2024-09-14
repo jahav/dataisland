@@ -49,7 +49,7 @@ public class DataIslandTests
         var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
         var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
         var sut = new DataIslandBuilder()
-            .AddComponentPool("moq pool", pool.Object, factory.Object)
+            .AddComponentPool(pool.Object, factory.Object)
             .Build();
 
         pool.Verify(x => x.InitializeAsync(default), Times.Never);

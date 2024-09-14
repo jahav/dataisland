@@ -16,7 +16,7 @@ public class DataIslandFixture
         var factory = new SqlDatabaseTenantFactory(@"c:\Temp\dataisland\files");
 
         Island = new DataIslandBuilder()
-            .AddComponentPool("SQL Server", componentPool, factory)
+            .AddComponentPool(componentPool, factory)
             .AddTemplate("Template", opt =>
             {
                 opt.AddComponent<SqlServerComponent, SqlServerSpec>("SQL Server");
