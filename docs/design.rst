@@ -16,8 +16,9 @@ DataIsland design
       Bob-->John: Jolly good!
 
 
+End of line.
 
-.. mermaid:: path/to/mermaid-gantt-code.mmd
+.. mermaid:: mermaid-gantt-code.mmd
 
 ```{mermaid}
 
