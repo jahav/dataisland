@@ -8,7 +8,7 @@ DataIsland is designed to manage test environments efficiently by creating isola
 
 However, setting up the components that host these tenants—such as SQL Server, RabbitMQ, or Azure Storage emulators—is more resource-intensive. This setup usually requires hundreds of megabytes or even gigabytes of memory and tens of seconds for initialization.
 
-Given the high cost of component setup, it's impractical to instantiate a new component for each test. Instead, DataIsland creates a single instance of each component and reuses it across tests.
+Given the high cost of component setup, it's impractical to instantiate a new component for each test. Instead, DataIsland has a pool of instance of each type of component and reuses them across tests.
 
 Here’s how it works:
 
