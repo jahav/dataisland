@@ -78,7 +78,21 @@ public class ApplyTemplateAttribute : BeforeAfterTestAttribute
         var fixtureType = GetFixtureType(test);
         if (!context.KeyValueStorage.TryGetValue(GetMaterializerKey(fixtureType.Name), out var value) ||
             value is not IMaterializer materializer)
-            throw new InvalidOperationException("No materializer");
+        {
+            throw new InvalidOperationException($"""
+                Unable to find materializer for fixture of type {fixtureType.Name}.
+                
+                Make sure you added data island to the service collection. That is generally
+                done in a class/collection fixture that builds the IServiceProvider.
+                Example of registration:
+                
+                  services.AddDataIslandInProc<ClassFixture>(dataIslandFixture.Island);
+                
+                The generic parameter ('ClassFixture' in this case) is used to find the
+                correct materializer and must match with fixture used in the test class
+                constructor.
+                """);
+        }
         return materializer;
     }
 
