@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.Tests", "sample\WebA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InProc", "sample\InProc\InProc.csproj", "{51DEC92C-45AE-4652-9760-772F97B7CC6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinkedServer", "sample\LinkedServer\LinkedServer.csproj", "{53E84948-1634-4FA8-83A5-1A2AA341FCA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{51DEC92C-45AE-4652-9760-772F97B7CC6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51DEC92C-45AE-4652-9760-772F97B7CC6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51DEC92C-45AE-4652-9760-772F97B7CC6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53E84948-1634-4FA8-83A5-1A2AA341FCA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53E84948-1634-4FA8-83A5-1A2AA341FCA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53E84948-1634-4FA8-83A5-1A2AA341FCA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53E84948-1634-4FA8-83A5-1A2AA341FCA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
