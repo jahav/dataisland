@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
 namespace DataIsland.SqlServer;
@@ -42,6 +43,48 @@ internal static class SqlServerSpecChecker
                 return $"Unable to find a server with clr {(desiredClrEnabled ? "enabled" : "disabled")}.";
         }
 
+        if (componentSpec.LinkedServerNames.Count > 0)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+            var specifiedNames = componentSpec.LinkedServerNames;
+            var dbNames = await GetDbLinkedServerNamesAsync(connection);
+            var dbHasAllLinkedServers = componentSpec.LinkedServerNames.IsSubsetOf(dbNames);
+            if (!dbHasAllLinkedServers)
+            {
+                var specifiedList = specifiedNames.ToSysnameList();
+                var dbList = dbNames.ToSysnameList();
+                return $"Server doesn't contain all required linked servers (specified: {specifiedList}, actual: {dbList}).";
+            }
+        }
+
         return null;
+    }
+
+    private static async Task<HashSet<string>> GetDbLinkedServerNamesAsync(SqlConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+                              DECLARE @LinkedServers TABLE (
+                                  [SRV_NAME] sysname,
+                                  [SRV_PROVIDERNAME] nvarchar(128),
+                                  [SRV_PRODUCT] nvarchar(128),
+                                  [SRV_DATASOURCE] nvarchar(4000),
+                                  [SRV_PROVIDERSTRING] nvarchar(4000),
+                                  [SRV_LOCATION] nvarchar(4000),
+                                  [SRV_CAT] sysname NULL);
+                              INSERT @LinkedServers EXEC sp_linkedservers;
+                              SELECT [SRV_NAME] FROM @LinkedServers;
+                              """;
+        using var reader = await command.ExecuteReaderAsync();
+        var srvNameOrdinal = reader.GetOrdinal("SRV_NAME");
+        var dbLinkedServerNames = new HashSet<string>();
+        while (await reader.ReadAsync())
+        {
+            // Never null, therefore no need to deal with DBNull.Value to null conversion.
+            dbLinkedServerNames.Add(reader.GetString(srvNameOrdinal));
+        }
+
+        return dbLinkedServerNames;
     }
 }

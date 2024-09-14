@@ -23,7 +23,22 @@ public class DataIslandFixture : IAsyncLifetime
         var sqlServerPool = SqlServerComponentFactory.Docker(_mainServer, _linkedServer);
         var factory = new SqlDatabaseTenantFactory("/tmp");
         Island = new DataIslandBuilder()
-            .AddComponentPool("SQL Servers", sqlServerPool, factory)
+            .AddComponentPool(sqlServerPool, factory)
+            .AddTemplate("default", template =>
+            {
+                template.AddComponent<SqlServerComponent, SqlServerSpec>(
+                    "Main server",
+                    spec => spec
+                        .WithLinkedServerName(LinkedServerName));
+
+                // Different name -> pool will return a different instance
+                template.AddComponent<SqlServerComponent, SqlServerSpec>(
+                    "Linked server");
+
+                template.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("tenant", "Main server");
+
+                template.AddDataAccess<AppDbContext>("tenant");
+            })
             .Build();
     }
 
