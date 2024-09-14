@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using DataIsland;
+using DataIsland.EfCore;
 using DataIsland.SqlServer;
 using LinkedServer;
 using Microsoft.Data.SqlClient;
@@ -26,15 +27,43 @@ public class DataIslandFixture : IAsyncLifetime
             .AddComponentPool(sqlServerPool, factory)
             .AddTemplate("default", template =>
             {
+                template.AddDataAccess<AppDbContext>("App db");
+                template.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("App db", "App server");
                 template.AddComponent<SqlServerComponent, SqlServerSpec>(
-                    "Main server",
+                    "App server",
                     spec => spec
                         .WithLinkedServerName(LinkedServerName));
 
-                template.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("tenant", "Main server");
+                template.AddDataAccess<LinkedDbContext>("Linked db");
+                template.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>("Linked db", "Linked server");
+                template.AddComponent<SqlServerComponent, SqlServerSpec>("Linked server");
 
-                template.AddDataAccess<AppDbContext>("tenant");
+                template.AddAfterInit(async (tenants, ct) =>
+                {
+                    var mainDatabase = (SqlDatabaseTenant)tenants
+                        .Single(x => x.TenantName == "App db")
+                        .Instance;
+                    var linkedDb = (SqlDatabaseTenant)tenants
+                        .Single(x => x.TenantName == "Linked db")
+                        .Instance;
+
+                    // This is the database on the linked server.
+                    await using var connection = new SqlConnection(mainDatabase.ConnectionString);
+                    await connection.OpenAsync(ct);
+
+                    // Create the synonym. Synonym is database scoped object, thus each tenant can have
+                    // its own and not interfere with others tenants (=tests).
+                    await using var command = connection.CreateCommand();
+                    command.CommandText = $"""
+                        CREATE SYNONYM [LinkedUsers]
+                            FOR [{LinkedServerName}].[{linkedDb.DatabaseName}].[dbo].[Users]
+                        """;
+                    await command.ExecuteNonQueryAsync(ct);
+                });
             })
+            // TODO: When patcher is missing, no sensible error is thrown
+            .AddPatcher(new EfCorePatcher<AppDbContext>())
+            .AddPatcher(new EfCorePatcher<LinkedDbContext>())
             .Build();
     }
 

@@ -8,12 +8,15 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NoWarn>1701;1702;xUnit1051</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageReference Include="Testcontainers.MsSql" Version="3.10.0" />
@@ -22,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\DataIsland.EfCore\DataIsland.EfCore.csproj" />
     <ProjectReference Include="..\..\src\DataIsland.SqlServer\DataIsland.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\DataIsland.xUnit.v3\DataIsland.xUnit.v3.csproj" />
   </ItemGroup>
