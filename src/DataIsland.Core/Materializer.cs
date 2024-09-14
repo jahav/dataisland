@@ -64,6 +64,8 @@ internal class Materializer : IMaterializer
             }
         }
 
+        await template.ApplyAfterInitAsync(tenants);
+
         return tenants;
     }
 

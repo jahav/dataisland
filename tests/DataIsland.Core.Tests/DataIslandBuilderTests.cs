@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Moq;
 
 namespace DataIsland.Core.Tests;
@@ -100,6 +101,44 @@ public class DataIslandBuilderTests
         await dataIsland.Materializer.MaterializeTenantsAsync("template");
 
         factory.Verify(f => f.AddTenantAsync(It.IsAny<DummyComponent>(), It.Is<DummyTenantSpec>(s => s.Text == "Hello")), Times.Once);
+    }
+
+    #endregion
+
+    #region AddAfterInit
+
+    [Fact]
+    public async Task AfterInit_hook_is_called_after_materialization()
+    {
+        var component = new DummyComponent();
+        var factoryTenant = new DummyTenant();
+        var pool = CreateComponentPoolMock<DummyComponent, DummyComponentSpec>("component", component);
+        var factory = CreateTenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>(component, factoryTenant);
+        var afterInitCalled = false;
+
+        var dataIsland = new DataIslandBuilder()
+            .AddComponentPool(pool.Object, factory.Object)
+            .AddPatcher(Mock.Of<IDependencyPatcher<TestDataAccess>>())
+            .AddTemplate("template", template =>
+            {
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component");
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
+                template.AddDataAccess<TestDataAccess>("tenant");
+                template.AddAfterInit((tenants, _) =>
+                {
+                    afterInitCalled = true;
+                    var afterInitTenant = tenants.Single(x => x.TenantName == "tenant").Instance;
+                    Assert.Same(factoryTenant, afterInitTenant);
+                    return Task.CompletedTask;
+                });
+            })
+            .Build();
+
+        Assert.False(afterInitCalled, "Shouldn't be called before materialization.");
+
+        await dataIsland.Materializer.MaterializeTenantsAsync("template");
+
+        Assert.True(afterInitCalled);
     }
 
     #endregion
@@ -214,6 +253,30 @@ public class DataIslandBuilderTests
     #endregion
 
     #endregion
+
+    private static Mock<IComponentPool<TComponent, TComponentSpec>> CreateComponentPoolMock<TComponent, TComponentSpec>(string name, TComponent component)
+        where TComponentSpec : ComponentSpec<TComponent>
+    {
+        var poolMock = new Mock<IComponentPool<TComponent, TComponentSpec>>();
+        poolMock
+            .Setup(p => p.AcquireComponentsAsync(It.Is<IReadOnlyDictionary<string, TComponentSpec>>(d => d.Count == 1 && d.ContainsKey(name))))
+            .ReturnsAsync(new Dictionary<string, TComponent> { { name, component } });
+
+        return poolMock;
+    }
+
+    private static Mock<ITenantFactory<TTenant, TComponent, TTenantSpec>> CreateTenantFactory<TTenant, TComponent, TTenantSpec>(
+        TComponent component, TTenant tenant, Expression<Func<TTenantSpec, bool>>? match = null)
+        where TTenantSpec : TenantSpec<TTenant>
+    {
+        match ??= _ => true;
+        var factory = new Mock<ITenantFactory<TTenant, TComponent, TTenantSpec>>();
+        factory
+            .Setup(f => f.AddTenantAsync(It.Is<TComponent>(c => ReferenceEquals(c, component)), It.Is(match)))
+            .ReturnsAsync(tenant);
+
+        return factory;
+    }
 
     [UsedImplicitly]
     public class TestDataAccess;
