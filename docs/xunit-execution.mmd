@@ -15,7 +15,7 @@ sequenceDiagram
         loop For each test in collection
             xUnit->>xUnit:Get template name<br/> from [ApplyTemplate]
             xUnit->>Materializer:Instantiate tenants(template name)
-            note over Materializer: Materialize gets components<br> from pools and creates<br> appropritate tenants on them.
+            note over Materializer: Materialize gets components<br/> from pools and creates<br/> appropritate tenants on them.
             Materializer-->>xUnit:Tenants
             xUnit->>xUnit:Store tenants<br/>in TestContext
             xUnit->>+Test:Start execution

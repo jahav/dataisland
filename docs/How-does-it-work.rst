@@ -1,8 +1,8 @@
 How does it work?
 =================
 
-Principle
----------
+Principles
+----------
 
 DataIsland is designed to manage test environments efficiently by creating isolated tenants for each test case. Tenants could include SQL databases, RabbitMQ virtual hosts, or blob containers. Creating these tenants is quick and resource-light, typically taking only a few hundred milliseconds and a few megabytes of storage.
 
