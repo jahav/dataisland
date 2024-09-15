@@ -5,7 +5,7 @@ sequenceDiagram
     participant Materializer
 
     xUnit->xUnit:Create DataIsland  fixture
-    note right of xUnit: Assembly fixture is initialized<br/> at the start of assembly test execution.
+    note right of xUnit: Assembly fixture is initialized<br/> at the start of assembly test execution.<br/> Pool for components (e.g. docker container<br/> instantiation) is done here.
     xUnit->xUnit:Initialize DataIsland fixture
 
     par xUnit executes each collection in parallel
@@ -14,7 +14,8 @@ sequenceDiagram
         note right of xUnit: Collection fixture uses assembly fixture<br/> to patch DI, so it will instantiate<br/> services using tenants materialized<br/> for the test.
         loop For each test in collection
             xUnit->>xUnit:Get template name<br/> from [ApplyTemplate]
-            xUnit->>Materializer:Instatiate tenants(template name)
+            xUnit->>Materializer:Instantiate tenants(template name)
+            note over Materializer: Materialize gets components<br> from pools and creates<br> appropritate tenants on them.
             Materializer-->>xUnit:Tenants
             xUnit->>xUnit:Store tenants<br/>in TestContext
             xUnit->>+Test:Start execution
@@ -25,7 +26,7 @@ sequenceDiagram
             Test-->>xUnit:Execution ended
             xUnit->>Materializer:Dispose of tenants
             Materializer-->>xUnit:.
-        end        
+        end
     end
 
     xUnit->xUnit:Dispose of DataIsland fixture
