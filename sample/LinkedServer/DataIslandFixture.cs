@@ -61,7 +61,6 @@ public class DataIslandFixture : IAsyncLifetime
                     await command.ExecuteNonQueryAsync(ct);
                 });
             })
-            // TODO: When patcher is missing, no sensible error is thrown
             .AddPatcher(new EfCorePatcher<AppDbContext>())
             .AddPatcher(new EfCorePatcher<LinkedDbContext>())
             .Build();

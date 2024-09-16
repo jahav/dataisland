@@ -24,6 +24,7 @@ public class MaterializerTests
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
                 template.AddDataAccess<DummyDataAccess>("tenant");
             })
+            .AddPatcher(Mock.Of<IDependencyPatcher<DummyDataAccess>>())
             .Build();
 
         var a = await dataIsland.Materializer.MaterializeTenantsAsync("template name");
@@ -70,6 +71,7 @@ public class MaterializerTests
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
                 template.AddDataAccess<DummyDataAccess>("tenant");
             })
+            .AddPatcher(Mock.Of<IDependencyPatcher<DummyDataAccess>>())
             .Build();
 
         var tenants = await dataIsland.Materializer.MaterializeTenantsAsync("template");

@@ -118,6 +118,14 @@ public class DataIslandBuilder
             {
                 throw new InvalidOperationException($"Template '{templateName}' doesn't specify any data access. Add it by using tenant.AddDataAccess method.");
             }
+
+            foreach (var dataAccessType in template._dataAccess.Keys)
+            {
+                if (!_patchers.ContainsKey(dataAccessType))
+                {
+                    throw new InvalidOperationException($"Data access {dataAccessType.Name} is used by a template '{templateName}', but doesn't have a patcher. Define patcher with a DataIslandBuilder.AddPatcher() method.");
+                }
+            }
         }
 
         var patchersCopy = new Dictionary<Type, IDependencyPatcher>(_patchers);
