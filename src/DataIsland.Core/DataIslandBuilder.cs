@@ -36,7 +36,7 @@ public class DataIslandBuilder
     /// <exception cref="ArgumentException">Component pool for the <typeparamref name="TComponent"/> has already been registered.</exception>
     public DataIslandBuilder AddComponentPool<TComponent, TComponentSpec, TTenant, TTenantSpec>(
         IComponentPool<TComponent, TComponentSpec> componentPool,
-        ITenantFactory<TTenant, TComponent, TTenantSpec> tenantFactory)
+        ITenantFactory<TComponent, TTenant, TTenantSpec> tenantFactory)
         where TComponentSpec : ComponentSpec<TComponent>
         where TTenantSpec : TenantSpec<TTenant>
     {

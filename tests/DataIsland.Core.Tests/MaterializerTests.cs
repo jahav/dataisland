@@ -13,7 +13,7 @@ public class MaterializerTests
         pool.Setup(x => x.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, DummyComponentSpec>>()))
             .ReturnsAsync(new Dictionary<string, DummyComponent> { { "component", component } });
 
-        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var factory = new Mock<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>();
         factory.Setup(x => x.AddTenantAsync(component, It.IsAny<DummyTenantSpec>())).ReturnsAsync(tenant);
 
         var dataIsland = new DataIslandBuilder()
@@ -41,7 +41,7 @@ public class MaterializerTests
     public async Task Nonexistent_template_throws_exception()
     {
         var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
-        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var factory = new Mock<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>();
         var dataIsland = new DataIslandBuilder()
             .AddComponentPool(pool.Object, factory.Object)
             .Build();
@@ -60,7 +60,7 @@ public class MaterializerTests
         pool.Setup(x => x.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, DummyComponentSpec>>()))
             .ReturnsAsync(new Dictionary<string, DummyComponent> { { "component", component } });
 
-        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var factory = new Mock<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>();
         factory.Setup(f => f.AddTenantAsync(component, It.IsAny<DummyTenantSpec>())).ReturnsAsync(tenant);
 
         var dataIsland = new DataIslandBuilder()

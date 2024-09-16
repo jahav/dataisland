@@ -47,7 +47,7 @@ public class DataIslandTests
     public async Task DataIsland_initializes_and_disposes_of_pools()
     {
         var pool = new Mock<IComponentPool<DummyComponent, DummyComponentSpec>>();
-        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var factory = new Mock<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>();
         var sut = new DataIslandBuilder()
             .AddComponentPool(pool.Object, factory.Object)
             .Build();
