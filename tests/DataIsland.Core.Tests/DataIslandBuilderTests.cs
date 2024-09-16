@@ -46,7 +46,9 @@ public class DataIslandBuilderTests
                 template.AddDataAccess<TestDataAccess>("tenant");
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component", spec => spec.WithNumber(5));
-            }).Build();
+            })
+            .AddPatcher(Mock.Of<IDependencyPatcher<TestDataAccess>>())
+            .Build();
 
         dataIsland.Materializer.MaterializeTenantsAsync("template");
 
@@ -96,7 +98,9 @@ public class DataIslandBuilderTests
                 template.AddDataAccess<TestDataAccess>("tenant");
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component", spec => spec.WithText("Hello"));
                 template.AddComponent<DummyComponent, DummyComponentSpec>("component");
-            }).Build();
+            })
+            .AddPatcher(Mock.Of<IDependencyPatcher<TestDataAccess>>())
+            .Build();
 
         await dataIsland.Materializer.MaterializeTenantsAsync("template");
 
@@ -252,7 +256,49 @@ public class DataIslandBuilderTests
 
     #endregion
 
+    #region Patchers
+
+    [Fact]
+    public void All_data_access_types_must_have_patcher()
+    {
+        var builder = StartBuilder<DummyComponent, DummyComponentSpec, DummyTenant, DummyTenantSpec>();
+        builder = builder
+            .AddTemplate("template name", template =>
+            {
+                template.AddDataAccess<TestDataAccess>("tenant");
+                template.AddDataAccess<TestDataAccess2>("tenant");
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component");
+            })
+            .AddPatcher(Mock.Of<IDependencyPatcher<TestDataAccess>>());
+
+        var ex = Assert.Throws<InvalidOperationException>(() => builder.Build());
+        Assert.Equal("Data access TestDataAccess2 is used by a template 'template name', but doesn't have a patcher. Define patcher with a DataIslandBuilder.AddPatcher() method.", ex.Message);
+    }
+
     #endregion
+
+    #endregion
+
+    private static DataIslandBuilder StartBuilder<TComponent, TComponentSpec, TTenant, TTenantSpec>()
+        where TComponent : new()
+        where TComponentSpec : ComponentSpec<TComponent>
+        where TTenant : new()
+        where TTenantSpec : TenantSpec<TTenant>
+    {
+        var poolMock = new Mock<IComponentPool<TComponent, TComponentSpec>>();
+        poolMock
+            .Setup(p => p.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, TComponentSpec>>()))
+            .ReturnsAsync((IReadOnlyDictionary<string, TComponentSpec> a) => a.ToDictionary(b => b.Key, _ => new TComponent()));
+
+        var factoryMock = new Mock<ITenantFactory<TTenant, TComponent, TTenantSpec>>();
+        factoryMock
+            .Setup(f => f.AddTenantAsync(It.IsAny<TComponent>(), It.IsAny<TTenantSpec>()))
+            .ReturnsAsync((TComponent _, TTenantSpec _) => new TTenant());
+
+        return new DataIslandBuilder()
+            .AddComponentPool(poolMock.Object, factoryMock.Object);
+    }
 
     private static Mock<IComponentPool<TComponent, TComponentSpec>> CreateComponentPoolMock<TComponent, TComponentSpec>(string name, TComponent component)
         where TComponentSpec : ComponentSpec<TComponent>
