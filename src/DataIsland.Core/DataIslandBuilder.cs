@@ -82,6 +82,7 @@ public class DataIslandBuilder
     ///     from <typeparamref name="TTenant"/>.</param>
     /// <returns>This data builder for fluent API.</returns>
     public DataIslandBuilder AddPatcher<TDataAccess, TTenant>(Func<IServiceProvider, TTenant, TDataAccess> factoryMethod)
+        where TDataAccess : notnull
         where TTenant : class
     {
         return AddPatcher(new LambdaPatcher<TDataAccess, TTenant>(factoryMethod));
