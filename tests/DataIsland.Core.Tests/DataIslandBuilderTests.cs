@@ -30,7 +30,7 @@ public class DataIslandBuilderTests
         var tenant = new DummyTenant();
         var patchedDataAccess = new TestDataAccess();
         var poolMock = CreateComponentPoolMock<DummyComponent, DummyComponentSpec>("component", component);
-        var factoryMock = CreateTenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>(component, tenant);
+        var factoryMock = CreateTenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>(component, tenant);
         var patcherCalled = false;
         var island = new DataIslandBuilder()
             .AddTemplate("template", template =>
@@ -103,7 +103,7 @@ public class DataIslandBuilderTests
                 retrievedNumber = p.Single().Value.Number;
                 return new Dictionary<string, DummyComponent> { { "tenant", new DummyComponent() } };
             });
-        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var factory = new Mock<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>();
         var dataIsland = new DataIslandBuilder()
             .AddComponentPool(pool.Object, factory.Object)
             .AddTemplate("template", template =>
@@ -127,14 +127,14 @@ public class DataIslandBuilderTests
 
         builder.AddComponentPool(
             Mock.Of<IComponentPool<DummyComponent, DummyComponentSpec>>(),
-            Mock.Of<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>());
+            Mock.Of<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>());
 
         var ex = Assert.Throws<ArgumentException>(() =>
         {
             // Try to register same component with a different name.
             builder.AddComponentPool(
                 Mock.Of<IComponentPool<DummyComponent, DummyComponentSpec>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>());
+                Mock.Of<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>());
         });
         Assert.Equal("Component pool for DummyComponent is already registered.", ex.Message);
     }
@@ -151,7 +151,7 @@ public class DataIslandBuilderTests
             .Setup(p => p.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, DummyComponentSpec>>()))
             .ReturnsAsync(new Dictionary<string, DummyComponent> { { "component", new DummyComponent() } });
 
-        var factory = new Mock<ITenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>>();
+        var factory = new Mock<ITenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>>();
         factory
             .Setup(f => f.AddTenantAsync(It.IsAny<DummyComponent>(), It.Is<DummyTenantSpec>(s => s.Text == "Hello")))
             .ReturnsAsync(new DummyTenant());
@@ -182,7 +182,7 @@ public class DataIslandBuilderTests
         var component = new DummyComponent();
         var factoryTenant = new DummyTenant();
         var pool = CreateComponentPoolMock<DummyComponent, DummyComponentSpec>("component", component);
-        var factory = CreateTenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>(component, factoryTenant);
+        var factory = CreateTenantFactory<DummyComponent, DummyTenant, DummyTenantSpec>(component, factoryTenant);
         var afterInitCalled = false;
 
         var dataIsland = new DataIslandBuilder()
@@ -250,7 +250,7 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder()
             .AddComponentPool(
                 Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+                Mock.Of<ITenantFactory<DummyComponent, DummyTenant, TenantSpec<DummyTenant>>>())
             .AddTemplate("template name", template =>
             {
                 // No data access
@@ -272,7 +272,7 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder()
             .AddComponentPool(
                 Mock.Of<IComponentPool<DummyComponent2, ComponentSpec<DummyComponent2>>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent2, TenantSpec<DummyTenant>>>())
+                Mock.Of<ITenantFactory<DummyComponent2, DummyTenant, TenantSpec<DummyTenant>>>())
             .AddTemplate("template name", template =>
             {
                 template.AddDataAccess<TestDataAccess>("tenant");
@@ -293,7 +293,7 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder()
             .AddComponentPool(
                 Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+                Mock.Of<ITenantFactory<DummyComponent, DummyTenant, TenantSpec<DummyTenant>>>())
             .AddTemplate("template name", template =>
             {
                 template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component name");
@@ -309,7 +309,7 @@ public class DataIslandBuilderTests
         var builder = new DataIslandBuilder()
             .AddComponentPool(
                 Mock.Of<IComponentPool<DummyComponent, ComponentSpec<DummyComponent>>>(),
-                Mock.Of<ITenantFactory<DummyTenant, DummyComponent, TenantSpec<DummyTenant>>>())
+                Mock.Of<ITenantFactory<DummyComponent, DummyTenant, TenantSpec<DummyTenant>>>())
             .AddTemplate("template name", template =>
             {
                 template.AddComponent<DummyComponent, DummyComponentSpec>("unused component");
@@ -356,7 +356,7 @@ public class DataIslandBuilderTests
             .Setup(p => p.AcquireComponentsAsync(It.IsAny<IReadOnlyDictionary<string, TComponentSpec>>()))
             .ReturnsAsync((IReadOnlyDictionary<string, TComponentSpec> a) => a.ToDictionary(b => b.Key, _ => new TComponent()));
 
-        var factoryMock = new Mock<ITenantFactory<TTenant, TComponent, TTenantSpec>>();
+        var factoryMock = new Mock<ITenantFactory<TComponent, TTenant, TTenantSpec>>();
         factoryMock
             .Setup(f => f.AddTenantAsync(It.IsAny<TComponent>(), It.IsAny<TTenantSpec>()))
             .ReturnsAsync((TComponent _, TTenantSpec _) => new TTenant());
@@ -376,12 +376,12 @@ public class DataIslandBuilderTests
         return poolMock;
     }
 
-    private static Mock<ITenantFactory<TTenant, TComponent, TTenantSpec>> CreateTenantFactory<TTenant, TComponent, TTenantSpec>(
+    private static Mock<ITenantFactory<TComponent, TTenant, TTenantSpec>> CreateTenantFactory<TComponent, TTenant, TTenantSpec>(
         TComponent component, TTenant tenant, Expression<Func<TTenantSpec, bool>>? match = null)
         where TTenantSpec : TenantSpec<TTenant>
     {
         match ??= _ => true;
-        var factory = new Mock<ITenantFactory<TTenant, TComponent, TTenantSpec>>();
+        var factory = new Mock<ITenantFactory<TComponent, TTenant, TTenantSpec>>();
         factory
             .Setup(f => f.AddTenantAsync(It.Is<TComponent>(c => ReferenceEquals(c, component)), It.Is(match)))
             .ReturnsAsync(tenant);

@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 
 namespace DataIsland.SqlServer;
 
-public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlDatabaseTenant, SqlServerComponent, SqlDatabaseSpec>
+public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlServerComponent, SqlDatabaseTenant, SqlDatabaseSpec>
 {
     private readonly string _basePath;
 

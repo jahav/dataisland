@@ -6,11 +6,11 @@ namespace DataIsland;
 /// <summary>
 /// A factory that creates and removes tenants on a component.
 /// </summary>
-/// <typeparam name="TTenant">Type of tenant this factory is creating.</typeparam>
 /// <typeparam name="TComponent">The component where this factory is creating <typeparamref name="TTenant"/>.</typeparam>
+/// <typeparam name="TTenant">Type of tenant this factory is creating.</typeparam>
 /// <typeparam name="TTenantSpec">The tenant specification, each tenant created by the factory will satisfy the specification.</typeparam>
 [PublicAPI]
-public interface ITenantFactory<TTenant, in TComponent, in TTenantSpec>
+public interface ITenantFactory<in TComponent, TTenant, in TTenantSpec>
     where TTenantSpec : TenantSpec<TTenant>
 {
     /// <summary>
