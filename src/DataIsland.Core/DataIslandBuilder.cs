@@ -62,6 +62,31 @@ public class DataIslandBuilder
         return this;
     }
 
+    /// <summary>
+    /// <para>
+    /// Add a custom patcher that resolves the data access from a tenant and service provider.
+    /// </para>
+    /// <para>
+    /// An example of usage: Create a SQL connection to a database created in a test. Note that it
+    /// is still necessary to open the connection:
+    /// <code>
+    ///   builder.AddPatcher&lt;SqlConnection, SqlDatabaseTenant&gt;(
+    ///     (sp, db) => new SqlConnection(db.ConnectionString));
+    /// </code>
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TDataAccess">Type of service to resolve. A library to access <typeparamref name="TTenant"/>.</typeparam>
+    /// <typeparam name="TTenant">A data store.</typeparam>
+    /// <param name="factoryMethod">A factory method that will receive tenant instantiated for a
+    ///     test and should return instance of <typeparamref name="TDataAccess"/> that accesses data
+    ///     from <typeparamref name="TTenant"/>.</param>
+    /// <returns>This data builder for fluent API.</returns>
+    public DataIslandBuilder AddPatcher<TDataAccess, TTenant>(Func<IServiceProvider, TTenant, TDataAccess> factoryMethod)
+        where TTenant : class
+    {
+        return AddPatcher(new LambdaPatcher<TDataAccess, TTenant>(factoryMethod));
+    }
+
     public IDataIsland Build()
     {
         foreach (var (templateName, template) in _templates)
