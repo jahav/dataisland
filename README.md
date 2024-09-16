@@ -30,9 +30,9 @@ The QuickStart assumes that there is only one database and it is accessed throug
 ```sh
 dotnet new install xunit.v3.templates
 dotnet new xunit3
-dotnet add package DataIsland.SqlServer -v 1.0.3-beta2
-dotnet add package DataIsland.EfCore -v 1.0.3-beta2
-dotnet add package DataIsland.xUnit.v3 -v 1.0.3-beta2
+dotnet add package DataIsland.SqlServer -v 1.0.3-beta3
+dotnet add package DataIsland.EfCore -v 1.0.3-beta3
+dotnet add package DataIsland.xUnit.v3 -v 1.0.3-beta3
 ```
 
 ### 1. Define template
@@ -55,15 +55,15 @@ public class DataIslandFixture
         // Factory used by materializer to create database for each test. Need a place to store mdf/ldf for test databases.
         var databaseFactory = new SqlDatabaseTenantFactory(@"c:\Temp\dataisland\files");
         Island = new DataIslandBuilder()
-            .AddComponentPool("SQL Server", sqlServerPool, databaseFactory)
+            .AddComponentPool(sqlServerPool, databaseFactory)
             .AddPatcher(new EfCorePatcher<MyDbContext>())
-            .AddTemplate("Template name", opt =>
+            .AddTemplate("Template name", template =>
             {
                 // Database is accessed through EFCore with a DbContext MyDbContext
-                opt.AddDataAccess<MyDbContext>("SQL Database");
+                template.AddDataAccess<MyDbContext>("SQL Database");
 
                 // Materializer will create database for each test on "SQL Server" pool.
-                opt.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>(
+                template.AddTenant<SqlDatabaseTenant, SqlDatabaseSpec>(
                     "SQL Database",
                     "SQL Server",
                     spec => spec
@@ -73,7 +73,7 @@ public class DataIslandFixture
                 // This template is using "Sql Server" pool.
                 opt.AddComponent<SqlServerComponent, SqlServerSpec>("SQL Server");
             })
-            .BuildInProc();
+            .Build();
     }
 
     public IDataIsland Island { get; }
@@ -96,7 +96,7 @@ public class ClassFixture
         services.AddDbContext<MyDbContext>(opt => opt.UseSqlServer("doesn't matter, will be replaced"));
 
         // Patch DI. This method must be last! It is overriding previous service registrations.
-        services.AddDataIsland<ClassFixture>(dataIslandFixture.Island);
+        services.AddDataIslandInProc<ClassFixture>(dataIslandFixture.Island);
         ServiceProvider = services.BuildServiceProvider();
     }
 
