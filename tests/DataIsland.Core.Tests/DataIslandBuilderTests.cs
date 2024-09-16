@@ -1,5 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
 namespace DataIsland.Core.Tests;
@@ -18,6 +20,69 @@ public class DataIslandBuilderTests
 
         var ex = Assert.Throws<ArgumentException>(() => sut.AddPatcher(patcher2.Object));
         Assert.StartsWith("An item with the same key has already been added.", ex.Message);
+    }
+
+    [Fact]
+    public void Custom_patcher_patches_services_and_uses_resolved_tenant()
+    {
+        // Arrange
+        var component = new DummyComponent();
+        var tenant = new DummyTenant();
+        var patchedDataAccess = new TestDataAccess();
+        var poolMock = CreateComponentPoolMock<DummyComponent, DummyComponentSpec>("component", component);
+        var factoryMock = CreateTenantFactory<DummyTenant, DummyComponent, DummyTenantSpec>(component, tenant);
+        var patcherCalled = false;
+        var island = new DataIslandBuilder()
+            .AddTemplate("template", template =>
+            {
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component");
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
+                template.AddDataAccess<TestDataAccess>("tenant");
+            })
+            .AddComponentPool(poolMock.Object, factoryMock.Object)
+            .AddPatcher<TestDataAccess, DummyTenant>((_, patcherTenant) =>
+            {
+                patcherCalled = true;
+                Assert.Same(tenant, patcherTenant);
+                return patchedDataAccess;
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddScoped<TestDataAccess>();
+        var testContext = new Mock<ITestContext>();
+        testContext.Setup(x => x.GetTenant<DummyTenant>(typeof(TestDataAccess))).Returns(tenant);
+        services.AddSingleton(testContext.Object);
+
+        // Act
+        island.PatchServices(services);
+        var serviceProvider = services.BuildServiceProvider();
+        var resolvedDataAccess = serviceProvider.GetRequiredService<TestDataAccess>();
+
+        // Assert
+        Assert.True(patcherCalled);
+        Assert.Same(patchedDataAccess, resolvedDataAccess);
+    }
+
+    [Fact]
+    public void Custom_patcher_requires_existing_service()
+    {
+        // Arrange
+        var island = StartBuilder<DummyComponent, DummyComponentSpec, DummyTenant, DummyTenantSpec>()
+            .AddTemplate("template", template =>
+            {
+                template.AddComponent<DummyComponent, DummyComponentSpec>("component");
+                template.AddTenant<DummyTenant, DummyTenantSpec>("tenant", "component");
+                template.AddDataAccess<TestDataAccess>("tenant");
+            })
+            .AddPatcher<TestDataAccess, DummyTenant>((_, _) => throw new UnreachableException())
+            .Build();
+        var services = new ServiceCollection();
+
+        // Act
+        var ex = Assert.Throws<InvalidOperationException>(() => island.PatchServices(services));
+
+        // Assert
+        Assert.Equal("Service DataIsland.Core.Tests.DataIslandBuilderTests+TestDataAccess isn't in the service collection - it can't be patched. Ensure the service is registered as a service before calling the patch method to patch the registration.", ex.Message);
     }
 
     #endregion

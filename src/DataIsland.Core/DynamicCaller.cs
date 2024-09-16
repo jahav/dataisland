@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 using ITenantFactory = object;
 using IDependencyPatcher = object;
@@ -16,7 +17,14 @@ internal static class DynamicCaller
         var patcherInterface = typeof(IDependencyPatcher<>).MakeGenericType(dataAccessType);
         var registerMethod = patcherInterface.GetMethod("Register");
         Debug.Assert(registerMethod is not null);
-        registerMethod.Invoke(patcher, [services]);
+        try
+        {
+            registerMethod.Invoke(patcher, [services]);
+        }
+        catch (TargetInvocationException ex)
+        {
+            throw ex.GetBaseException();
+        }
     }
 
     /// <inheritdoc cref="IComponentPool{TComponent,TComponentSpec}.AcquireComponentsAsync"/>
