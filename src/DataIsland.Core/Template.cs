@@ -49,7 +49,7 @@ public class Template
         return this;
     }
 
-    public void AddTenant<TTenant, TTenantSpec>(string tenantName, string componentName, Func<TTenantSpec, TTenantSpec>? config = null)
+    public Template AddTenant<TTenant, TTenantSpec>(string tenantName, string componentName, Func<TTenantSpec, TTenantSpec>? config = null)
         where TTenantSpec : TenantSpec<TTenant>, new()
     {
         var spec = new TTenantSpec
@@ -58,23 +58,26 @@ public class Template
         };
         spec = config?.Invoke(spec) ?? spec;
         _tenants.Add(tenantName, spec);
+        return this;
     }
 
-    public void AddComponent<TComponent, TComponentSpec>(string componentName, Func<TComponentSpec, TComponentSpec>? config = null)
+    public Template AddComponent<TComponent, TComponentSpec>(string componentName, Func<TComponentSpec, TComponentSpec>? config = null)
         where TComponentSpec : ComponentSpec<TComponent>, new()
     {
         var spec = new TComponentSpec();
         spec = config?.Invoke(spec) ?? spec;
         _components.Add(componentName, spec);
+        return this;
     }
 
     /// <summary>
     /// Add a hook that is called after tenants are created, but before the test method is being executed.
     /// </summary>
     /// <param name="hook">A function that receives all created for a test.</param>
-    public void AddAfterInit(Func<IReadOnlyCollection<Tenant>, CancellationToken, Task> hook)
+    public Template AddAfterInit(Func<IReadOnlyCollection<Tenant>, CancellationToken, Task> hook)
     {
         _afterInitHooks.Add(hook);
+        return this;
     }
 
     internal async Task ApplyAfterInitAsync(IReadOnlyCollection<Tenant> tenants)
