@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<WebApi.AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppDb"))
 );
 
 var app = builder.Build();
 
-app.MapGet("/db-name", async (AppDbContext dbContext) =>
+app.MapGet("/db-name", async (WebApi.AppDbContext dbContext) =>
 {
     // Wait a little before and after, so we know two requests are handled at the same time.
     await Task.Delay(2500);
@@ -18,9 +18,12 @@ app.MapGet("/db-name", async (AppDbContext dbContext) =>
     return Results.Text(dbName);
 });
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options)
-    : DbContext(options);
+namespace WebApi
+{
+    public class AppDbContext(DbContextOptions<AppDbContext> options)
+        : DbContext(options);
+}

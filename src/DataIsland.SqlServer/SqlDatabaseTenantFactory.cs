@@ -30,7 +30,7 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlServerComponent
 
         // Because connection string of component doesn't differ, it will be pooled.
         using var connection = new SqlConnection(component.ConnectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var command = connection.CreateCommand();
         if (!spec.HasDataSource)
@@ -61,12 +61,16 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlServerComponent
             command.CommandText = cmd.ToString();
         }
 
-        command.ExecuteNonQuery();
+        await command.ExecuteNonQueryAsync();
 
         if (spec.MaxDop is { } maxDop)
             await SetMaxDopAsync(connection, tenantDbName, maxDop);
 
+#if NET6_0_OR_GREATER
+        await connection.CloseAsync();
+#else
         connection.Close();
+#endif
 
         var tenantConnectionString = new SqlConnectionStringBuilder(component.ConnectionString)
         {
