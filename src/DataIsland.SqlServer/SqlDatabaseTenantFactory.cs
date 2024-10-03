@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
@@ -87,11 +88,21 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlServerComponent
         connection.Open();
 
         var dropConnections = connection.CreateCommand();
-        dropConnections.CommandText = $"ALTER DATABASE [{tenant.DatabaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE";
+        dropConnections.CommandText = """
+                                      USE [master];
+                                      
+                                      DECLARE @kill varchar(8000) = '';  
+                                      SELECT @kill = @kill + 'kill ' + CONVERT(varchar(5), session_id) + ';'  
+                                      FROM sys.dm_exec_sessions
+                                      WHERE database_id  = db_id(@db)
+                                      
+                                      EXEC(@kill);
+                                      """;
+        dropConnections.Parameters.Add("@db", SqlDbType.NVarChar, 128).Value = tenant.DatabaseName;
         dropConnections.ExecuteNonQuery();
 
         var createDatabaseCommand = connection.CreateCommand();
-        createDatabaseCommand.CommandText = $"DROP DATABASE [{tenant.DatabaseName}]";
+        createDatabaseCommand.CommandText = $"DROP DATABASE [{EscapeDbName(tenant.DatabaseName)}]";
         createDatabaseCommand.ExecuteNonQuery();
         connection.Close();
         return Task.FromResult(true);
