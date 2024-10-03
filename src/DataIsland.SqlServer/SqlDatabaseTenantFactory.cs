@@ -42,7 +42,6 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlServerComponent
             var escapedPath = EscapePath(spec.DataSource);
             var files = GetLogicalFiles(connection, spec.DataSource, spec.File.Value);
             var cmd = new StringBuilder($"""
-                    DBCC TRACEON(1800, -1);
                     RESTORE DATABASE [{EscapeDbName(tenantDbName)}]
                         FROM DISK = '{escapedPath}'
                         WITH
