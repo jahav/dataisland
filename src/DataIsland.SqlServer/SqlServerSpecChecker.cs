@@ -15,7 +15,11 @@ internal static class SqlServerSpecChecker
             var command = connection.CreateCommand();
             command.CommandText = "SELECT SERVERPROPERTY('Collation')";
             var collation = (string?)await command.ExecuteScalarAsync();
+#if NET6_0_OR_GREATER
+            await connection.CloseAsync();
+#else
             connection.Close();
+#endif
             if (collation != componentSpec.Collation)
                 return $"Unable to find a server with collation {componentSpec.Collation}.";
         }
@@ -38,7 +42,11 @@ internal static class SqlServerSpecChecker
                                   """;
             var clrConfigValue = (int?)await command.ExecuteScalarAsync();
             var actualClrEnabled = clrConfigValue is not null && clrConfigValue.Value != 0;
+#if NET6_0_OR_GREATER
+            await connection.CloseAsync();
+#else
             connection.Close();
+#endif
             if (actualClrEnabled != desiredClrEnabled)
                 return $"Unable to find a server with clr {(desiredClrEnabled ? "enabled" : "disabled")}.";
         }
