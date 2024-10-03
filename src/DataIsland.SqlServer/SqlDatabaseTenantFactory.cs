@@ -113,13 +113,15 @@ public sealed class SqlDatabaseTenantFactory : ITenantFactory<SqlServerComponent
         // TODO: Don't do on every tenant
         var logicalFiles = new List<BackupFile>();
         var query = connection.CreateCommand();
-        query.CommandText = $"""
-                RESTORE FILELISTONLY
-                FROM DISK = N'{EscapePath(diskPath)}'
-                WITH
-                    FILE = {file},
-                    NOUNLOAD
-""";
+        query.CommandText = """
+                            RESTORE FILELISTONLY
+                            FROM DISK = @path
+                            WITH
+                                FILE = @file,
+                                NOUNLOAD
+                            """;
+        query.Parameters.Add("@path", SqlDbType.NVarChar, 1024).Value = diskPath;
+        query.Parameters.Add("@file", SqlDbType.Int).Value = file;
         using var reader = query.ExecuteReader();
         var logicalNameOrdinal = reader.GetOrdinal("LogicalName");
         var typeOrdinal = reader.GetOrdinal("Type");
